@@ -9,6 +9,10 @@ import (
 	"reflect"
 	"sync"
 	"wishlist-wrangler-api/ent/user"
+	"wishlist-wrangler-api/ent/wishlist"
+	"wishlist-wrangler-api/ent/wishlistsection"
+	"wishlist-wrangler-api/ent/wishlisttemplate"
+	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -73,7 +77,11 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			user.Table:                    user.ValidColumn,
+			wishlist.Table:                wishlist.ValidColumn,
+			wishlistsection.Table:         wishlistsection.ValidColumn,
+			wishlisttemplate.Table:        wishlisttemplate.ValidColumn,
+			wishlisttemplatesection.Table: wishlisttemplatesection.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

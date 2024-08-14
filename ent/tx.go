@@ -14,6 +14,14 @@ type Tx struct {
 	config
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// Wishlist is the client for interacting with the Wishlist builders.
+	Wishlist *WishlistClient
+	// WishlistSection is the client for interacting with the WishlistSection builders.
+	WishlistSection *WishlistSectionClient
+	// WishlistTemplate is the client for interacting with the WishlistTemplate builders.
+	WishlistTemplate *WishlistTemplateClient
+	// WishlistTemplateSection is the client for interacting with the WishlistTemplateSection builders.
+	WishlistTemplateSection *WishlistTemplateSectionClient
 
 	// lazily loaded.
 	client     *Client
@@ -146,6 +154,10 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.User = NewUserClient(tx.config)
+	tx.Wishlist = NewWishlistClient(tx.config)
+	tx.WishlistSection = NewWishlistSectionClient(tx.config)
+	tx.WishlistTemplate = NewWishlistTemplateClient(tx.config)
+	tx.WishlistTemplateSection = NewWishlistTemplateSectionClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

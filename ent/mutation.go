@@ -7,10 +7,17 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 	"wishlist-wrangler-api/ent/predicate"
+	"wishlist-wrangler-api/ent/user"
+	"wishlist-wrangler-api/ent/wishlist"
+	"wishlist-wrangler-api/ent/wishlistsection"
+	"wishlist-wrangler-api/ent/wishlisttemplate"
+	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 const (
@@ -22,7 +29,11 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeUser = "User"
+	TypeUser                    = "User"
+	TypeWishlist                = "Wishlist"
+	TypeWishlistSection         = "WishlistSection"
+	TypeWishlistTemplate        = "WishlistTemplate"
+	TypeWishlistTemplateSection = "WishlistTemplateSection"
 )
 
 // UserMutation represents an operation that mutates the User nodes in the graph.
@@ -30,7 +41,11 @@ type UserMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *uuid.UUID
+	displayName   *string
+	email         *string
+	created_at    *time.Time
+	status        *user.Status
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*User, error)
@@ -57,7 +72,7 @@ func newUserMutation(c config, op Op, opts ...userOption) *UserMutation {
 }
 
 // withUserID sets the ID field of the mutation.
-func withUserID(id int) userOption {
+func withUserID(id uuid.UUID) userOption {
 	return func(m *UserMutation) {
 		var (
 			err   error
@@ -107,9 +122,15 @@ func (m UserMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of User entities.
+func (m *UserMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserMutation) ID() (id int, exists bool) {
+func (m *UserMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -120,12 +141,12 @@ func (m *UserMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *UserMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *UserMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -133,6 +154,150 @@ func (m *UserMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetDisplayName sets the "displayName" field.
+func (m *UserMutation) SetDisplayName(s string) {
+	m.displayName = &s
+}
+
+// DisplayName returns the value of the "displayName" field in the mutation.
+func (m *UserMutation) DisplayName() (r string, exists bool) {
+	v := m.displayName
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDisplayName returns the old "displayName" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldDisplayName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDisplayName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDisplayName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDisplayName: %w", err)
+	}
+	return oldValue.DisplayName, nil
+}
+
+// ResetDisplayName resets all changes to the "displayName" field.
+func (m *UserMutation) ResetDisplayName() {
+	m.displayName = nil
+}
+
+// SetEmail sets the "email" field.
+func (m *UserMutation) SetEmail(s string) {
+	m.email = &s
+}
+
+// Email returns the value of the "email" field in the mutation.
+func (m *UserMutation) Email() (r string, exists bool) {
+	v := m.email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEmail returns the old "email" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldEmail(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEmail: %w", err)
+	}
+	return oldValue.Email, nil
+}
+
+// ResetEmail resets all changes to the "email" field.
+func (m *UserMutation) ResetEmail() {
+	m.email = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UserMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UserMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UserMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *UserMutation) SetStatus(u user.Status) {
+	m.status = &u
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *UserMutation) Status() (r user.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldStatus(ctx context.Context) (v user.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *UserMutation) ResetStatus() {
+	m.status = nil
 }
 
 // Where appends a list predicates to the UserMutation builder.
@@ -169,7 +334,19 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 4)
+	if m.displayName != nil {
+		fields = append(fields, user.FieldDisplayName)
+	}
+	if m.email != nil {
+		fields = append(fields, user.FieldEmail)
+	}
+	if m.created_at != nil {
+		fields = append(fields, user.FieldCreatedAt)
+	}
+	if m.status != nil {
+		fields = append(fields, user.FieldStatus)
+	}
 	return fields
 }
 
@@ -177,6 +354,16 @@ func (m *UserMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *UserMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case user.FieldDisplayName:
+		return m.DisplayName()
+	case user.FieldEmail:
+		return m.Email()
+	case user.FieldCreatedAt:
+		return m.CreatedAt()
+	case user.FieldStatus:
+		return m.Status()
+	}
 	return nil, false
 }
 
@@ -184,6 +371,16 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case user.FieldDisplayName:
+		return m.OldDisplayName(ctx)
+	case user.FieldEmail:
+		return m.OldEmail(ctx)
+	case user.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case user.FieldStatus:
+		return m.OldStatus(ctx)
+	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
 
@@ -192,6 +389,34 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *UserMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case user.FieldDisplayName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDisplayName(v)
+		return nil
+	case user.FieldEmail:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEmail(v)
+		return nil
+	case user.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case user.FieldStatus:
+		v, ok := value.(user.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -213,6 +438,8 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *UserMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
 
@@ -238,6 +465,20 @@ func (m *UserMutation) ClearField(name string) error {
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *UserMutation) ResetField(name string) error {
+	switch name {
+	case user.FieldDisplayName:
+		m.ResetDisplayName()
+		return nil
+	case user.FieldEmail:
+		m.ResetEmail()
+		return nil
+	case user.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case user.FieldStatus:
+		m.ResetStatus()
+		return nil
+	}
 	return fmt.Errorf("unknown User field %s", name)
 }
 
@@ -287,4 +528,2310 @@ func (m *UserMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown User edge %s", name)
+}
+
+// WishlistMutation represents an operation that mutates the Wishlist nodes in the graph.
+type WishlistMutation struct {
+	config
+	op                Op
+	typ               string
+	id                *uuid.UUID
+	title             *string
+	created_at        *time.Time
+	clearedFields     map[string]struct{}
+	creatorId         map[uuid.UUID]struct{}
+	removedcreatorId  map[uuid.UUID]struct{}
+	clearedcreatorId  bool
+	templateId        map[uuid.UUID]struct{}
+	removedtemplateId map[uuid.UUID]struct{}
+	clearedtemplateId bool
+	sections          map[uuid.UUID]struct{}
+	removedsections   map[uuid.UUID]struct{}
+	clearedsections   bool
+	done              bool
+	oldValue          func(context.Context) (*Wishlist, error)
+	predicates        []predicate.Wishlist
+}
+
+var _ ent.Mutation = (*WishlistMutation)(nil)
+
+// wishlistOption allows management of the mutation configuration using functional options.
+type wishlistOption func(*WishlistMutation)
+
+// newWishlistMutation creates new mutation for the Wishlist entity.
+func newWishlistMutation(c config, op Op, opts ...wishlistOption) *WishlistMutation {
+	m := &WishlistMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeWishlist,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withWishlistID sets the ID field of the mutation.
+func withWishlistID(id uuid.UUID) wishlistOption {
+	return func(m *WishlistMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Wishlist
+		)
+		m.oldValue = func(ctx context.Context) (*Wishlist, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Wishlist.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withWishlist sets the old Wishlist of the mutation.
+func withWishlist(node *Wishlist) wishlistOption {
+	return func(m *WishlistMutation) {
+		m.oldValue = func(context.Context) (*Wishlist, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m WishlistMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m WishlistMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Wishlist entities.
+func (m *WishlistMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *WishlistMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *WishlistMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Wishlist.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTitle sets the "title" field.
+func (m *WishlistMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *WishlistMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the Wishlist entity.
+// If the Wishlist object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *WishlistMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *WishlistMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *WishlistMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Wishlist entity.
+// If the Wishlist object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *WishlistMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// AddCreatorIdIDs adds the "creatorId" edge to the User entity by ids.
+func (m *WishlistMutation) AddCreatorIdIDs(ids ...uuid.UUID) {
+	if m.creatorId == nil {
+		m.creatorId = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.creatorId[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCreatorId clears the "creatorId" edge to the User entity.
+func (m *WishlistMutation) ClearCreatorId() {
+	m.clearedcreatorId = true
+}
+
+// CreatorIdCleared reports if the "creatorId" edge to the User entity was cleared.
+func (m *WishlistMutation) CreatorIdCleared() bool {
+	return m.clearedcreatorId
+}
+
+// RemoveCreatorIdIDs removes the "creatorId" edge to the User entity by IDs.
+func (m *WishlistMutation) RemoveCreatorIdIDs(ids ...uuid.UUID) {
+	if m.removedcreatorId == nil {
+		m.removedcreatorId = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.creatorId, ids[i])
+		m.removedcreatorId[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCreatorId returns the removed IDs of the "creatorId" edge to the User entity.
+func (m *WishlistMutation) RemovedCreatorIdIDs() (ids []uuid.UUID) {
+	for id := range m.removedcreatorId {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CreatorIdIDs returns the "creatorId" edge IDs in the mutation.
+func (m *WishlistMutation) CreatorIdIDs() (ids []uuid.UUID) {
+	for id := range m.creatorId {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCreatorId resets all changes to the "creatorId" edge.
+func (m *WishlistMutation) ResetCreatorId() {
+	m.creatorId = nil
+	m.clearedcreatorId = false
+	m.removedcreatorId = nil
+}
+
+// AddTemplateIdIDs adds the "templateId" edge to the WishlistTemplate entity by ids.
+func (m *WishlistMutation) AddTemplateIdIDs(ids ...uuid.UUID) {
+	if m.templateId == nil {
+		m.templateId = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.templateId[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTemplateId clears the "templateId" edge to the WishlistTemplate entity.
+func (m *WishlistMutation) ClearTemplateId() {
+	m.clearedtemplateId = true
+}
+
+// TemplateIdCleared reports if the "templateId" edge to the WishlistTemplate entity was cleared.
+func (m *WishlistMutation) TemplateIdCleared() bool {
+	return m.clearedtemplateId
+}
+
+// RemoveTemplateIdIDs removes the "templateId" edge to the WishlistTemplate entity by IDs.
+func (m *WishlistMutation) RemoveTemplateIdIDs(ids ...uuid.UUID) {
+	if m.removedtemplateId == nil {
+		m.removedtemplateId = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.templateId, ids[i])
+		m.removedtemplateId[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTemplateId returns the removed IDs of the "templateId" edge to the WishlistTemplate entity.
+func (m *WishlistMutation) RemovedTemplateIdIDs() (ids []uuid.UUID) {
+	for id := range m.removedtemplateId {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TemplateIdIDs returns the "templateId" edge IDs in the mutation.
+func (m *WishlistMutation) TemplateIdIDs() (ids []uuid.UUID) {
+	for id := range m.templateId {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTemplateId resets all changes to the "templateId" edge.
+func (m *WishlistMutation) ResetTemplateId() {
+	m.templateId = nil
+	m.clearedtemplateId = false
+	m.removedtemplateId = nil
+}
+
+// AddSectionIDs adds the "sections" edge to the WishlistSection entity by ids.
+func (m *WishlistMutation) AddSectionIDs(ids ...uuid.UUID) {
+	if m.sections == nil {
+		m.sections = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.sections[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSections clears the "sections" edge to the WishlistSection entity.
+func (m *WishlistMutation) ClearSections() {
+	m.clearedsections = true
+}
+
+// SectionsCleared reports if the "sections" edge to the WishlistSection entity was cleared.
+func (m *WishlistMutation) SectionsCleared() bool {
+	return m.clearedsections
+}
+
+// RemoveSectionIDs removes the "sections" edge to the WishlistSection entity by IDs.
+func (m *WishlistMutation) RemoveSectionIDs(ids ...uuid.UUID) {
+	if m.removedsections == nil {
+		m.removedsections = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.sections, ids[i])
+		m.removedsections[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSections returns the removed IDs of the "sections" edge to the WishlistSection entity.
+func (m *WishlistMutation) RemovedSectionsIDs() (ids []uuid.UUID) {
+	for id := range m.removedsections {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SectionsIDs returns the "sections" edge IDs in the mutation.
+func (m *WishlistMutation) SectionsIDs() (ids []uuid.UUID) {
+	for id := range m.sections {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSections resets all changes to the "sections" edge.
+func (m *WishlistMutation) ResetSections() {
+	m.sections = nil
+	m.clearedsections = false
+	m.removedsections = nil
+}
+
+// Where appends a list predicates to the WishlistMutation builder.
+func (m *WishlistMutation) Where(ps ...predicate.Wishlist) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the WishlistMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *WishlistMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Wishlist, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *WishlistMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *WishlistMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Wishlist).
+func (m *WishlistMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *WishlistMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.title != nil {
+		fields = append(fields, wishlist.FieldTitle)
+	}
+	if m.created_at != nil {
+		fields = append(fields, wishlist.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *WishlistMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case wishlist.FieldTitle:
+		return m.Title()
+	case wishlist.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *WishlistMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case wishlist.FieldTitle:
+		return m.OldTitle(ctx)
+	case wishlist.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Wishlist field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WishlistMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case wishlist.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case wishlist.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Wishlist field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *WishlistMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *WishlistMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WishlistMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Wishlist numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *WishlistMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *WishlistMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *WishlistMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Wishlist nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *WishlistMutation) ResetField(name string) error {
+	switch name {
+	case wishlist.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case wishlist.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Wishlist field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *WishlistMutation) AddedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.creatorId != nil {
+		edges = append(edges, wishlist.EdgeCreatorId)
+	}
+	if m.templateId != nil {
+		edges = append(edges, wishlist.EdgeTemplateId)
+	}
+	if m.sections != nil {
+		edges = append(edges, wishlist.EdgeSections)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *WishlistMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case wishlist.EdgeCreatorId:
+		ids := make([]ent.Value, 0, len(m.creatorId))
+		for id := range m.creatorId {
+			ids = append(ids, id)
+		}
+		return ids
+	case wishlist.EdgeTemplateId:
+		ids := make([]ent.Value, 0, len(m.templateId))
+		for id := range m.templateId {
+			ids = append(ids, id)
+		}
+		return ids
+	case wishlist.EdgeSections:
+		ids := make([]ent.Value, 0, len(m.sections))
+		for id := range m.sections {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *WishlistMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.removedcreatorId != nil {
+		edges = append(edges, wishlist.EdgeCreatorId)
+	}
+	if m.removedtemplateId != nil {
+		edges = append(edges, wishlist.EdgeTemplateId)
+	}
+	if m.removedsections != nil {
+		edges = append(edges, wishlist.EdgeSections)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *WishlistMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case wishlist.EdgeCreatorId:
+		ids := make([]ent.Value, 0, len(m.removedcreatorId))
+		for id := range m.removedcreatorId {
+			ids = append(ids, id)
+		}
+		return ids
+	case wishlist.EdgeTemplateId:
+		ids := make([]ent.Value, 0, len(m.removedtemplateId))
+		for id := range m.removedtemplateId {
+			ids = append(ids, id)
+		}
+		return ids
+	case wishlist.EdgeSections:
+		ids := make([]ent.Value, 0, len(m.removedsections))
+		for id := range m.removedsections {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *WishlistMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.clearedcreatorId {
+		edges = append(edges, wishlist.EdgeCreatorId)
+	}
+	if m.clearedtemplateId {
+		edges = append(edges, wishlist.EdgeTemplateId)
+	}
+	if m.clearedsections {
+		edges = append(edges, wishlist.EdgeSections)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *WishlistMutation) EdgeCleared(name string) bool {
+	switch name {
+	case wishlist.EdgeCreatorId:
+		return m.clearedcreatorId
+	case wishlist.EdgeTemplateId:
+		return m.clearedtemplateId
+	case wishlist.EdgeSections:
+		return m.clearedsections
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *WishlistMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Wishlist unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *WishlistMutation) ResetEdge(name string) error {
+	switch name {
+	case wishlist.EdgeCreatorId:
+		m.ResetCreatorId()
+		return nil
+	case wishlist.EdgeTemplateId:
+		m.ResetTemplateId()
+		return nil
+	case wishlist.EdgeSections:
+		m.ResetSections()
+		return nil
+	}
+	return fmt.Errorf("unknown Wishlist edge %s", name)
+}
+
+// WishlistSectionMutation represents an operation that mutates the WishlistSection nodes in the graph.
+type WishlistSectionMutation struct {
+	config
+	op                             Op
+	typ                            string
+	id                             *uuid.UUID
+	_type                          *wishlistsection.Type
+	textValue                      *string
+	created_at                     *time.Time
+	clearedFields                  map[string]struct{}
+	wishlist                       *uuid.UUID
+	clearedwishlist                bool
+	wishlistTemplateSection        map[uuid.UUID]struct{}
+	removedwishlistTemplateSection map[uuid.UUID]struct{}
+	clearedwishlistTemplateSection bool
+	done                           bool
+	oldValue                       func(context.Context) (*WishlistSection, error)
+	predicates                     []predicate.WishlistSection
+}
+
+var _ ent.Mutation = (*WishlistSectionMutation)(nil)
+
+// wishlistsectionOption allows management of the mutation configuration using functional options.
+type wishlistsectionOption func(*WishlistSectionMutation)
+
+// newWishlistSectionMutation creates new mutation for the WishlistSection entity.
+func newWishlistSectionMutation(c config, op Op, opts ...wishlistsectionOption) *WishlistSectionMutation {
+	m := &WishlistSectionMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeWishlistSection,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withWishlistSectionID sets the ID field of the mutation.
+func withWishlistSectionID(id uuid.UUID) wishlistsectionOption {
+	return func(m *WishlistSectionMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *WishlistSection
+		)
+		m.oldValue = func(ctx context.Context) (*WishlistSection, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().WishlistSection.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withWishlistSection sets the old WishlistSection of the mutation.
+func withWishlistSection(node *WishlistSection) wishlistsectionOption {
+	return func(m *WishlistSectionMutation) {
+		m.oldValue = func(context.Context) (*WishlistSection, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m WishlistSectionMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m WishlistSectionMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of WishlistSection entities.
+func (m *WishlistSectionMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *WishlistSectionMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *WishlistSectionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().WishlistSection.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetType sets the "type" field.
+func (m *WishlistSectionMutation) SetType(w wishlistsection.Type) {
+	m._type = &w
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *WishlistSectionMutation) GetType() (r wishlistsection.Type, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the WishlistSection entity.
+// If the WishlistSection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistSectionMutation) OldType(ctx context.Context) (v wishlistsection.Type, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *WishlistSectionMutation) ResetType() {
+	m._type = nil
+}
+
+// SetTextValue sets the "textValue" field.
+func (m *WishlistSectionMutation) SetTextValue(s string) {
+	m.textValue = &s
+}
+
+// TextValue returns the value of the "textValue" field in the mutation.
+func (m *WishlistSectionMutation) TextValue() (r string, exists bool) {
+	v := m.textValue
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTextValue returns the old "textValue" field's value of the WishlistSection entity.
+// If the WishlistSection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistSectionMutation) OldTextValue(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTextValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTextValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTextValue: %w", err)
+	}
+	return oldValue.TextValue, nil
+}
+
+// ResetTextValue resets all changes to the "textValue" field.
+func (m *WishlistSectionMutation) ResetTextValue() {
+	m.textValue = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *WishlistSectionMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *WishlistSectionMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the WishlistSection entity.
+// If the WishlistSection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistSectionMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *WishlistSectionMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetWishlistID sets the "wishlist" edge to the Wishlist entity by id.
+func (m *WishlistSectionMutation) SetWishlistID(id uuid.UUID) {
+	m.wishlist = &id
+}
+
+// ClearWishlist clears the "wishlist" edge to the Wishlist entity.
+func (m *WishlistSectionMutation) ClearWishlist() {
+	m.clearedwishlist = true
+}
+
+// WishlistCleared reports if the "wishlist" edge to the Wishlist entity was cleared.
+func (m *WishlistSectionMutation) WishlistCleared() bool {
+	return m.clearedwishlist
+}
+
+// WishlistID returns the "wishlist" edge ID in the mutation.
+func (m *WishlistSectionMutation) WishlistID() (id uuid.UUID, exists bool) {
+	if m.wishlist != nil {
+		return *m.wishlist, true
+	}
+	return
+}
+
+// WishlistIDs returns the "wishlist" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// WishlistID instead. It exists only for internal usage by the builders.
+func (m *WishlistSectionMutation) WishlistIDs() (ids []uuid.UUID) {
+	if id := m.wishlist; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetWishlist resets all changes to the "wishlist" edge.
+func (m *WishlistSectionMutation) ResetWishlist() {
+	m.wishlist = nil
+	m.clearedwishlist = false
+}
+
+// AddWishlistTemplateSectionIDs adds the "wishlistTemplateSection" edge to the WishlistTemplateSection entity by ids.
+func (m *WishlistSectionMutation) AddWishlistTemplateSectionIDs(ids ...uuid.UUID) {
+	if m.wishlistTemplateSection == nil {
+		m.wishlistTemplateSection = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.wishlistTemplateSection[ids[i]] = struct{}{}
+	}
+}
+
+// ClearWishlistTemplateSection clears the "wishlistTemplateSection" edge to the WishlistTemplateSection entity.
+func (m *WishlistSectionMutation) ClearWishlistTemplateSection() {
+	m.clearedwishlistTemplateSection = true
+}
+
+// WishlistTemplateSectionCleared reports if the "wishlistTemplateSection" edge to the WishlistTemplateSection entity was cleared.
+func (m *WishlistSectionMutation) WishlistTemplateSectionCleared() bool {
+	return m.clearedwishlistTemplateSection
+}
+
+// RemoveWishlistTemplateSectionIDs removes the "wishlistTemplateSection" edge to the WishlistTemplateSection entity by IDs.
+func (m *WishlistSectionMutation) RemoveWishlistTemplateSectionIDs(ids ...uuid.UUID) {
+	if m.removedwishlistTemplateSection == nil {
+		m.removedwishlistTemplateSection = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.wishlistTemplateSection, ids[i])
+		m.removedwishlistTemplateSection[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedWishlistTemplateSection returns the removed IDs of the "wishlistTemplateSection" edge to the WishlistTemplateSection entity.
+func (m *WishlistSectionMutation) RemovedWishlistTemplateSectionIDs() (ids []uuid.UUID) {
+	for id := range m.removedwishlistTemplateSection {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// WishlistTemplateSectionIDs returns the "wishlistTemplateSection" edge IDs in the mutation.
+func (m *WishlistSectionMutation) WishlistTemplateSectionIDs() (ids []uuid.UUID) {
+	for id := range m.wishlistTemplateSection {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetWishlistTemplateSection resets all changes to the "wishlistTemplateSection" edge.
+func (m *WishlistSectionMutation) ResetWishlistTemplateSection() {
+	m.wishlistTemplateSection = nil
+	m.clearedwishlistTemplateSection = false
+	m.removedwishlistTemplateSection = nil
+}
+
+// Where appends a list predicates to the WishlistSectionMutation builder.
+func (m *WishlistSectionMutation) Where(ps ...predicate.WishlistSection) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the WishlistSectionMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *WishlistSectionMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.WishlistSection, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *WishlistSectionMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *WishlistSectionMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (WishlistSection).
+func (m *WishlistSectionMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *WishlistSectionMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m._type != nil {
+		fields = append(fields, wishlistsection.FieldType)
+	}
+	if m.textValue != nil {
+		fields = append(fields, wishlistsection.FieldTextValue)
+	}
+	if m.created_at != nil {
+		fields = append(fields, wishlistsection.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *WishlistSectionMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case wishlistsection.FieldType:
+		return m.GetType()
+	case wishlistsection.FieldTextValue:
+		return m.TextValue()
+	case wishlistsection.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *WishlistSectionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case wishlistsection.FieldType:
+		return m.OldType(ctx)
+	case wishlistsection.FieldTextValue:
+		return m.OldTextValue(ctx)
+	case wishlistsection.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown WishlistSection field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WishlistSectionMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case wishlistsection.FieldType:
+		v, ok := value.(wishlistsection.Type)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	case wishlistsection.FieldTextValue:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTextValue(v)
+		return nil
+	case wishlistsection.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistSection field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *WishlistSectionMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *WishlistSectionMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WishlistSectionMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown WishlistSection numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *WishlistSectionMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *WishlistSectionMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *WishlistSectionMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown WishlistSection nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *WishlistSectionMutation) ResetField(name string) error {
+	switch name {
+	case wishlistsection.FieldType:
+		m.ResetType()
+		return nil
+	case wishlistsection.FieldTextValue:
+		m.ResetTextValue()
+		return nil
+	case wishlistsection.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistSection field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *WishlistSectionMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.wishlist != nil {
+		edges = append(edges, wishlistsection.EdgeWishlist)
+	}
+	if m.wishlistTemplateSection != nil {
+		edges = append(edges, wishlistsection.EdgeWishlistTemplateSection)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *WishlistSectionMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case wishlistsection.EdgeWishlist:
+		if id := m.wishlist; id != nil {
+			return []ent.Value{*id}
+		}
+	case wishlistsection.EdgeWishlistTemplateSection:
+		ids := make([]ent.Value, 0, len(m.wishlistTemplateSection))
+		for id := range m.wishlistTemplateSection {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *WishlistSectionMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedwishlistTemplateSection != nil {
+		edges = append(edges, wishlistsection.EdgeWishlistTemplateSection)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *WishlistSectionMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case wishlistsection.EdgeWishlistTemplateSection:
+		ids := make([]ent.Value, 0, len(m.removedwishlistTemplateSection))
+		for id := range m.removedwishlistTemplateSection {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *WishlistSectionMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedwishlist {
+		edges = append(edges, wishlistsection.EdgeWishlist)
+	}
+	if m.clearedwishlistTemplateSection {
+		edges = append(edges, wishlistsection.EdgeWishlistTemplateSection)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *WishlistSectionMutation) EdgeCleared(name string) bool {
+	switch name {
+	case wishlistsection.EdgeWishlist:
+		return m.clearedwishlist
+	case wishlistsection.EdgeWishlistTemplateSection:
+		return m.clearedwishlistTemplateSection
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *WishlistSectionMutation) ClearEdge(name string) error {
+	switch name {
+	case wishlistsection.EdgeWishlist:
+		m.ClearWishlist()
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistSection unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *WishlistSectionMutation) ResetEdge(name string) error {
+	switch name {
+	case wishlistsection.EdgeWishlist:
+		m.ResetWishlist()
+		return nil
+	case wishlistsection.EdgeWishlistTemplateSection:
+		m.ResetWishlistTemplateSection()
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistSection edge %s", name)
+}
+
+// WishlistTemplateMutation represents an operation that mutates the WishlistTemplate nodes in the graph.
+type WishlistTemplateMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	title            *string
+	created_at       *time.Time
+	description      *string
+	clearedFields    map[string]struct{}
+	creatorId        map[uuid.UUID]struct{}
+	removedcreatorId map[uuid.UUID]struct{}
+	clearedcreatorId bool
+	sections         map[uuid.UUID]struct{}
+	removedsections  map[uuid.UUID]struct{}
+	clearedsections  bool
+	done             bool
+	oldValue         func(context.Context) (*WishlistTemplate, error)
+	predicates       []predicate.WishlistTemplate
+}
+
+var _ ent.Mutation = (*WishlistTemplateMutation)(nil)
+
+// wishlisttemplateOption allows management of the mutation configuration using functional options.
+type wishlisttemplateOption func(*WishlistTemplateMutation)
+
+// newWishlistTemplateMutation creates new mutation for the WishlistTemplate entity.
+func newWishlistTemplateMutation(c config, op Op, opts ...wishlisttemplateOption) *WishlistTemplateMutation {
+	m := &WishlistTemplateMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeWishlistTemplate,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withWishlistTemplateID sets the ID field of the mutation.
+func withWishlistTemplateID(id uuid.UUID) wishlisttemplateOption {
+	return func(m *WishlistTemplateMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *WishlistTemplate
+		)
+		m.oldValue = func(ctx context.Context) (*WishlistTemplate, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().WishlistTemplate.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withWishlistTemplate sets the old WishlistTemplate of the mutation.
+func withWishlistTemplate(node *WishlistTemplate) wishlisttemplateOption {
+	return func(m *WishlistTemplateMutation) {
+		m.oldValue = func(context.Context) (*WishlistTemplate, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m WishlistTemplateMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m WishlistTemplateMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of WishlistTemplate entities.
+func (m *WishlistTemplateMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *WishlistTemplateMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *WishlistTemplateMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().WishlistTemplate.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTitle sets the "title" field.
+func (m *WishlistTemplateMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *WishlistTemplateMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the WishlistTemplate entity.
+// If the WishlistTemplate object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistTemplateMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *WishlistTemplateMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *WishlistTemplateMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *WishlistTemplateMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the WishlistTemplate entity.
+// If the WishlistTemplate object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistTemplateMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *WishlistTemplateMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *WishlistTemplateMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *WishlistTemplateMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the WishlistTemplate entity.
+// If the WishlistTemplate object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistTemplateMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *WishlistTemplateMutation) ResetDescription() {
+	m.description = nil
+}
+
+// AddCreatorIdIDs adds the "creatorId" edge to the User entity by ids.
+func (m *WishlistTemplateMutation) AddCreatorIdIDs(ids ...uuid.UUID) {
+	if m.creatorId == nil {
+		m.creatorId = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.creatorId[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCreatorId clears the "creatorId" edge to the User entity.
+func (m *WishlistTemplateMutation) ClearCreatorId() {
+	m.clearedcreatorId = true
+}
+
+// CreatorIdCleared reports if the "creatorId" edge to the User entity was cleared.
+func (m *WishlistTemplateMutation) CreatorIdCleared() bool {
+	return m.clearedcreatorId
+}
+
+// RemoveCreatorIdIDs removes the "creatorId" edge to the User entity by IDs.
+func (m *WishlistTemplateMutation) RemoveCreatorIdIDs(ids ...uuid.UUID) {
+	if m.removedcreatorId == nil {
+		m.removedcreatorId = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.creatorId, ids[i])
+		m.removedcreatorId[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCreatorId returns the removed IDs of the "creatorId" edge to the User entity.
+func (m *WishlistTemplateMutation) RemovedCreatorIdIDs() (ids []uuid.UUID) {
+	for id := range m.removedcreatorId {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CreatorIdIDs returns the "creatorId" edge IDs in the mutation.
+func (m *WishlistTemplateMutation) CreatorIdIDs() (ids []uuid.UUID) {
+	for id := range m.creatorId {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCreatorId resets all changes to the "creatorId" edge.
+func (m *WishlistTemplateMutation) ResetCreatorId() {
+	m.creatorId = nil
+	m.clearedcreatorId = false
+	m.removedcreatorId = nil
+}
+
+// AddSectionIDs adds the "sections" edge to the WishlistTemplateSection entity by ids.
+func (m *WishlistTemplateMutation) AddSectionIDs(ids ...uuid.UUID) {
+	if m.sections == nil {
+		m.sections = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.sections[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSections clears the "sections" edge to the WishlistTemplateSection entity.
+func (m *WishlistTemplateMutation) ClearSections() {
+	m.clearedsections = true
+}
+
+// SectionsCleared reports if the "sections" edge to the WishlistTemplateSection entity was cleared.
+func (m *WishlistTemplateMutation) SectionsCleared() bool {
+	return m.clearedsections
+}
+
+// RemoveSectionIDs removes the "sections" edge to the WishlistTemplateSection entity by IDs.
+func (m *WishlistTemplateMutation) RemoveSectionIDs(ids ...uuid.UUID) {
+	if m.removedsections == nil {
+		m.removedsections = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.sections, ids[i])
+		m.removedsections[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSections returns the removed IDs of the "sections" edge to the WishlistTemplateSection entity.
+func (m *WishlistTemplateMutation) RemovedSectionsIDs() (ids []uuid.UUID) {
+	for id := range m.removedsections {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SectionsIDs returns the "sections" edge IDs in the mutation.
+func (m *WishlistTemplateMutation) SectionsIDs() (ids []uuid.UUID) {
+	for id := range m.sections {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSections resets all changes to the "sections" edge.
+func (m *WishlistTemplateMutation) ResetSections() {
+	m.sections = nil
+	m.clearedsections = false
+	m.removedsections = nil
+}
+
+// Where appends a list predicates to the WishlistTemplateMutation builder.
+func (m *WishlistTemplateMutation) Where(ps ...predicate.WishlistTemplate) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the WishlistTemplateMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *WishlistTemplateMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.WishlistTemplate, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *WishlistTemplateMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *WishlistTemplateMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (WishlistTemplate).
+func (m *WishlistTemplateMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *WishlistTemplateMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.title != nil {
+		fields = append(fields, wishlisttemplate.FieldTitle)
+	}
+	if m.created_at != nil {
+		fields = append(fields, wishlisttemplate.FieldCreatedAt)
+	}
+	if m.description != nil {
+		fields = append(fields, wishlisttemplate.FieldDescription)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *WishlistTemplateMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case wishlisttemplate.FieldTitle:
+		return m.Title()
+	case wishlisttemplate.FieldCreatedAt:
+		return m.CreatedAt()
+	case wishlisttemplate.FieldDescription:
+		return m.Description()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *WishlistTemplateMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case wishlisttemplate.FieldTitle:
+		return m.OldTitle(ctx)
+	case wishlisttemplate.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case wishlisttemplate.FieldDescription:
+		return m.OldDescription(ctx)
+	}
+	return nil, fmt.Errorf("unknown WishlistTemplate field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WishlistTemplateMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case wishlisttemplate.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case wishlisttemplate.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case wishlisttemplate.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistTemplate field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *WishlistTemplateMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *WishlistTemplateMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WishlistTemplateMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown WishlistTemplate numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *WishlistTemplateMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *WishlistTemplateMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *WishlistTemplateMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown WishlistTemplate nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *WishlistTemplateMutation) ResetField(name string) error {
+	switch name {
+	case wishlisttemplate.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case wishlisttemplate.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case wishlisttemplate.FieldDescription:
+		m.ResetDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistTemplate field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *WishlistTemplateMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.creatorId != nil {
+		edges = append(edges, wishlisttemplate.EdgeCreatorId)
+	}
+	if m.sections != nil {
+		edges = append(edges, wishlisttemplate.EdgeSections)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *WishlistTemplateMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case wishlisttemplate.EdgeCreatorId:
+		ids := make([]ent.Value, 0, len(m.creatorId))
+		for id := range m.creatorId {
+			ids = append(ids, id)
+		}
+		return ids
+	case wishlisttemplate.EdgeSections:
+		ids := make([]ent.Value, 0, len(m.sections))
+		for id := range m.sections {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *WishlistTemplateMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedcreatorId != nil {
+		edges = append(edges, wishlisttemplate.EdgeCreatorId)
+	}
+	if m.removedsections != nil {
+		edges = append(edges, wishlisttemplate.EdgeSections)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *WishlistTemplateMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case wishlisttemplate.EdgeCreatorId:
+		ids := make([]ent.Value, 0, len(m.removedcreatorId))
+		for id := range m.removedcreatorId {
+			ids = append(ids, id)
+		}
+		return ids
+	case wishlisttemplate.EdgeSections:
+		ids := make([]ent.Value, 0, len(m.removedsections))
+		for id := range m.removedsections {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *WishlistTemplateMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedcreatorId {
+		edges = append(edges, wishlisttemplate.EdgeCreatorId)
+	}
+	if m.clearedsections {
+		edges = append(edges, wishlisttemplate.EdgeSections)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *WishlistTemplateMutation) EdgeCleared(name string) bool {
+	switch name {
+	case wishlisttemplate.EdgeCreatorId:
+		return m.clearedcreatorId
+	case wishlisttemplate.EdgeSections:
+		return m.clearedsections
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *WishlistTemplateMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown WishlistTemplate unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *WishlistTemplateMutation) ResetEdge(name string) error {
+	switch name {
+	case wishlisttemplate.EdgeCreatorId:
+		m.ResetCreatorId()
+		return nil
+	case wishlisttemplate.EdgeSections:
+		m.ResetSections()
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistTemplate edge %s", name)
+}
+
+// WishlistTemplateSectionMutation represents an operation that mutates the WishlistTemplateSection nodes in the graph.
+type WishlistTemplateSectionMutation struct {
+	config
+	op                      Op
+	typ                     string
+	id                      *uuid.UUID
+	title                   *string
+	created_at              *time.Time
+	clearedFields           map[string]struct{}
+	wishlistTemplate        *uuid.UUID
+	clearedwishlistTemplate bool
+	done                    bool
+	oldValue                func(context.Context) (*WishlistTemplateSection, error)
+	predicates              []predicate.WishlistTemplateSection
+}
+
+var _ ent.Mutation = (*WishlistTemplateSectionMutation)(nil)
+
+// wishlisttemplatesectionOption allows management of the mutation configuration using functional options.
+type wishlisttemplatesectionOption func(*WishlistTemplateSectionMutation)
+
+// newWishlistTemplateSectionMutation creates new mutation for the WishlistTemplateSection entity.
+func newWishlistTemplateSectionMutation(c config, op Op, opts ...wishlisttemplatesectionOption) *WishlistTemplateSectionMutation {
+	m := &WishlistTemplateSectionMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeWishlistTemplateSection,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withWishlistTemplateSectionID sets the ID field of the mutation.
+func withWishlistTemplateSectionID(id uuid.UUID) wishlisttemplatesectionOption {
+	return func(m *WishlistTemplateSectionMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *WishlistTemplateSection
+		)
+		m.oldValue = func(ctx context.Context) (*WishlistTemplateSection, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().WishlistTemplateSection.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withWishlistTemplateSection sets the old WishlistTemplateSection of the mutation.
+func withWishlistTemplateSection(node *WishlistTemplateSection) wishlisttemplatesectionOption {
+	return func(m *WishlistTemplateSectionMutation) {
+		m.oldValue = func(context.Context) (*WishlistTemplateSection, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m WishlistTemplateSectionMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m WishlistTemplateSectionMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of WishlistTemplateSection entities.
+func (m *WishlistTemplateSectionMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *WishlistTemplateSectionMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *WishlistTemplateSectionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().WishlistTemplateSection.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTitle sets the "title" field.
+func (m *WishlistTemplateSectionMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *WishlistTemplateSectionMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the WishlistTemplateSection entity.
+// If the WishlistTemplateSection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistTemplateSectionMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *WishlistTemplateSectionMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *WishlistTemplateSectionMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *WishlistTemplateSectionMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the WishlistTemplateSection entity.
+// If the WishlistTemplateSection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistTemplateSectionMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *WishlistTemplateSectionMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetWishlistTemplateID sets the "wishlistTemplate" edge to the WishlistTemplate entity by id.
+func (m *WishlistTemplateSectionMutation) SetWishlistTemplateID(id uuid.UUID) {
+	m.wishlistTemplate = &id
+}
+
+// ClearWishlistTemplate clears the "wishlistTemplate" edge to the WishlistTemplate entity.
+func (m *WishlistTemplateSectionMutation) ClearWishlistTemplate() {
+	m.clearedwishlistTemplate = true
+}
+
+// WishlistTemplateCleared reports if the "wishlistTemplate" edge to the WishlistTemplate entity was cleared.
+func (m *WishlistTemplateSectionMutation) WishlistTemplateCleared() bool {
+	return m.clearedwishlistTemplate
+}
+
+// WishlistTemplateID returns the "wishlistTemplate" edge ID in the mutation.
+func (m *WishlistTemplateSectionMutation) WishlistTemplateID() (id uuid.UUID, exists bool) {
+	if m.wishlistTemplate != nil {
+		return *m.wishlistTemplate, true
+	}
+	return
+}
+
+// WishlistTemplateIDs returns the "wishlistTemplate" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// WishlistTemplateID instead. It exists only for internal usage by the builders.
+func (m *WishlistTemplateSectionMutation) WishlistTemplateIDs() (ids []uuid.UUID) {
+	if id := m.wishlistTemplate; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetWishlistTemplate resets all changes to the "wishlistTemplate" edge.
+func (m *WishlistTemplateSectionMutation) ResetWishlistTemplate() {
+	m.wishlistTemplate = nil
+	m.clearedwishlistTemplate = false
+}
+
+// Where appends a list predicates to the WishlistTemplateSectionMutation builder.
+func (m *WishlistTemplateSectionMutation) Where(ps ...predicate.WishlistTemplateSection) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the WishlistTemplateSectionMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *WishlistTemplateSectionMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.WishlistTemplateSection, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *WishlistTemplateSectionMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *WishlistTemplateSectionMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (WishlistTemplateSection).
+func (m *WishlistTemplateSectionMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *WishlistTemplateSectionMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.title != nil {
+		fields = append(fields, wishlisttemplatesection.FieldTitle)
+	}
+	if m.created_at != nil {
+		fields = append(fields, wishlisttemplatesection.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *WishlistTemplateSectionMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case wishlisttemplatesection.FieldTitle:
+		return m.Title()
+	case wishlisttemplatesection.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *WishlistTemplateSectionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case wishlisttemplatesection.FieldTitle:
+		return m.OldTitle(ctx)
+	case wishlisttemplatesection.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown WishlistTemplateSection field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WishlistTemplateSectionMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case wishlisttemplatesection.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case wishlisttemplatesection.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistTemplateSection field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *WishlistTemplateSectionMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *WishlistTemplateSectionMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *WishlistTemplateSectionMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown WishlistTemplateSection numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *WishlistTemplateSectionMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *WishlistTemplateSectionMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *WishlistTemplateSectionMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown WishlistTemplateSection nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *WishlistTemplateSectionMutation) ResetField(name string) error {
+	switch name {
+	case wishlisttemplatesection.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case wishlisttemplatesection.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistTemplateSection field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *WishlistTemplateSectionMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.wishlistTemplate != nil {
+		edges = append(edges, wishlisttemplatesection.EdgeWishlistTemplate)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *WishlistTemplateSectionMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case wishlisttemplatesection.EdgeWishlistTemplate:
+		if id := m.wishlistTemplate; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *WishlistTemplateSectionMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *WishlistTemplateSectionMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *WishlistTemplateSectionMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedwishlistTemplate {
+		edges = append(edges, wishlisttemplatesection.EdgeWishlistTemplate)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *WishlistTemplateSectionMutation) EdgeCleared(name string) bool {
+	switch name {
+	case wishlisttemplatesection.EdgeWishlistTemplate:
+		return m.clearedwishlistTemplate
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *WishlistTemplateSectionMutation) ClearEdge(name string) error {
+	switch name {
+	case wishlisttemplatesection.EdgeWishlistTemplate:
+		m.ClearWishlistTemplate()
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistTemplateSection unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *WishlistTemplateSectionMutation) ResetEdge(name string) error {
+	switch name {
+	case wishlisttemplatesection.EdgeWishlistTemplate:
+		m.ResetWishlistTemplate()
+		return nil
+	}
+	return fmt.Errorf("unknown WishlistTemplateSection edge %s", name)
 }

@@ -10,19 +10,133 @@ import (
 var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "display_name", Type: field.TypeString, Size: 255},
+		{Name: "email", Type: field.TypeString, Size: 255},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"ACTIVE", "PENDING", "DELETED"}, Default: "ACTIVE"},
+		{Name: "wishlist_creator_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "wishlist_template_creator_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_wishlists_creatorId",
+				Columns:    []*schema.Column{UsersColumns[5]},
+				RefColumns: []*schema.Column{WishlistsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "users_wishlist_templates_creatorId",
+				Columns:    []*schema.Column{UsersColumns[6]},
+				RefColumns: []*schema.Column{WishlistTemplatesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// WishlistsColumns holds the columns for the "wishlists" table.
+	WishlistsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// WishlistsTable holds the schema information for the "wishlists" table.
+	WishlistsTable = &schema.Table{
+		Name:       "wishlists",
+		Columns:    WishlistsColumns,
+		PrimaryKey: []*schema.Column{WishlistsColumns[0]},
+	}
+	// WishlistSectionsColumns holds the columns for the "wishlist_sections" table.
+	WishlistSectionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"WISHLIST_SECTION_TYPE_TEXT", "WISHLIST_SECTION_TYPE_IMAGE", "WISHLIST_SECTION_TYPE_VIDEO", "WISHLIST_SECTION_TYPE_LINK", "WISHLIST_SECTION_TYPE_BOOLEAN"}},
+		{Name: "text_value", Type: field.TypeString, Size: 1024},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "wishlist_sections", Type: field.TypeUUID, Nullable: true},
+	}
+	// WishlistSectionsTable holds the schema information for the "wishlist_sections" table.
+	WishlistSectionsTable = &schema.Table{
+		Name:       "wishlist_sections",
+		Columns:    WishlistSectionsColumns,
+		PrimaryKey: []*schema.Column{WishlistSectionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "wishlist_sections_wishlists_sections",
+				Columns:    []*schema.Column{WishlistSectionsColumns[4]},
+				RefColumns: []*schema.Column{WishlistsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// WishlistTemplatesColumns holds the columns for the "wishlist_templates" table.
+	WishlistTemplatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "description", Type: field.TypeString, Size: 525},
+		{Name: "wishlist_template_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// WishlistTemplatesTable holds the schema information for the "wishlist_templates" table.
+	WishlistTemplatesTable = &schema.Table{
+		Name:       "wishlist_templates",
+		Columns:    WishlistTemplatesColumns,
+		PrimaryKey: []*schema.Column{WishlistTemplatesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "wishlist_templates_wishlists_templateId",
+				Columns:    []*schema.Column{WishlistTemplatesColumns[4]},
+				RefColumns: []*schema.Column{WishlistsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// WishlistTemplateSectionsColumns holds the columns for the "wishlist_template_sections" table.
+	WishlistTemplateSectionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "wishlist_section_wishlist_template_section", Type: field.TypeUUID, Nullable: true},
+		{Name: "wishlist_template_sections", Type: field.TypeUUID, Nullable: true},
+	}
+	// WishlistTemplateSectionsTable holds the schema information for the "wishlist_template_sections" table.
+	WishlistTemplateSectionsTable = &schema.Table{
+		Name:       "wishlist_template_sections",
+		Columns:    WishlistTemplateSectionsColumns,
+		PrimaryKey: []*schema.Column{WishlistTemplateSectionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "wishlist_template_sections_wishlist_sections_wishlistTemplateSection",
+				Columns:    []*schema.Column{WishlistTemplateSectionsColumns[3]},
+				RefColumns: []*schema.Column{WishlistSectionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "wishlist_template_sections_wishlist_templates_sections",
+				Columns:    []*schema.Column{WishlistTemplateSectionsColumns[4]},
+				RefColumns: []*schema.Column{WishlistTemplatesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		UsersTable,
+		WishlistsTable,
+		WishlistSectionsTable,
+		WishlistTemplatesTable,
+		WishlistTemplateSectionsTable,
 	}
 )
 
 func init() {
+	UsersTable.ForeignKeys[0].RefTable = WishlistsTable
+	UsersTable.ForeignKeys[1].RefTable = WishlistTemplatesTable
+	WishlistSectionsTable.ForeignKeys[0].RefTable = WishlistsTable
+	WishlistTemplatesTable.ForeignKeys[0].RefTable = WishlistsTable
+	WishlistTemplateSectionsTable.ForeignKeys[0].RefTable = WishlistSectionsTable
+	WishlistTemplateSectionsTable.ForeignKeys[1].RefTable = WishlistTemplatesTable
 }

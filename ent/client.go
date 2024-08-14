@@ -12,10 +12,16 @@ import (
 	"wishlist-wrangler-api/ent/migrate"
 
 	"wishlist-wrangler-api/ent/user"
+	"wishlist-wrangler-api/ent/wishlist"
+	"wishlist-wrangler-api/ent/wishlistsection"
+	"wishlist-wrangler-api/ent/wishlisttemplate"
+	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // Client is the client that holds all ent builders.
@@ -25,6 +31,14 @@ type Client struct {
 	Schema *migrate.Schema
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// Wishlist is the client for interacting with the Wishlist builders.
+	Wishlist *WishlistClient
+	// WishlistSection is the client for interacting with the WishlistSection builders.
+	WishlistSection *WishlistSectionClient
+	// WishlistTemplate is the client for interacting with the WishlistTemplate builders.
+	WishlistTemplate *WishlistTemplateClient
+	// WishlistTemplateSection is the client for interacting with the WishlistTemplateSection builders.
+	WishlistTemplateSection *WishlistTemplateSectionClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -37,6 +51,10 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.User = NewUserClient(c.config)
+	c.Wishlist = NewWishlistClient(c.config)
+	c.WishlistSection = NewWishlistSectionClient(c.config)
+	c.WishlistTemplate = NewWishlistTemplateClient(c.config)
+	c.WishlistTemplateSection = NewWishlistTemplateSectionClient(c.config)
 }
 
 type (
@@ -127,9 +145,13 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		User:   NewUserClient(cfg),
+		ctx:                     ctx,
+		config:                  cfg,
+		User:                    NewUserClient(cfg),
+		Wishlist:                NewWishlistClient(cfg),
+		WishlistSection:         NewWishlistSectionClient(cfg),
+		WishlistTemplate:        NewWishlistTemplateClient(cfg),
+		WishlistTemplateSection: NewWishlistTemplateSectionClient(cfg),
 	}, nil
 }
 
@@ -147,9 +169,13 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		User:   NewUserClient(cfg),
+		ctx:                     ctx,
+		config:                  cfg,
+		User:                    NewUserClient(cfg),
+		Wishlist:                NewWishlistClient(cfg),
+		WishlistSection:         NewWishlistSectionClient(cfg),
+		WishlistTemplate:        NewWishlistTemplateClient(cfg),
+		WishlistTemplateSection: NewWishlistTemplateSectionClient(cfg),
 	}, nil
 }
 
@@ -179,12 +205,20 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.User.Use(hooks...)
+	c.Wishlist.Use(hooks...)
+	c.WishlistSection.Use(hooks...)
+	c.WishlistTemplate.Use(hooks...)
+	c.WishlistTemplateSection.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.User.Intercept(interceptors...)
+	c.Wishlist.Intercept(interceptors...)
+	c.WishlistSection.Intercept(interceptors...)
+	c.WishlistTemplate.Intercept(interceptors...)
+	c.WishlistTemplateSection.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -192,6 +226,14 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
+	case *WishlistMutation:
+		return c.Wishlist.mutate(ctx, m)
+	case *WishlistSectionMutation:
+		return c.WishlistSection.mutate(ctx, m)
+	case *WishlistTemplateMutation:
+		return c.WishlistTemplate.mutate(ctx, m)
+	case *WishlistTemplateSectionMutation:
+		return c.WishlistTemplateSection.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -258,7 +300,7 @@ func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *UserClient) UpdateOneID(id int) *UserUpdateOne {
+func (c *UserClient) UpdateOneID(id uuid.UUID) *UserUpdateOne {
 	mutation := newUserMutation(c.config, OpUpdateOne, withUserID(id))
 	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -275,7 +317,7 @@ func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserClient) DeleteOneID(id int) *UserDeleteOne {
+func (c *UserClient) DeleteOneID(id uuid.UUID) *UserDeleteOne {
 	builder := c.Delete().Where(user.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -292,12 +334,12 @@ func (c *UserClient) Query() *UserQuery {
 }
 
 // Get returns a User entity by its id.
-func (c *UserClient) Get(ctx context.Context, id int) (*User, error) {
+func (c *UserClient) Get(ctx context.Context, id uuid.UUID) (*User, error) {
 	return c.Query().Where(user.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *UserClient) GetX(ctx context.Context, id int) *User {
+func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -330,12 +372,674 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 	}
 }
 
+// WishlistClient is a client for the Wishlist schema.
+type WishlistClient struct {
+	config
+}
+
+// NewWishlistClient returns a client for the Wishlist from the given config.
+func NewWishlistClient(c config) *WishlistClient {
+	return &WishlistClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `wishlist.Hooks(f(g(h())))`.
+func (c *WishlistClient) Use(hooks ...Hook) {
+	c.hooks.Wishlist = append(c.hooks.Wishlist, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `wishlist.Intercept(f(g(h())))`.
+func (c *WishlistClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Wishlist = append(c.inters.Wishlist, interceptors...)
+}
+
+// Create returns a builder for creating a Wishlist entity.
+func (c *WishlistClient) Create() *WishlistCreate {
+	mutation := newWishlistMutation(c.config, OpCreate)
+	return &WishlistCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Wishlist entities.
+func (c *WishlistClient) CreateBulk(builders ...*WishlistCreate) *WishlistCreateBulk {
+	return &WishlistCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *WishlistClient) MapCreateBulk(slice any, setFunc func(*WishlistCreate, int)) *WishlistCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &WishlistCreateBulk{err: fmt.Errorf("calling to WishlistClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*WishlistCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &WishlistCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Wishlist.
+func (c *WishlistClient) Update() *WishlistUpdate {
+	mutation := newWishlistMutation(c.config, OpUpdate)
+	return &WishlistUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WishlistClient) UpdateOne(w *Wishlist) *WishlistUpdateOne {
+	mutation := newWishlistMutation(c.config, OpUpdateOne, withWishlist(w))
+	return &WishlistUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WishlistClient) UpdateOneID(id uuid.UUID) *WishlistUpdateOne {
+	mutation := newWishlistMutation(c.config, OpUpdateOne, withWishlistID(id))
+	return &WishlistUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Wishlist.
+func (c *WishlistClient) Delete() *WishlistDelete {
+	mutation := newWishlistMutation(c.config, OpDelete)
+	return &WishlistDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *WishlistClient) DeleteOne(w *Wishlist) *WishlistDeleteOne {
+	return c.DeleteOneID(w.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *WishlistClient) DeleteOneID(id uuid.UUID) *WishlistDeleteOne {
+	builder := c.Delete().Where(wishlist.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WishlistDeleteOne{builder}
+}
+
+// Query returns a query builder for Wishlist.
+func (c *WishlistClient) Query() *WishlistQuery {
+	return &WishlistQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeWishlist},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Wishlist entity by its id.
+func (c *WishlistClient) Get(ctx context.Context, id uuid.UUID) (*Wishlist, error) {
+	return c.Query().Where(wishlist.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WishlistClient) GetX(ctx context.Context, id uuid.UUID) *Wishlist {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCreatorId queries the creatorId edge of a Wishlist.
+func (c *WishlistClient) QueryCreatorId(w *Wishlist) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := w.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(wishlist.Table, wishlist.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, wishlist.CreatorIdTable, wishlist.CreatorIdColumn),
+		)
+		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTemplateId queries the templateId edge of a Wishlist.
+func (c *WishlistClient) QueryTemplateId(w *Wishlist) *WishlistTemplateQuery {
+	query := (&WishlistTemplateClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := w.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(wishlist.Table, wishlist.FieldID, id),
+			sqlgraph.To(wishlisttemplate.Table, wishlisttemplate.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, wishlist.TemplateIdTable, wishlist.TemplateIdColumn),
+		)
+		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySections queries the sections edge of a Wishlist.
+func (c *WishlistClient) QuerySections(w *Wishlist) *WishlistSectionQuery {
+	query := (&WishlistSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := w.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(wishlist.Table, wishlist.FieldID, id),
+			sqlgraph.To(wishlistsection.Table, wishlistsection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, wishlist.SectionsTable, wishlist.SectionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *WishlistClient) Hooks() []Hook {
+	return c.hooks.Wishlist
+}
+
+// Interceptors returns the client interceptors.
+func (c *WishlistClient) Interceptors() []Interceptor {
+	return c.inters.Wishlist
+}
+
+func (c *WishlistClient) mutate(ctx context.Context, m *WishlistMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&WishlistCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&WishlistUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&WishlistUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&WishlistDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Wishlist mutation op: %q", m.Op())
+	}
+}
+
+// WishlistSectionClient is a client for the WishlistSection schema.
+type WishlistSectionClient struct {
+	config
+}
+
+// NewWishlistSectionClient returns a client for the WishlistSection from the given config.
+func NewWishlistSectionClient(c config) *WishlistSectionClient {
+	return &WishlistSectionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `wishlistsection.Hooks(f(g(h())))`.
+func (c *WishlistSectionClient) Use(hooks ...Hook) {
+	c.hooks.WishlistSection = append(c.hooks.WishlistSection, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `wishlistsection.Intercept(f(g(h())))`.
+func (c *WishlistSectionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.WishlistSection = append(c.inters.WishlistSection, interceptors...)
+}
+
+// Create returns a builder for creating a WishlistSection entity.
+func (c *WishlistSectionClient) Create() *WishlistSectionCreate {
+	mutation := newWishlistSectionMutation(c.config, OpCreate)
+	return &WishlistSectionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of WishlistSection entities.
+func (c *WishlistSectionClient) CreateBulk(builders ...*WishlistSectionCreate) *WishlistSectionCreateBulk {
+	return &WishlistSectionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *WishlistSectionClient) MapCreateBulk(slice any, setFunc func(*WishlistSectionCreate, int)) *WishlistSectionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &WishlistSectionCreateBulk{err: fmt.Errorf("calling to WishlistSectionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*WishlistSectionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &WishlistSectionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for WishlistSection.
+func (c *WishlistSectionClient) Update() *WishlistSectionUpdate {
+	mutation := newWishlistSectionMutation(c.config, OpUpdate)
+	return &WishlistSectionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WishlistSectionClient) UpdateOne(ws *WishlistSection) *WishlistSectionUpdateOne {
+	mutation := newWishlistSectionMutation(c.config, OpUpdateOne, withWishlistSection(ws))
+	return &WishlistSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WishlistSectionClient) UpdateOneID(id uuid.UUID) *WishlistSectionUpdateOne {
+	mutation := newWishlistSectionMutation(c.config, OpUpdateOne, withWishlistSectionID(id))
+	return &WishlistSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for WishlistSection.
+func (c *WishlistSectionClient) Delete() *WishlistSectionDelete {
+	mutation := newWishlistSectionMutation(c.config, OpDelete)
+	return &WishlistSectionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *WishlistSectionClient) DeleteOne(ws *WishlistSection) *WishlistSectionDeleteOne {
+	return c.DeleteOneID(ws.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *WishlistSectionClient) DeleteOneID(id uuid.UUID) *WishlistSectionDeleteOne {
+	builder := c.Delete().Where(wishlistsection.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WishlistSectionDeleteOne{builder}
+}
+
+// Query returns a query builder for WishlistSection.
+func (c *WishlistSectionClient) Query() *WishlistSectionQuery {
+	return &WishlistSectionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeWishlistSection},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a WishlistSection entity by its id.
+func (c *WishlistSectionClient) Get(ctx context.Context, id uuid.UUID) (*WishlistSection, error) {
+	return c.Query().Where(wishlistsection.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WishlistSectionClient) GetX(ctx context.Context, id uuid.UUID) *WishlistSection {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryWishlist queries the wishlist edge of a WishlistSection.
+func (c *WishlistSectionClient) QueryWishlist(ws *WishlistSection) *WishlistQuery {
+	query := (&WishlistClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ws.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(wishlistsection.Table, wishlistsection.FieldID, id),
+			sqlgraph.To(wishlist.Table, wishlist.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, wishlistsection.WishlistTable, wishlistsection.WishlistColumn),
+		)
+		fromV = sqlgraph.Neighbors(ws.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryWishlistTemplateSection queries the wishlistTemplateSection edge of a WishlistSection.
+func (c *WishlistSectionClient) QueryWishlistTemplateSection(ws *WishlistSection) *WishlistTemplateSectionQuery {
+	query := (&WishlistTemplateSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ws.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(wishlistsection.Table, wishlistsection.FieldID, id),
+			sqlgraph.To(wishlisttemplatesection.Table, wishlisttemplatesection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, wishlistsection.WishlistTemplateSectionTable, wishlistsection.WishlistTemplateSectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(ws.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *WishlistSectionClient) Hooks() []Hook {
+	return c.hooks.WishlistSection
+}
+
+// Interceptors returns the client interceptors.
+func (c *WishlistSectionClient) Interceptors() []Interceptor {
+	return c.inters.WishlistSection
+}
+
+func (c *WishlistSectionClient) mutate(ctx context.Context, m *WishlistSectionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&WishlistSectionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&WishlistSectionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&WishlistSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&WishlistSectionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown WishlistSection mutation op: %q", m.Op())
+	}
+}
+
+// WishlistTemplateClient is a client for the WishlistTemplate schema.
+type WishlistTemplateClient struct {
+	config
+}
+
+// NewWishlistTemplateClient returns a client for the WishlistTemplate from the given config.
+func NewWishlistTemplateClient(c config) *WishlistTemplateClient {
+	return &WishlistTemplateClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `wishlisttemplate.Hooks(f(g(h())))`.
+func (c *WishlistTemplateClient) Use(hooks ...Hook) {
+	c.hooks.WishlistTemplate = append(c.hooks.WishlistTemplate, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `wishlisttemplate.Intercept(f(g(h())))`.
+func (c *WishlistTemplateClient) Intercept(interceptors ...Interceptor) {
+	c.inters.WishlistTemplate = append(c.inters.WishlistTemplate, interceptors...)
+}
+
+// Create returns a builder for creating a WishlistTemplate entity.
+func (c *WishlistTemplateClient) Create() *WishlistTemplateCreate {
+	mutation := newWishlistTemplateMutation(c.config, OpCreate)
+	return &WishlistTemplateCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of WishlistTemplate entities.
+func (c *WishlistTemplateClient) CreateBulk(builders ...*WishlistTemplateCreate) *WishlistTemplateCreateBulk {
+	return &WishlistTemplateCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *WishlistTemplateClient) MapCreateBulk(slice any, setFunc func(*WishlistTemplateCreate, int)) *WishlistTemplateCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &WishlistTemplateCreateBulk{err: fmt.Errorf("calling to WishlistTemplateClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*WishlistTemplateCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &WishlistTemplateCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for WishlistTemplate.
+func (c *WishlistTemplateClient) Update() *WishlistTemplateUpdate {
+	mutation := newWishlistTemplateMutation(c.config, OpUpdate)
+	return &WishlistTemplateUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WishlistTemplateClient) UpdateOne(wt *WishlistTemplate) *WishlistTemplateUpdateOne {
+	mutation := newWishlistTemplateMutation(c.config, OpUpdateOne, withWishlistTemplate(wt))
+	return &WishlistTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WishlistTemplateClient) UpdateOneID(id uuid.UUID) *WishlistTemplateUpdateOne {
+	mutation := newWishlistTemplateMutation(c.config, OpUpdateOne, withWishlistTemplateID(id))
+	return &WishlistTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for WishlistTemplate.
+func (c *WishlistTemplateClient) Delete() *WishlistTemplateDelete {
+	mutation := newWishlistTemplateMutation(c.config, OpDelete)
+	return &WishlistTemplateDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *WishlistTemplateClient) DeleteOne(wt *WishlistTemplate) *WishlistTemplateDeleteOne {
+	return c.DeleteOneID(wt.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *WishlistTemplateClient) DeleteOneID(id uuid.UUID) *WishlistTemplateDeleteOne {
+	builder := c.Delete().Where(wishlisttemplate.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WishlistTemplateDeleteOne{builder}
+}
+
+// Query returns a query builder for WishlistTemplate.
+func (c *WishlistTemplateClient) Query() *WishlistTemplateQuery {
+	return &WishlistTemplateQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeWishlistTemplate},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a WishlistTemplate entity by its id.
+func (c *WishlistTemplateClient) Get(ctx context.Context, id uuid.UUID) (*WishlistTemplate, error) {
+	return c.Query().Where(wishlisttemplate.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WishlistTemplateClient) GetX(ctx context.Context, id uuid.UUID) *WishlistTemplate {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCreatorId queries the creatorId edge of a WishlistTemplate.
+func (c *WishlistTemplateClient) QueryCreatorId(wt *WishlistTemplate) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := wt.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(wishlisttemplate.Table, wishlisttemplate.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, wishlisttemplate.CreatorIdTable, wishlisttemplate.CreatorIdColumn),
+		)
+		fromV = sqlgraph.Neighbors(wt.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySections queries the sections edge of a WishlistTemplate.
+func (c *WishlistTemplateClient) QuerySections(wt *WishlistTemplate) *WishlistTemplateSectionQuery {
+	query := (&WishlistTemplateSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := wt.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(wishlisttemplate.Table, wishlisttemplate.FieldID, id),
+			sqlgraph.To(wishlisttemplatesection.Table, wishlisttemplatesection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, wishlisttemplate.SectionsTable, wishlisttemplate.SectionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(wt.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *WishlistTemplateClient) Hooks() []Hook {
+	return c.hooks.WishlistTemplate
+}
+
+// Interceptors returns the client interceptors.
+func (c *WishlistTemplateClient) Interceptors() []Interceptor {
+	return c.inters.WishlistTemplate
+}
+
+func (c *WishlistTemplateClient) mutate(ctx context.Context, m *WishlistTemplateMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&WishlistTemplateCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&WishlistTemplateUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&WishlistTemplateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&WishlistTemplateDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown WishlistTemplate mutation op: %q", m.Op())
+	}
+}
+
+// WishlistTemplateSectionClient is a client for the WishlistTemplateSection schema.
+type WishlistTemplateSectionClient struct {
+	config
+}
+
+// NewWishlistTemplateSectionClient returns a client for the WishlistTemplateSection from the given config.
+func NewWishlistTemplateSectionClient(c config) *WishlistTemplateSectionClient {
+	return &WishlistTemplateSectionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `wishlisttemplatesection.Hooks(f(g(h())))`.
+func (c *WishlistTemplateSectionClient) Use(hooks ...Hook) {
+	c.hooks.WishlistTemplateSection = append(c.hooks.WishlistTemplateSection, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `wishlisttemplatesection.Intercept(f(g(h())))`.
+func (c *WishlistTemplateSectionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.WishlistTemplateSection = append(c.inters.WishlistTemplateSection, interceptors...)
+}
+
+// Create returns a builder for creating a WishlistTemplateSection entity.
+func (c *WishlistTemplateSectionClient) Create() *WishlistTemplateSectionCreate {
+	mutation := newWishlistTemplateSectionMutation(c.config, OpCreate)
+	return &WishlistTemplateSectionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of WishlistTemplateSection entities.
+func (c *WishlistTemplateSectionClient) CreateBulk(builders ...*WishlistTemplateSectionCreate) *WishlistTemplateSectionCreateBulk {
+	return &WishlistTemplateSectionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *WishlistTemplateSectionClient) MapCreateBulk(slice any, setFunc func(*WishlistTemplateSectionCreate, int)) *WishlistTemplateSectionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &WishlistTemplateSectionCreateBulk{err: fmt.Errorf("calling to WishlistTemplateSectionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*WishlistTemplateSectionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &WishlistTemplateSectionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for WishlistTemplateSection.
+func (c *WishlistTemplateSectionClient) Update() *WishlistTemplateSectionUpdate {
+	mutation := newWishlistTemplateSectionMutation(c.config, OpUpdate)
+	return &WishlistTemplateSectionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WishlistTemplateSectionClient) UpdateOne(wts *WishlistTemplateSection) *WishlistTemplateSectionUpdateOne {
+	mutation := newWishlistTemplateSectionMutation(c.config, OpUpdateOne, withWishlistTemplateSection(wts))
+	return &WishlistTemplateSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WishlistTemplateSectionClient) UpdateOneID(id uuid.UUID) *WishlistTemplateSectionUpdateOne {
+	mutation := newWishlistTemplateSectionMutation(c.config, OpUpdateOne, withWishlistTemplateSectionID(id))
+	return &WishlistTemplateSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for WishlistTemplateSection.
+func (c *WishlistTemplateSectionClient) Delete() *WishlistTemplateSectionDelete {
+	mutation := newWishlistTemplateSectionMutation(c.config, OpDelete)
+	return &WishlistTemplateSectionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *WishlistTemplateSectionClient) DeleteOne(wts *WishlistTemplateSection) *WishlistTemplateSectionDeleteOne {
+	return c.DeleteOneID(wts.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *WishlistTemplateSectionClient) DeleteOneID(id uuid.UUID) *WishlistTemplateSectionDeleteOne {
+	builder := c.Delete().Where(wishlisttemplatesection.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WishlistTemplateSectionDeleteOne{builder}
+}
+
+// Query returns a query builder for WishlistTemplateSection.
+func (c *WishlistTemplateSectionClient) Query() *WishlistTemplateSectionQuery {
+	return &WishlistTemplateSectionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeWishlistTemplateSection},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a WishlistTemplateSection entity by its id.
+func (c *WishlistTemplateSectionClient) Get(ctx context.Context, id uuid.UUID) (*WishlistTemplateSection, error) {
+	return c.Query().Where(wishlisttemplatesection.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WishlistTemplateSectionClient) GetX(ctx context.Context, id uuid.UUID) *WishlistTemplateSection {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryWishlistTemplate queries the wishlistTemplate edge of a WishlistTemplateSection.
+func (c *WishlistTemplateSectionClient) QueryWishlistTemplate(wts *WishlistTemplateSection) *WishlistTemplateQuery {
+	query := (&WishlistTemplateClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := wts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(wishlisttemplatesection.Table, wishlisttemplatesection.FieldID, id),
+			sqlgraph.To(wishlisttemplate.Table, wishlisttemplate.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, wishlisttemplatesection.WishlistTemplateTable, wishlisttemplatesection.WishlistTemplateColumn),
+		)
+		fromV = sqlgraph.Neighbors(wts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *WishlistTemplateSectionClient) Hooks() []Hook {
+	return c.hooks.WishlistTemplateSection
+}
+
+// Interceptors returns the client interceptors.
+func (c *WishlistTemplateSectionClient) Interceptors() []Interceptor {
+	return c.inters.WishlistTemplateSection
+}
+
+func (c *WishlistTemplateSectionClient) mutate(ctx context.Context, m *WishlistTemplateSectionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&WishlistTemplateSectionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&WishlistTemplateSectionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&WishlistTemplateSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&WishlistTemplateSectionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown WishlistTemplateSection mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		User []ent.Hook
+		User, Wishlist, WishlistSection, WishlistTemplate,
+		WishlistTemplateSection []ent.Hook
 	}
 	inters struct {
-		User []ent.Interceptor
+		User, Wishlist, WishlistSection, WishlistTemplate,
+		WishlistTemplateSection []ent.Interceptor
 	}
 )

@@ -8,3 +8,15 @@ import (
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// Wishlist is the predicate function for wishlist builders.
+type Wishlist func(*sql.Selector)
+
+// WishlistSection is the predicate function for wishlistsection builders.
+type WishlistSection func(*sql.Selector)
+
+// WishlistTemplate is the predicate function for wishlisttemplate builders.
+type WishlistTemplate func(*sql.Selector)
+
+// WishlistTemplateSection is the predicate function for wishlisttemplatesection builders.
+type WishlistTemplateSection func(*sql.Selector)

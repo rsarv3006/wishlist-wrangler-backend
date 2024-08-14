@@ -20,6 +20,54 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
 }
 
+// The WishlistFunc type is an adapter to allow the use of ordinary
+// function as Wishlist mutator.
+type WishlistFunc func(context.Context, *ent.WishlistMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WishlistFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.WishlistMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WishlistMutation", m)
+}
+
+// The WishlistSectionFunc type is an adapter to allow the use of ordinary
+// function as WishlistSection mutator.
+type WishlistSectionFunc func(context.Context, *ent.WishlistSectionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WishlistSectionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.WishlistSectionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WishlistSectionMutation", m)
+}
+
+// The WishlistTemplateFunc type is an adapter to allow the use of ordinary
+// function as WishlistTemplate mutator.
+type WishlistTemplateFunc func(context.Context, *ent.WishlistTemplateMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WishlistTemplateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.WishlistTemplateMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WishlistTemplateMutation", m)
+}
+
+// The WishlistTemplateSectionFunc type is an adapter to allow the use of ordinary
+// function as WishlistTemplateSection mutator.
+type WishlistTemplateSectionFunc func(context.Context, *ent.WishlistTemplateSectionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WishlistTemplateSectionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.WishlistTemplateSectionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WishlistTemplateSectionMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 
