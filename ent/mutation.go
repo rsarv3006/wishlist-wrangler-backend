@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"wishlist-wrangler-api/ent/loginrequest"
 	"wishlist-wrangler-api/ent/predicate"
 	"wishlist-wrangler-api/ent/user"
 	"wishlist-wrangler-api/ent/wishlist"
@@ -29,12 +30,507 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeLoginRequest            = "LoginRequest"
 	TypeUser                    = "User"
 	TypeWishlist                = "Wishlist"
 	TypeWishlistSection         = "WishlistSection"
 	TypeWishlistTemplate        = "WishlistTemplate"
 	TypeWishlistTemplateSection = "WishlistTemplateSection"
 )
+
+// LoginRequestMutation represents an operation that mutates the LoginRequest nodes in the graph.
+type LoginRequestMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	userId           *uuid.UUID
+	created_at       *time.Time
+	loginRequestCode *string
+	status           *loginrequest.Status
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*LoginRequest, error)
+	predicates       []predicate.LoginRequest
+}
+
+var _ ent.Mutation = (*LoginRequestMutation)(nil)
+
+// loginrequestOption allows management of the mutation configuration using functional options.
+type loginrequestOption func(*LoginRequestMutation)
+
+// newLoginRequestMutation creates new mutation for the LoginRequest entity.
+func newLoginRequestMutation(c config, op Op, opts ...loginrequestOption) *LoginRequestMutation {
+	m := &LoginRequestMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeLoginRequest,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withLoginRequestID sets the ID field of the mutation.
+func withLoginRequestID(id uuid.UUID) loginrequestOption {
+	return func(m *LoginRequestMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *LoginRequest
+		)
+		m.oldValue = func(ctx context.Context) (*LoginRequest, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().LoginRequest.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withLoginRequest sets the old LoginRequest of the mutation.
+func withLoginRequest(node *LoginRequest) loginrequestOption {
+	return func(m *LoginRequestMutation) {
+		m.oldValue = func(context.Context) (*LoginRequest, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m LoginRequestMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m LoginRequestMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of LoginRequest entities.
+func (m *LoginRequestMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *LoginRequestMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *LoginRequestMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().LoginRequest.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetUserId sets the "userId" field.
+func (m *LoginRequestMutation) SetUserId(u uuid.UUID) {
+	m.userId = &u
+}
+
+// UserId returns the value of the "userId" field in the mutation.
+func (m *LoginRequestMutation) UserId() (r uuid.UUID, exists bool) {
+	v := m.userId
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserId returns the old "userId" field's value of the LoginRequest entity.
+// If the LoginRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LoginRequestMutation) OldUserId(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserId is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserId requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserId: %w", err)
+	}
+	return oldValue.UserId, nil
+}
+
+// ResetUserId resets all changes to the "userId" field.
+func (m *LoginRequestMutation) ResetUserId() {
+	m.userId = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *LoginRequestMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *LoginRequestMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the LoginRequest entity.
+// If the LoginRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LoginRequestMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *LoginRequestMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetLoginRequestCode sets the "loginRequestCode" field.
+func (m *LoginRequestMutation) SetLoginRequestCode(s string) {
+	m.loginRequestCode = &s
+}
+
+// LoginRequestCode returns the value of the "loginRequestCode" field in the mutation.
+func (m *LoginRequestMutation) LoginRequestCode() (r string, exists bool) {
+	v := m.loginRequestCode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLoginRequestCode returns the old "loginRequestCode" field's value of the LoginRequest entity.
+// If the LoginRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LoginRequestMutation) OldLoginRequestCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLoginRequestCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLoginRequestCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLoginRequestCode: %w", err)
+	}
+	return oldValue.LoginRequestCode, nil
+}
+
+// ResetLoginRequestCode resets all changes to the "loginRequestCode" field.
+func (m *LoginRequestMutation) ResetLoginRequestCode() {
+	m.loginRequestCode = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *LoginRequestMutation) SetStatus(l loginrequest.Status) {
+	m.status = &l
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *LoginRequestMutation) Status() (r loginrequest.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the LoginRequest entity.
+// If the LoginRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LoginRequestMutation) OldStatus(ctx context.Context) (v loginrequest.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *LoginRequestMutation) ResetStatus() {
+	m.status = nil
+}
+
+// Where appends a list predicates to the LoginRequestMutation builder.
+func (m *LoginRequestMutation) Where(ps ...predicate.LoginRequest) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the LoginRequestMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *LoginRequestMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.LoginRequest, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *LoginRequestMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *LoginRequestMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (LoginRequest).
+func (m *LoginRequestMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *LoginRequestMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.userId != nil {
+		fields = append(fields, loginrequest.FieldUserId)
+	}
+	if m.created_at != nil {
+		fields = append(fields, loginrequest.FieldCreatedAt)
+	}
+	if m.loginRequestCode != nil {
+		fields = append(fields, loginrequest.FieldLoginRequestCode)
+	}
+	if m.status != nil {
+		fields = append(fields, loginrequest.FieldStatus)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *LoginRequestMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case loginrequest.FieldUserId:
+		return m.UserId()
+	case loginrequest.FieldCreatedAt:
+		return m.CreatedAt()
+	case loginrequest.FieldLoginRequestCode:
+		return m.LoginRequestCode()
+	case loginrequest.FieldStatus:
+		return m.Status()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *LoginRequestMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case loginrequest.FieldUserId:
+		return m.OldUserId(ctx)
+	case loginrequest.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case loginrequest.FieldLoginRequestCode:
+		return m.OldLoginRequestCode(ctx)
+	case loginrequest.FieldStatus:
+		return m.OldStatus(ctx)
+	}
+	return nil, fmt.Errorf("unknown LoginRequest field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *LoginRequestMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case loginrequest.FieldUserId:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserId(v)
+		return nil
+	case loginrequest.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case loginrequest.FieldLoginRequestCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLoginRequestCode(v)
+		return nil
+	case loginrequest.FieldStatus:
+		v, ok := value.(loginrequest.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	}
+	return fmt.Errorf("unknown LoginRequest field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *LoginRequestMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *LoginRequestMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *LoginRequestMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown LoginRequest numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *LoginRequestMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *LoginRequestMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *LoginRequestMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown LoginRequest nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *LoginRequestMutation) ResetField(name string) error {
+	switch name {
+	case loginrequest.FieldUserId:
+		m.ResetUserId()
+		return nil
+	case loginrequest.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case loginrequest.FieldLoginRequestCode:
+		m.ResetLoginRequestCode()
+		return nil
+	case loginrequest.FieldStatus:
+		m.ResetStatus()
+		return nil
+	}
+	return fmt.Errorf("unknown LoginRequest field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *LoginRequestMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *LoginRequestMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *LoginRequestMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *LoginRequestMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *LoginRequestMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *LoginRequestMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *LoginRequestMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown LoginRequest unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *LoginRequestMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown LoginRequest edge %s", name)
+}
 
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
@@ -538,6 +1034,7 @@ type WishlistMutation struct {
 	id                *uuid.UUID
 	title             *string
 	created_at        *time.Time
+	status            *wishlist.Status
 	clearedFields     map[string]struct{}
 	creatorId         map[uuid.UUID]struct{}
 	removedcreatorId  map[uuid.UUID]struct{}
@@ -727,6 +1224,42 @@ func (m *WishlistMutation) OldCreatedAt(ctx context.Context) (v time.Time, err e
 // ResetCreatedAt resets all changes to the "created_at" field.
 func (m *WishlistMutation) ResetCreatedAt() {
 	m.created_at = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *WishlistMutation) SetStatus(w wishlist.Status) {
+	m.status = &w
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *WishlistMutation) Status() (r wishlist.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Wishlist entity.
+// If the Wishlist object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistMutation) OldStatus(ctx context.Context) (v wishlist.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *WishlistMutation) ResetStatus() {
+	m.status = nil
 }
 
 // AddCreatorIdIDs adds the "creatorId" edge to the User entity by ids.
@@ -925,12 +1458,15 @@ func (m *WishlistMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *WishlistMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.title != nil {
 		fields = append(fields, wishlist.FieldTitle)
 	}
 	if m.created_at != nil {
 		fields = append(fields, wishlist.FieldCreatedAt)
+	}
+	if m.status != nil {
+		fields = append(fields, wishlist.FieldStatus)
 	}
 	return fields
 }
@@ -944,6 +1480,8 @@ func (m *WishlistMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case wishlist.FieldCreatedAt:
 		return m.CreatedAt()
+	case wishlist.FieldStatus:
+		return m.Status()
 	}
 	return nil, false
 }
@@ -957,6 +1495,8 @@ func (m *WishlistMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldTitle(ctx)
 	case wishlist.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
+	case wishlist.FieldStatus:
+		return m.OldStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown Wishlist field %s", name)
 }
@@ -979,6 +1519,13 @@ func (m *WishlistMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreatedAt(v)
+		return nil
+	case wishlist.FieldStatus:
+		v, ok := value.(wishlist.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Wishlist field %s", name)
@@ -1034,6 +1581,9 @@ func (m *WishlistMutation) ResetField(name string) error {
 		return nil
 	case wishlist.FieldCreatedAt:
 		m.ResetCreatedAt()
+		return nil
+	case wishlist.FieldStatus:
+		m.ResetStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown Wishlist field %s", name)
@@ -1776,6 +2326,7 @@ type WishlistTemplateMutation struct {
 	title            *string
 	created_at       *time.Time
 	description      *string
+	status           *wishlisttemplate.Status
 	clearedFields    map[string]struct{}
 	creatorId        map[uuid.UUID]struct{}
 	removedcreatorId map[uuid.UUID]struct{}
@@ -2000,6 +2551,42 @@ func (m *WishlistTemplateMutation) ResetDescription() {
 	m.description = nil
 }
 
+// SetStatus sets the "status" field.
+func (m *WishlistTemplateMutation) SetStatus(w wishlisttemplate.Status) {
+	m.status = &w
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *WishlistTemplateMutation) Status() (r wishlisttemplate.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the WishlistTemplate entity.
+// If the WishlistTemplate object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistTemplateMutation) OldStatus(ctx context.Context) (v wishlisttemplate.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *WishlistTemplateMutation) ResetStatus() {
+	m.status = nil
+}
+
 // AddCreatorIdIDs adds the "creatorId" edge to the User entity by ids.
 func (m *WishlistTemplateMutation) AddCreatorIdIDs(ids ...uuid.UUID) {
 	if m.creatorId == nil {
@@ -2142,7 +2729,7 @@ func (m *WishlistTemplateMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *WishlistTemplateMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.title != nil {
 		fields = append(fields, wishlisttemplate.FieldTitle)
 	}
@@ -2151,6 +2738,9 @@ func (m *WishlistTemplateMutation) Fields() []string {
 	}
 	if m.description != nil {
 		fields = append(fields, wishlisttemplate.FieldDescription)
+	}
+	if m.status != nil {
+		fields = append(fields, wishlisttemplate.FieldStatus)
 	}
 	return fields
 }
@@ -2166,6 +2756,8 @@ func (m *WishlistTemplateMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case wishlisttemplate.FieldDescription:
 		return m.Description()
+	case wishlisttemplate.FieldStatus:
+		return m.Status()
 	}
 	return nil, false
 }
@@ -2181,6 +2773,8 @@ func (m *WishlistTemplateMutation) OldField(ctx context.Context, name string) (e
 		return m.OldCreatedAt(ctx)
 	case wishlisttemplate.FieldDescription:
 		return m.OldDescription(ctx)
+	case wishlisttemplate.FieldStatus:
+		return m.OldStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown WishlistTemplate field %s", name)
 }
@@ -2210,6 +2804,13 @@ func (m *WishlistTemplateMutation) SetField(name string, value ent.Value) error 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDescription(v)
+		return nil
+	case wishlisttemplate.FieldStatus:
+		v, ok := value.(wishlisttemplate.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	}
 	return fmt.Errorf("unknown WishlistTemplate field %s", name)
@@ -2268,6 +2869,9 @@ func (m *WishlistTemplateMutation) ResetField(name string) error {
 		return nil
 	case wishlisttemplate.FieldDescription:
 		m.ResetDescription()
+		return nil
+	case wishlisttemplate.FieldStatus:
+		m.ResetStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown WishlistTemplate field %s", name)

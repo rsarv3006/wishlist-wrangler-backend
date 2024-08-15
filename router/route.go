@@ -15,6 +15,9 @@ func SetupRoutes(app *fiber.App, dbClient *ent.Client) {
 
 	api := app.Group("/api", logger.New())
 	api.Get("/health", handler.HealthEndpoint())
+	apiV1 := api.Group("/v1")
+	setUpUserRoutesV1(apiV1, dbClient)
+	setUpAuthRoutesV1(apiV1, dbClient)
 
 }
 
@@ -36,4 +39,15 @@ func setUpShareRedirectRoutes(app *fiber.App) {
 	app.Get("/share", func(c *fiber.Ctx) error {
 		return c.Redirect("https://apps.apple.com/us/app/basketbuddy/id6446040498")
 	})
+}
+
+func setUpUserRoutesV1(api fiber.Router, _ *ent.Client) {
+	_ = api.Group("/user")
+
+}
+
+func setUpAuthRoutesV1(api fiber.Router, dbClient *ent.Client) {
+	auth := api.Group("/auth")
+
+	auth.Post("/code/:code", handler.CreateUserEndpoint(dbClient))
 }

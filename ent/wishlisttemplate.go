@@ -24,6 +24,8 @@ type WishlistTemplate struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// Status holds the value of the "status" field.
+	Status wishlisttemplate.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the WishlistTemplateQuery when eager-loading is set.
 	Edges                WishlistTemplateEdges `json:"edges"`
@@ -65,7 +67,7 @@ func (*WishlistTemplate) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case wishlisttemplate.FieldTitle, wishlisttemplate.FieldDescription:
+		case wishlisttemplate.FieldTitle, wishlisttemplate.FieldDescription, wishlisttemplate.FieldStatus:
 			values[i] = new(sql.NullString)
 		case wishlisttemplate.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -111,6 +113,12 @@ func (wt *WishlistTemplate) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
 				wt.Description = value.String
+			}
+		case wishlisttemplate.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				wt.Status = wishlisttemplate.Status(value.String)
 			}
 		case wishlisttemplate.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -173,6 +181,9 @@ func (wt *WishlistTemplate) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(wt.Description)
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", wt.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

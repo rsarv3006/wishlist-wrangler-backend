@@ -241,6 +241,26 @@ func DescriptionContainsFold(v string) predicate.WishlistTemplate {
 	return predicate.WishlistTemplate(sql.FieldContainsFold(FieldDescription, v))
 }
 
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldNotIn(FieldStatus, vs...))
+}
+
 // HasCreatorId applies the HasEdge predicate on the "creatorId" edge.
 func HasCreatorId() predicate.WishlistTemplate {
 	return predicate.WishlistTemplate(func(s *sql.Selector) {

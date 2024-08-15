@@ -58,6 +58,20 @@ func (wtu *WishlistTemplateUpdate) SetNillableDescription(s *string) *WishlistTe
 	return wtu
 }
 
+// SetStatus sets the "status" field.
+func (wtu *WishlistTemplateUpdate) SetStatus(w wishlisttemplate.Status) *WishlistTemplateUpdate {
+	wtu.mutation.SetStatus(w)
+	return wtu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (wtu *WishlistTemplateUpdate) SetNillableStatus(w *wishlisttemplate.Status) *WishlistTemplateUpdate {
+	if w != nil {
+		wtu.SetStatus(*w)
+	}
+	return wtu
+}
+
 // AddCreatorIdIDs adds the "creatorId" edge to the User entity by IDs.
 func (wtu *WishlistTemplateUpdate) AddCreatorIdIDs(ids ...uuid.UUID) *WishlistTemplateUpdate {
 	wtu.mutation.AddCreatorIdIDs(ids...)
@@ -174,6 +188,11 @@ func (wtu *WishlistTemplateUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplate.description": %w`, err)}
 		}
 	}
+	if v, ok := wtu.mutation.Status(); ok {
+		if err := wishlisttemplate.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplate.status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -194,6 +213,9 @@ func (wtu *WishlistTemplateUpdate) sqlSave(ctx context.Context) (n int, err erro
 	}
 	if value, ok := wtu.mutation.Description(); ok {
 		_spec.SetField(wishlisttemplate.FieldDescription, field.TypeString, value)
+	}
+	if value, ok := wtu.mutation.Status(); ok {
+		_spec.SetField(wishlisttemplate.FieldStatus, field.TypeEnum, value)
 	}
 	if wtu.mutation.CreatorIdCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -333,6 +355,20 @@ func (wtuo *WishlistTemplateUpdateOne) SetNillableDescription(s *string) *Wishli
 	return wtuo
 }
 
+// SetStatus sets the "status" field.
+func (wtuo *WishlistTemplateUpdateOne) SetStatus(w wishlisttemplate.Status) *WishlistTemplateUpdateOne {
+	wtuo.mutation.SetStatus(w)
+	return wtuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (wtuo *WishlistTemplateUpdateOne) SetNillableStatus(w *wishlisttemplate.Status) *WishlistTemplateUpdateOne {
+	if w != nil {
+		wtuo.SetStatus(*w)
+	}
+	return wtuo
+}
+
 // AddCreatorIdIDs adds the "creatorId" edge to the User entity by IDs.
 func (wtuo *WishlistTemplateUpdateOne) AddCreatorIdIDs(ids ...uuid.UUID) *WishlistTemplateUpdateOne {
 	wtuo.mutation.AddCreatorIdIDs(ids...)
@@ -462,6 +498,11 @@ func (wtuo *WishlistTemplateUpdateOne) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplate.description": %w`, err)}
 		}
 	}
+	if v, ok := wtuo.mutation.Status(); ok {
+		if err := wishlisttemplate.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplate.status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -499,6 +540,9 @@ func (wtuo *WishlistTemplateUpdateOne) sqlSave(ctx context.Context) (_node *Wish
 	}
 	if value, ok := wtuo.mutation.Description(); ok {
 		_spec.SetField(wishlisttemplate.FieldDescription, field.TypeString, value)
+	}
+	if value, ok := wtuo.mutation.Status(); ok {
+		_spec.SetField(wishlisttemplate.FieldStatus, field.TypeEnum, value)
 	}
 	if wtuo.mutation.CreatorIdCleared() {
 		edge := &sqlgraph.EdgeSpec{

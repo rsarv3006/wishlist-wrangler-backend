@@ -44,6 +44,20 @@ func (wc *WishlistCreate) SetNillableCreatedAt(t *time.Time) *WishlistCreate {
 	return wc
 }
 
+// SetStatus sets the "status" field.
+func (wc *WishlistCreate) SetStatus(w wishlist.Status) *WishlistCreate {
+	wc.mutation.SetStatus(w)
+	return wc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (wc *WishlistCreate) SetNillableStatus(w *wishlist.Status) *WishlistCreate {
+	if w != nil {
+		wc.SetStatus(*w)
+	}
+	return wc
+}
+
 // SetID sets the "id" field.
 func (wc *WishlistCreate) SetID(u uuid.UUID) *WishlistCreate {
 	wc.mutation.SetID(u)
@@ -142,6 +156,10 @@ func (wc *WishlistCreate) defaults() {
 		v := wishlist.DefaultCreatedAt()
 		wc.mutation.SetCreatedAt(v)
 	}
+	if _, ok := wc.mutation.Status(); !ok {
+		v := wishlist.DefaultStatus
+		wc.mutation.SetStatus(v)
+	}
 	if _, ok := wc.mutation.ID(); !ok {
 		v := wishlist.DefaultID()
 		wc.mutation.SetID(v)
@@ -160,6 +178,14 @@ func (wc *WishlistCreate) check() error {
 	}
 	if _, ok := wc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Wishlist.created_at"`)}
+	}
+	if _, ok := wc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Wishlist.status"`)}
+	}
+	if v, ok := wc.mutation.Status(); ok {
+		if err := wishlist.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Wishlist.status": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -203,6 +229,10 @@ func (wc *WishlistCreate) createSpec() (*Wishlist, *sqlgraph.CreateSpec) {
 	if value, ok := wc.mutation.CreatedAt(); ok {
 		_spec.SetField(wishlist.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := wc.mutation.Status(); ok {
+		_spec.SetField(wishlist.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if nodes := wc.mutation.CreatorIdIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

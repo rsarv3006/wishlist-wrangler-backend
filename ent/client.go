@@ -11,6 +11,7 @@ import (
 
 	"wishlist-wrangler-api/ent/migrate"
 
+	"wishlist-wrangler-api/ent/loginrequest"
 	"wishlist-wrangler-api/ent/user"
 	"wishlist-wrangler-api/ent/wishlist"
 	"wishlist-wrangler-api/ent/wishlistsection"
@@ -29,6 +30,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// LoginRequest is the client for interacting with the LoginRequest builders.
+	LoginRequest *LoginRequestClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// Wishlist is the client for interacting with the Wishlist builders.
@@ -50,6 +53,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.LoginRequest = NewLoginRequestClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.Wishlist = NewWishlistClient(c.config)
 	c.WishlistSection = NewWishlistSectionClient(c.config)
@@ -147,6 +151,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                     ctx,
 		config:                  cfg,
+		LoginRequest:            NewLoginRequestClient(cfg),
 		User:                    NewUserClient(cfg),
 		Wishlist:                NewWishlistClient(cfg),
 		WishlistSection:         NewWishlistSectionClient(cfg),
@@ -171,6 +176,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:                     ctx,
 		config:                  cfg,
+		LoginRequest:            NewLoginRequestClient(cfg),
 		User:                    NewUserClient(cfg),
 		Wishlist:                NewWishlistClient(cfg),
 		WishlistSection:         NewWishlistSectionClient(cfg),
@@ -182,7 +188,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		User.
+//		LoginRequest.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -204,26 +210,30 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.User.Use(hooks...)
-	c.Wishlist.Use(hooks...)
-	c.WishlistSection.Use(hooks...)
-	c.WishlistTemplate.Use(hooks...)
-	c.WishlistTemplateSection.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.LoginRequest, c.User, c.Wishlist, c.WishlistSection, c.WishlistTemplate,
+		c.WishlistTemplateSection,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.User.Intercept(interceptors...)
-	c.Wishlist.Intercept(interceptors...)
-	c.WishlistSection.Intercept(interceptors...)
-	c.WishlistTemplate.Intercept(interceptors...)
-	c.WishlistTemplateSection.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.LoginRequest, c.User, c.Wishlist, c.WishlistSection, c.WishlistTemplate,
+		c.WishlistTemplateSection,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *LoginRequestMutation:
+		return c.LoginRequest.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	case *WishlistMutation:
@@ -236,6 +246,139 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.WishlistTemplateSection.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// LoginRequestClient is a client for the LoginRequest schema.
+type LoginRequestClient struct {
+	config
+}
+
+// NewLoginRequestClient returns a client for the LoginRequest from the given config.
+func NewLoginRequestClient(c config) *LoginRequestClient {
+	return &LoginRequestClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `loginrequest.Hooks(f(g(h())))`.
+func (c *LoginRequestClient) Use(hooks ...Hook) {
+	c.hooks.LoginRequest = append(c.hooks.LoginRequest, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `loginrequest.Intercept(f(g(h())))`.
+func (c *LoginRequestClient) Intercept(interceptors ...Interceptor) {
+	c.inters.LoginRequest = append(c.inters.LoginRequest, interceptors...)
+}
+
+// Create returns a builder for creating a LoginRequest entity.
+func (c *LoginRequestClient) Create() *LoginRequestCreate {
+	mutation := newLoginRequestMutation(c.config, OpCreate)
+	return &LoginRequestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of LoginRequest entities.
+func (c *LoginRequestClient) CreateBulk(builders ...*LoginRequestCreate) *LoginRequestCreateBulk {
+	return &LoginRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *LoginRequestClient) MapCreateBulk(slice any, setFunc func(*LoginRequestCreate, int)) *LoginRequestCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &LoginRequestCreateBulk{err: fmt.Errorf("calling to LoginRequestClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*LoginRequestCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &LoginRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for LoginRequest.
+func (c *LoginRequestClient) Update() *LoginRequestUpdate {
+	mutation := newLoginRequestMutation(c.config, OpUpdate)
+	return &LoginRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *LoginRequestClient) UpdateOne(lr *LoginRequest) *LoginRequestUpdateOne {
+	mutation := newLoginRequestMutation(c.config, OpUpdateOne, withLoginRequest(lr))
+	return &LoginRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *LoginRequestClient) UpdateOneID(id uuid.UUID) *LoginRequestUpdateOne {
+	mutation := newLoginRequestMutation(c.config, OpUpdateOne, withLoginRequestID(id))
+	return &LoginRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for LoginRequest.
+func (c *LoginRequestClient) Delete() *LoginRequestDelete {
+	mutation := newLoginRequestMutation(c.config, OpDelete)
+	return &LoginRequestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *LoginRequestClient) DeleteOne(lr *LoginRequest) *LoginRequestDeleteOne {
+	return c.DeleteOneID(lr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *LoginRequestClient) DeleteOneID(id uuid.UUID) *LoginRequestDeleteOne {
+	builder := c.Delete().Where(loginrequest.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &LoginRequestDeleteOne{builder}
+}
+
+// Query returns a query builder for LoginRequest.
+func (c *LoginRequestClient) Query() *LoginRequestQuery {
+	return &LoginRequestQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeLoginRequest},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a LoginRequest entity by its id.
+func (c *LoginRequestClient) Get(ctx context.Context, id uuid.UUID) (*LoginRequest, error) {
+	return c.Query().Where(loginrequest.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *LoginRequestClient) GetX(ctx context.Context, id uuid.UUID) *LoginRequest {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *LoginRequestClient) Hooks() []Hook {
+	return c.hooks.LoginRequest
+}
+
+// Interceptors returns the client interceptors.
+func (c *LoginRequestClient) Interceptors() []Interceptor {
+	return c.inters.LoginRequest
+}
+
+func (c *LoginRequestClient) mutate(ctx context.Context, m *LoginRequestMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&LoginRequestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&LoginRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&LoginRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&LoginRequestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown LoginRequest mutation op: %q", m.Op())
 	}
 }
 
@@ -1035,11 +1178,11 @@ func (c *WishlistTemplateSectionClient) mutate(ctx context.Context, m *WishlistT
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		User, Wishlist, WishlistSection, WishlistTemplate,
+		LoginRequest, User, Wishlist, WishlistSection, WishlistTemplate,
 		WishlistTemplateSection []ent.Hook
 	}
 	inters struct {
-		User, Wishlist, WishlistSection, WishlistTemplate,
+		LoginRequest, User, Wishlist, WishlistSection, WishlistTemplate,
 		WishlistTemplateSection []ent.Interceptor
 	}
 )

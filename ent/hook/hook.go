@@ -8,6 +8,18 @@ import (
 	"wishlist-wrangler-api/ent"
 )
 
+// The LoginRequestFunc type is an adapter to allow the use of ordinary
+// function as LoginRequest mutator.
+type LoginRequestFunc func(context.Context, *ent.LoginRequestMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LoginRequestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LoginRequestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LoginRequestMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)

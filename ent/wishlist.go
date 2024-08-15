@@ -22,6 +22,8 @@ type Wishlist struct {
 	Title string `json:"title,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Status holds the value of the "status" field.
+	Status wishlist.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the WishlistQuery when eager-loading is set.
 	Edges        WishlistEdges `json:"edges"`
@@ -73,7 +75,7 @@ func (*Wishlist) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case wishlist.FieldTitle:
+		case wishlist.FieldTitle, wishlist.FieldStatus:
 			values[i] = new(sql.NullString)
 		case wishlist.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -111,6 +113,12 @@ func (w *Wishlist) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				w.CreatedAt = value.Time
+			}
+		case wishlist.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				w.Status = wishlist.Status(value.String)
 			}
 		default:
 			w.selectValues.Set(columns[i], values[i])
@@ -168,6 +176,9 @@ func (w *Wishlist) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(w.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", w.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

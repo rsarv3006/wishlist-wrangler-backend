@@ -9,14 +9,14 @@ import (
 )
 
 const (
-	UserStatusActive   = "ACTIVE"
-	UserStatusPending  = "PENDING"
-	UserStatusInactive = "DELETED"
+	UserStatusActive                   = "ACTIVE"
+	UserStatusEmailVerificationPending = "PENDING"
+	UserStatusInactive                 = "DELETED"
 )
 
 var UserStatus = []string{
 	UserStatusActive,
-	UserStatusPending,
+	UserStatusEmailVerificationPending,
 	UserStatusInactive,
 }
 
@@ -42,7 +42,7 @@ func (User) Fields() []ent.Field {
 			Immutable(),
 		field.Enum("status").
 			Values(UserStatus...).
-			Default(UserStatusActive),
+			Default(UserStatusEmailVerificationPending),
 	}
 }
 

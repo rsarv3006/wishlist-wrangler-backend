@@ -11,12 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateUser(dbClient *ent.Client, dto *dto.CreateUserDto) (*ent.User, error) {
-	if dto == nil {
-		return nil, errors.New("Unable to create user from an empty object")
-	}
-
-	user, err := dbClient.User.Create().SetEmail(dto.Email).SetDisplayName(dto.DisplayName).Save(context.Background())
+func CreateUser(dbClient *ent.Client, createUserDto dto.CreateUserDto) (*ent.User, error) {
+	user, err := dbClient.User.Create().SetEmail(createUserDto.Email).SetDisplayName(createUserDto.DisplayName).Save(context.Background())
 
 	if err != nil {
 		return nil, err
@@ -40,18 +36,18 @@ func DeleteUser(dbClient *ent.Client, userId uuid.UUID) error {
 	return dbClient.User.Update().Where(user.ID(userId)).SetStatus(user.StatusDELETED).Exec(context.Background())
 }
 
-func UpdateUser(dbClient *ent.Client, dto *dto.UpdateUserDto) error {
-	if dto == nil {
+func UpdateUser(dbClient *ent.Client, updateUserDto *dto.UpdateUserDto) error {
+	if updateUserDto == nil {
 		return errors.New("Unable to update user from an empty object")
 	}
 
-	isDisplayNameValid := helper.DidUserDisplayNamePassValidation(dto.DisplayName)
+	isDisplayNameValid := helper.DidUserDisplayNamePassValidation(updateUserDto.DisplayName)
 
 	if !isDisplayNameValid {
 		return errors.New("Display name is invalid")
 	}
 
-	err := dbClient.User.Update().Where(user.ID(dto.UserId)).SetDisplayName(dto.DisplayName).Exec(context.Background())
+	err := dbClient.User.Update().Where(user.ID(updateUserDto.UserId)).SetDisplayName(updateUserDto.DisplayName).Exec(context.Background())
 
 	return err
 }

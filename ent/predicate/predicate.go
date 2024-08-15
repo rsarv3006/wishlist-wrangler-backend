@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// LoginRequest is the predicate function for loginrequest builders.
+type LoginRequest func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
 

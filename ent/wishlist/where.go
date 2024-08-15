@@ -171,6 +171,26 @@ func CreatedAtLTE(v time.Time) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldLTE(FieldCreatedAt, v))
 }
 
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldNotIn(FieldStatus, vs...))
+}
+
 // HasCreatorId applies the HasEdge predicate on the "creatorId" edge.
 func HasCreatorId() predicate.Wishlist {
 	return predicate.Wishlist(func(s *sql.Selector) {

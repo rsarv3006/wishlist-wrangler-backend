@@ -49,6 +49,20 @@ func (wtc *WishlistTemplateCreate) SetDescription(s string) *WishlistTemplateCre
 	return wtc
 }
 
+// SetStatus sets the "status" field.
+func (wtc *WishlistTemplateCreate) SetStatus(w wishlisttemplate.Status) *WishlistTemplateCreate {
+	wtc.mutation.SetStatus(w)
+	return wtc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (wtc *WishlistTemplateCreate) SetNillableStatus(w *wishlisttemplate.Status) *WishlistTemplateCreate {
+	if w != nil {
+		wtc.SetStatus(*w)
+	}
+	return wtc
+}
+
 // SetID sets the "id" field.
 func (wtc *WishlistTemplateCreate) SetID(u uuid.UUID) *WishlistTemplateCreate {
 	wtc.mutation.SetID(u)
@@ -132,6 +146,10 @@ func (wtc *WishlistTemplateCreate) defaults() {
 		v := wishlisttemplate.DefaultCreatedAt()
 		wtc.mutation.SetCreatedAt(v)
 	}
+	if _, ok := wtc.mutation.Status(); !ok {
+		v := wishlisttemplate.DefaultStatus
+		wtc.mutation.SetStatus(v)
+	}
 	if _, ok := wtc.mutation.ID(); !ok {
 		v := wishlisttemplate.DefaultID()
 		wtc.mutation.SetID(v)
@@ -157,6 +175,14 @@ func (wtc *WishlistTemplateCreate) check() error {
 	if v, ok := wtc.mutation.Description(); ok {
 		if err := wishlisttemplate.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplate.description": %w`, err)}
+		}
+	}
+	if _, ok := wtc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "WishlistTemplate.status"`)}
+	}
+	if v, ok := wtc.mutation.Status(); ok {
+		if err := wishlisttemplate.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplate.status": %w`, err)}
 		}
 	}
 	return nil
@@ -205,6 +231,10 @@ func (wtc *WishlistTemplateCreate) createSpec() (*WishlistTemplate, *sqlgraph.Cr
 	if value, ok := wtc.mutation.Description(); ok {
 		_spec.SetField(wishlisttemplate.FieldDescription, field.TypeString, value)
 		_node.Description = value
+	}
+	if value, ok := wtc.mutation.Status(); ok {
+		_spec.SetField(wishlisttemplate.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if nodes := wtc.mutation.CreatorIdIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"wishlist-wrangler-api/ent/loginrequest"
 	"wishlist-wrangler-api/ent/user"
 	"wishlist-wrangler-api/ent/wishlist"
 	"wishlist-wrangler-api/ent/wishlistsection"
@@ -77,6 +78,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			loginrequest.Table:            loginrequest.ValidColumn,
 			user.Table:                    user.ValidColumn,
 			wishlist.Table:                wishlist.ValidColumn,
 			wishlistsection.Table:         wishlistsection.ValidColumn,

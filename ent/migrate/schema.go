@@ -8,13 +8,27 @@ import (
 )
 
 var (
+	// LoginRequestsColumns holds the columns for the "login_requests" table.
+	LoginRequestsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "login_request_code", Type: field.TypeString},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"PENDING", "COMPLETED", "EXPIRED"}, Default: "PENDING"},
+	}
+	// LoginRequestsTable holds the schema information for the "login_requests" table.
+	LoginRequestsTable = &schema.Table{
+		Name:       "login_requests",
+		Columns:    LoginRequestsColumns,
+		PrimaryKey: []*schema.Column{LoginRequestsColumns[0]},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "display_name", Type: field.TypeString, Size: 255},
-		{Name: "email", Type: field.TypeString, Size: 255},
+		{Name: "email", Type: field.TypeString, Unique: true, Size: 255},
 		{Name: "created_at", Type: field.TypeTime},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"ACTIVE", "PENDING", "DELETED"}, Default: "ACTIVE"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"ACTIVE", "PENDING", "DELETED"}, Default: "PENDING"},
 		{Name: "wishlist_creator_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "wishlist_template_creator_id", Type: field.TypeUUID, Nullable: true},
 	}
@@ -43,6 +57,7 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"PENDING", "ACTIVE", "REMOVED", "COMPLETED"}, Default: "PENDING"},
 	}
 	// WishlistsTable holds the schema information for the "wishlists" table.
 	WishlistsTable = &schema.Table{
@@ -78,6 +93,7 @@ var (
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "description", Type: field.TypeString, Size: 525},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"ACTIVE", "REMOVED"}, Default: "ACTIVE"},
 		{Name: "wishlist_template_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// WishlistTemplatesTable holds the schema information for the "wishlist_templates" table.
@@ -88,7 +104,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "wishlist_templates_wishlists_templateId",
-				Columns:    []*schema.Column{WishlistTemplatesColumns[4]},
+				Columns:    []*schema.Column{WishlistTemplatesColumns[5]},
 				RefColumns: []*schema.Column{WishlistsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -124,6 +140,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		LoginRequestsTable,
 		UsersTable,
 		WishlistsTable,
 		WishlistSectionsTable,

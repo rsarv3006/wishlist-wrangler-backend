@@ -3,6 +3,7 @@
 package wishlist
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -19,6 +20,8 @@ const (
 	FieldTitle = "title"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// EdgeCreatorId holds the string denoting the creatorid edge name in mutations.
 	EdgeCreatorId = "creatorId"
 	// EdgeTemplateId holds the string denoting the templateid edge name in mutations.
@@ -55,6 +58,7 @@ var Columns = []string{
 	FieldID,
 	FieldTitle,
 	FieldCreatedAt,
+	FieldStatus,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -76,6 +80,34 @@ var (
 	DefaultID func() uuid.UUID
 )
 
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusPENDING is the default value of the Status enum.
+const DefaultStatus = StatusPENDING
+
+// Status values.
+const (
+	StatusPENDING   Status = "PENDING"
+	StatusACTIVE    Status = "ACTIVE"
+	StatusREMOVED   Status = "REMOVED"
+	StatusCOMPLETED Status = "COMPLETED"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusPENDING, StatusACTIVE, StatusREMOVED, StatusCOMPLETED:
+		return nil
+	default:
+		return fmt.Errorf("wishlist: invalid enum value for status field: %q", s)
+	}
+}
+
 // OrderOption defines the ordering options for the Wishlist queries.
 type OrderOption func(*sql.Selector)
 
@@ -92,6 +124,11 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByCreatorIdCount orders the results by creatorId count.

@@ -3,6 +3,7 @@
 package wishlisttemplate
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -21,6 +22,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// EdgeCreatorId holds the string denoting the creatorid edge name in mutations.
 	EdgeCreatorId = "creatorId"
 	// EdgeSections holds the string denoting the sections edge name in mutations.
@@ -49,6 +52,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldCreatedAt,
 	FieldDescription,
+	FieldStatus,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "wishlist_templates"
@@ -83,6 +87,32 @@ var (
 	DefaultID func() uuid.UUID
 )
 
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusACTIVE is the default value of the Status enum.
+const DefaultStatus = StatusACTIVE
+
+// Status values.
+const (
+	StatusACTIVE  Status = "ACTIVE"
+	StatusREMOVED Status = "REMOVED"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusACTIVE, StatusREMOVED:
+		return nil
+	default:
+		return fmt.Errorf("wishlisttemplate: invalid enum value for status field: %q", s)
+	}
+}
+
 // OrderOption defines the ordering options for the WishlistTemplate queries.
 type OrderOption func(*sql.Selector)
 
@@ -104,6 +134,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByCreatorIdCount orders the results by creatorId count.

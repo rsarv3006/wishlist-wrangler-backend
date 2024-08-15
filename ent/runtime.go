@@ -4,6 +4,7 @@ package ent
 
 import (
 	"time"
+	"wishlist-wrangler-api/ent/loginrequest"
 	"wishlist-wrangler-api/ent/schema"
 	"wishlist-wrangler-api/ent/user"
 	"wishlist-wrangler-api/ent/wishlist"
@@ -18,6 +19,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	loginrequestFields := schema.LoginRequest{}.Fields()
+	_ = loginrequestFields
+	// loginrequestDescCreatedAt is the schema descriptor for created_at field.
+	loginrequestDescCreatedAt := loginrequestFields[2].Descriptor()
+	// loginrequest.DefaultCreatedAt holds the default value on creation for the created_at field.
+	loginrequest.DefaultCreatedAt = loginrequestDescCreatedAt.Default.(func() time.Time)
+	// loginrequestDescID is the schema descriptor for id field.
+	loginrequestDescID := loginrequestFields[0].Descriptor()
+	// loginrequest.DefaultID holds the default value on creation for the id field.
+	loginrequest.DefaultID = loginrequestDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescDisplayName is the schema descriptor for displayName field.
