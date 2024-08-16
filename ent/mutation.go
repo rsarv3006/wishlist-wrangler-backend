@@ -45,6 +45,7 @@ type LoginRequestMutation struct {
 	typ              string
 	id               *uuid.UUID
 	userId           *uuid.UUID
+	email            *string
 	created_at       *time.Time
 	loginRequestCode *string
 	status           *loginrequest.Status
@@ -194,6 +195,42 @@ func (m *LoginRequestMutation) ResetUserId() {
 	m.userId = nil
 }
 
+// SetEmail sets the "email" field.
+func (m *LoginRequestMutation) SetEmail(s string) {
+	m.email = &s
+}
+
+// Email returns the value of the "email" field in the mutation.
+func (m *LoginRequestMutation) Email() (r string, exists bool) {
+	v := m.email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEmail returns the old "email" field's value of the LoginRequest entity.
+// If the LoginRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LoginRequestMutation) OldEmail(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEmail: %w", err)
+	}
+	return oldValue.Email, nil
+}
+
+// ResetEmail resets all changes to the "email" field.
+func (m *LoginRequestMutation) ResetEmail() {
+	m.email = nil
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *LoginRequestMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -336,9 +373,12 @@ func (m *LoginRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LoginRequestMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.userId != nil {
 		fields = append(fields, loginrequest.FieldUserId)
+	}
+	if m.email != nil {
+		fields = append(fields, loginrequest.FieldEmail)
 	}
 	if m.created_at != nil {
 		fields = append(fields, loginrequest.FieldCreatedAt)
@@ -359,6 +399,8 @@ func (m *LoginRequestMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case loginrequest.FieldUserId:
 		return m.UserId()
+	case loginrequest.FieldEmail:
+		return m.Email()
 	case loginrequest.FieldCreatedAt:
 		return m.CreatedAt()
 	case loginrequest.FieldLoginRequestCode:
@@ -376,6 +418,8 @@ func (m *LoginRequestMutation) OldField(ctx context.Context, name string) (ent.V
 	switch name {
 	case loginrequest.FieldUserId:
 		return m.OldUserId(ctx)
+	case loginrequest.FieldEmail:
+		return m.OldEmail(ctx)
 	case loginrequest.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case loginrequest.FieldLoginRequestCode:
@@ -397,6 +441,13 @@ func (m *LoginRequestMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserId(v)
+		return nil
+	case loginrequest.FieldEmail:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEmail(v)
 		return nil
 	case loginrequest.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -470,6 +521,9 @@ func (m *LoginRequestMutation) ResetField(name string) error {
 	switch name {
 	case loginrequest.FieldUserId:
 		m.ResetUserId()
+		return nil
+	case loginrequest.FieldEmail:
+		m.ResetEmail()
 		return nil
 	case loginrequest.FieldCreatedAt:
 		m.ResetCreatedAt()

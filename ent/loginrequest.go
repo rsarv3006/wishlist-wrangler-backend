@@ -20,6 +20,8 @@ type LoginRequest struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// UserId holds the value of the "userId" field.
 	UserId uuid.UUID `json:"userId,omitempty"`
+	// Email holds the value of the "email" field.
+	Email string `json:"email,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// LoginRequestCode holds the value of the "loginRequestCode" field.
@@ -34,7 +36,7 @@ func (*LoginRequest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case loginrequest.FieldLoginRequestCode, loginrequest.FieldStatus:
+		case loginrequest.FieldEmail, loginrequest.FieldLoginRequestCode, loginrequest.FieldStatus:
 			values[i] = new(sql.NullString)
 		case loginrequest.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -66,6 +68,12 @@ func (lr *LoginRequest) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field userId", values[i])
 			} else if value != nil {
 				lr.UserId = *value
+			}
+		case loginrequest.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				lr.Email = value.String
 			}
 		case loginrequest.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -123,6 +131,9 @@ func (lr *LoginRequest) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", lr.ID))
 	builder.WriteString("userId=")
 	builder.WriteString(fmt.Sprintf("%v", lr.UserId))
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(lr.Email)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(lr.CreatedAt.Format(time.ANSIC))

@@ -36,6 +36,10 @@ func DeleteUser(dbClient *ent.Client, userId uuid.UUID) error {
 	return dbClient.User.Update().Where(user.ID(userId)).SetStatus(user.StatusDELETED).Exec(context.Background())
 }
 
+func UpdateUserStatus(dbClient *ent.Client, userId uuid.UUID, status user.Status) error {
+	return dbClient.User.Update().Where(user.ID(userId)).SetStatus(status).Exec(context.Background())
+}
+
 func UpdateUser(dbClient *ent.Client, updateUserDto *dto.UpdateUserDto) error {
 	if updateUserDto == nil {
 		return errors.New("Unable to update user from an empty object")

@@ -31,6 +31,7 @@ func (LoginRequest) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New),
 		field.UUID("userId", uuid.UUID{}),
+		field.String("email"),
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable(),

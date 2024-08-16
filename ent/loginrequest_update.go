@@ -42,6 +42,20 @@ func (lru *LoginRequestUpdate) SetNillableUserId(u *uuid.UUID) *LoginRequestUpda
 	return lru
 }
 
+// SetEmail sets the "email" field.
+func (lru *LoginRequestUpdate) SetEmail(s string) *LoginRequestUpdate {
+	lru.mutation.SetEmail(s)
+	return lru
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (lru *LoginRequestUpdate) SetNillableEmail(s *string) *LoginRequestUpdate {
+	if s != nil {
+		lru.SetEmail(*s)
+	}
+	return lru
+}
+
 // SetLoginRequestCode sets the "loginRequestCode" field.
 func (lru *LoginRequestUpdate) SetLoginRequestCode(s string) *LoginRequestUpdate {
 	lru.mutation.SetLoginRequestCode(s)
@@ -127,6 +141,9 @@ func (lru *LoginRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := lru.mutation.UserId(); ok {
 		_spec.SetField(loginrequest.FieldUserId, field.TypeUUID, value)
 	}
+	if value, ok := lru.mutation.Email(); ok {
+		_spec.SetField(loginrequest.FieldEmail, field.TypeString, value)
+	}
 	if value, ok := lru.mutation.LoginRequestCode(); ok {
 		_spec.SetField(loginrequest.FieldLoginRequestCode, field.TypeString, value)
 	}
@@ -163,6 +180,20 @@ func (lruo *LoginRequestUpdateOne) SetUserId(u uuid.UUID) *LoginRequestUpdateOne
 func (lruo *LoginRequestUpdateOne) SetNillableUserId(u *uuid.UUID) *LoginRequestUpdateOne {
 	if u != nil {
 		lruo.SetUserId(*u)
+	}
+	return lruo
+}
+
+// SetEmail sets the "email" field.
+func (lruo *LoginRequestUpdateOne) SetEmail(s string) *LoginRequestUpdateOne {
+	lruo.mutation.SetEmail(s)
+	return lruo
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (lruo *LoginRequestUpdateOne) SetNillableEmail(s *string) *LoginRequestUpdateOne {
+	if s != nil {
+		lruo.SetEmail(*s)
 	}
 	return lruo
 }
@@ -281,6 +312,9 @@ func (lruo *LoginRequestUpdateOne) sqlSave(ctx context.Context) (_node *LoginReq
 	}
 	if value, ok := lruo.mutation.UserId(); ok {
 		_spec.SetField(loginrequest.FieldUserId, field.TypeUUID, value)
+	}
+	if value, ok := lruo.mutation.Email(); ok {
+		_spec.SetField(loginrequest.FieldEmail, field.TypeString, value)
 	}
 	if value, ok := lruo.mutation.LoginRequestCode(); ok {
 		_spec.SetField(loginrequest.FieldLoginRequestCode, field.TypeString, value)

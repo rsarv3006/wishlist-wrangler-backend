@@ -17,6 +17,8 @@ const (
 	FieldID = "id"
 	// FieldUserId holds the string denoting the userid field in the database.
 	FieldUserId = "user_id"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldLoginRequestCode holds the string denoting the loginrequestcode field in the database.
@@ -31,6 +33,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldUserId,
+	FieldEmail,
 	FieldCreatedAt,
 	FieldLoginRequestCode,
 	FieldStatus,
@@ -91,6 +94,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserId orders the results by the userId field.
 func ByUserId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserId, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

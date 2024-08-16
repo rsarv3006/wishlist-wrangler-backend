@@ -27,6 +27,12 @@ func (lrc *LoginRequestCreate) SetUserId(u uuid.UUID) *LoginRequestCreate {
 	return lrc
 }
 
+// SetEmail sets the "email" field.
+func (lrc *LoginRequestCreate) SetEmail(s string) *LoginRequestCreate {
+	lrc.mutation.SetEmail(s)
+	return lrc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (lrc *LoginRequestCreate) SetCreatedAt(t time.Time) *LoginRequestCreate {
 	lrc.mutation.SetCreatedAt(t)
@@ -129,6 +135,9 @@ func (lrc *LoginRequestCreate) check() error {
 	if _, ok := lrc.mutation.UserId(); !ok {
 		return &ValidationError{Name: "userId", err: errors.New(`ent: missing required field "LoginRequest.userId"`)}
 	}
+	if _, ok := lrc.mutation.Email(); !ok {
+		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "LoginRequest.email"`)}
+	}
 	if _, ok := lrc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "LoginRequest.created_at"`)}
 	}
@@ -181,6 +190,10 @@ func (lrc *LoginRequestCreate) createSpec() (*LoginRequest, *sqlgraph.CreateSpec
 	if value, ok := lrc.mutation.UserId(); ok {
 		_spec.SetField(loginrequest.FieldUserId, field.TypeUUID, value)
 		_node.UserId = value
+	}
+	if value, ok := lrc.mutation.Email(); ok {
+		_spec.SetField(loginrequest.FieldEmail, field.TypeString, value)
+		_node.Email = value
 	}
 	if value, ok := lrc.mutation.CreatedAt(); ok {
 		_spec.SetField(loginrequest.FieldCreatedAt, field.TypeTime, value)

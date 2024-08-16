@@ -49,5 +49,6 @@ func setUpUserRoutesV1(api fiber.Router, _ *ent.Client) {
 func setUpAuthRoutesV1(api fiber.Router, dbClient *ent.Client) {
 	auth := api.Group("/auth")
 
-	auth.Post("/code/:code", handler.CreateUserEndpoint(dbClient))
+	auth.Post("/signup", handler.SignUpEndpoint(dbClient))
+	auth.Post("/login", handler.LoginEndpoint(dbClient))
 }

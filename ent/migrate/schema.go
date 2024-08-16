@@ -12,6 +12,7 @@ var (
 	LoginRequestsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "email", Type: field.TypeString},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "login_request_code", Type: field.TypeString},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"PENDING", "COMPLETED", "EXPIRED"}, Default: "PENDING"},

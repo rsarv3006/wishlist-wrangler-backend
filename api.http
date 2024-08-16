@@ -2,9 +2,18 @@
 GET http://localhost:3000/api/health
 
 ### Sigh Up
-POST http://localhost:3000/api/v1/auth/signUp
+POST http://localhost:3000/api/v1/auth/signup
 Content-Type: application/json
 
 {
-  "email": "test@test.com",
+  "email": "test@mctest.com",
+  "displayName": "Test User"
+}
+
+### Login
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@mctest.com"
 }

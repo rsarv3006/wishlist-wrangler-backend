@@ -22,7 +22,7 @@ func init() {
 	loginrequestFields := schema.LoginRequest{}.Fields()
 	_ = loginrequestFields
 	// loginrequestDescCreatedAt is the schema descriptor for created_at field.
-	loginrequestDescCreatedAt := loginrequestFields[2].Descriptor()
+	loginrequestDescCreatedAt := loginrequestFields[3].Descriptor()
 	// loginrequest.DefaultCreatedAt holds the default value on creation for the created_at field.
 	loginrequest.DefaultCreatedAt = loginrequestDescCreatedAt.Default.(func() time.Time)
 	// loginrequestDescID is the schema descriptor for id field.
