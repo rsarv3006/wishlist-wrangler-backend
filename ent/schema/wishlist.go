@@ -48,8 +48,8 @@ func (Wishlist) Fields() []ent.Field {
 // Edges of the Wishlist.
 func (Wishlist) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("creatorId", User.Type),
-		edge.To("templateId", WishlistTemplate.Type),
+		edge.To("creator", User.Type),
+		edge.To("template", WishlistTemplate.Type),
 		edge.To("sections", WishlistSection.Type),
 	}
 }

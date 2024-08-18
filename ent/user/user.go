@@ -39,8 +39,8 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "users"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"wishlist_creator_id",
-	"wishlist_template_creator_id",
+	"wishlist_creator",
+	"wishlist_template_creator",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

@@ -28,15 +28,15 @@ type WishlistTemplate struct {
 	Status wishlisttemplate.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the WishlistTemplateQuery when eager-loading is set.
-	Edges                WishlistTemplateEdges `json:"edges"`
-	wishlist_template_id *uuid.UUID
-	selectValues         sql.SelectValues
+	Edges             WishlistTemplateEdges `json:"edges"`
+	wishlist_template *uuid.UUID
+	selectValues      sql.SelectValues
 }
 
 // WishlistTemplateEdges holds the relations/edges for other nodes in the graph.
 type WishlistTemplateEdges struct {
-	// CreatorId holds the value of the creatorId edge.
-	CreatorId []*User `json:"creatorId,omitempty"`
+	// Creator holds the value of the creator edge.
+	Creator []*User `json:"creator,omitempty"`
 	// Sections holds the value of the sections edge.
 	Sections []*WishlistTemplateSection `json:"sections,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -44,13 +44,13 @@ type WishlistTemplateEdges struct {
 	loadedTypes [2]bool
 }
 
-// CreatorIdOrErr returns the CreatorId value or an error if the edge
+// CreatorOrErr returns the Creator value or an error if the edge
 // was not loaded in eager-loading.
-func (e WishlistTemplateEdges) CreatorIdOrErr() ([]*User, error) {
+func (e WishlistTemplateEdges) CreatorOrErr() ([]*User, error) {
 	if e.loadedTypes[0] {
-		return e.CreatorId, nil
+		return e.Creator, nil
 	}
-	return nil, &NotLoadedError{edge: "creatorId"}
+	return nil, &NotLoadedError{edge: "creator"}
 }
 
 // SectionsOrErr returns the Sections value or an error if the edge
@@ -73,7 +73,7 @@ func (*WishlistTemplate) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case wishlisttemplate.FieldID:
 			values[i] = new(uuid.UUID)
-		case wishlisttemplate.ForeignKeys[0]: // wishlist_template_id
+		case wishlisttemplate.ForeignKeys[0]: // wishlist_template
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -122,10 +122,10 @@ func (wt *WishlistTemplate) assignValues(columns []string, values []any) error {
 			}
 		case wishlisttemplate.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field wishlist_template_id", values[i])
+				return fmt.Errorf("unexpected type %T for field wishlist_template", values[i])
 			} else if value.Valid {
-				wt.wishlist_template_id = new(uuid.UUID)
-				*wt.wishlist_template_id = *value.S.(*uuid.UUID)
+				wt.wishlist_template = new(uuid.UUID)
+				*wt.wishlist_template = *value.S.(*uuid.UUID)
 			}
 		default:
 			wt.selectValues.Set(columns[i], values[i])
@@ -140,9 +140,9 @@ func (wt *WishlistTemplate) Value(name string) (ent.Value, error) {
 	return wt.selectValues.Get(name)
 }
 
-// QueryCreatorId queries the "creatorId" edge of the WishlistTemplate entity.
-func (wt *WishlistTemplate) QueryCreatorId() *UserQuery {
-	return NewWishlistTemplateClient(wt.config).QueryCreatorId(wt)
+// QueryCreator queries the "creator" edge of the WishlistTemplate entity.
+func (wt *WishlistTemplate) QueryCreator() *UserQuery {
+	return NewWishlistTemplateClient(wt.config).QueryCreator(wt)
 }
 
 // QuerySections queries the "sections" edge of the WishlistTemplate entity.

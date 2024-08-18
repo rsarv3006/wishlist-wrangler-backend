@@ -30,8 +30,8 @@ var (
 		{Name: "email", Type: field.TypeString, Unique: true, Size: 255},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"ACTIVE", "PENDING", "DELETED"}, Default: "PENDING"},
-		{Name: "wishlist_creator_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "wishlist_template_creator_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "wishlist_creator", Type: field.TypeUUID, Nullable: true},
+		{Name: "wishlist_template_creator", Type: field.TypeUUID, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -40,13 +40,13 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "users_wishlists_creatorId",
+				Symbol:     "users_wishlists_creator",
 				Columns:    []*schema.Column{UsersColumns[5]},
 				RefColumns: []*schema.Column{WishlistsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "users_wishlist_templates_creatorId",
+				Symbol:     "users_wishlist_templates_creator",
 				Columns:    []*schema.Column{UsersColumns[6]},
 				RefColumns: []*schema.Column{WishlistTemplatesColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -95,7 +95,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "description", Type: field.TypeString, Size: 525},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"ACTIVE", "REMOVED"}, Default: "ACTIVE"},
-		{Name: "wishlist_template_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "wishlist_template", Type: field.TypeUUID, Nullable: true},
 	}
 	// WishlistTemplatesTable holds the schema information for the "wishlist_templates" table.
 	WishlistTemplatesTable = &schema.Table{
@@ -104,7 +104,7 @@ var (
 		PrimaryKey: []*schema.Column{WishlistTemplatesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "wishlist_templates_wishlists_templateId",
+				Symbol:     "wishlist_templates_wishlists_template",
 				Columns:    []*schema.Column{WishlistTemplatesColumns[5]},
 				RefColumns: []*schema.Column{WishlistsColumns[0]},
 				OnDelete:   schema.SetNull,

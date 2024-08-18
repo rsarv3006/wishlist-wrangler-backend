@@ -191,21 +191,21 @@ func StatusNotIn(vs ...Status) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldNotIn(FieldStatus, vs...))
 }
 
-// HasCreatorId applies the HasEdge predicate on the "creatorId" edge.
-func HasCreatorId() predicate.Wishlist {
+// HasCreator applies the HasEdge predicate on the "creator" edge.
+func HasCreator() predicate.Wishlist {
 	return predicate.Wishlist(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, CreatorIdTable, CreatorIdColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, CreatorTable, CreatorColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasCreatorIdWith applies the HasEdge predicate on the "creatorId" edge with a given conditions (other predicates).
-func HasCreatorIdWith(preds ...predicate.User) predicate.Wishlist {
+// HasCreatorWith applies the HasEdge predicate on the "creator" edge with a given conditions (other predicates).
+func HasCreatorWith(preds ...predicate.User) predicate.Wishlist {
 	return predicate.Wishlist(func(s *sql.Selector) {
-		step := newCreatorIdStep()
+		step := newCreatorStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -214,21 +214,21 @@ func HasCreatorIdWith(preds ...predicate.User) predicate.Wishlist {
 	})
 }
 
-// HasTemplateId applies the HasEdge predicate on the "templateId" edge.
-func HasTemplateId() predicate.Wishlist {
+// HasTemplate applies the HasEdge predicate on the "template" edge.
+func HasTemplate() predicate.Wishlist {
 	return predicate.Wishlist(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, TemplateIdTable, TemplateIdColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, TemplateTable, TemplateColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasTemplateIdWith applies the HasEdge predicate on the "templateId" edge with a given conditions (other predicates).
-func HasTemplateIdWith(preds ...predicate.WishlistTemplate) predicate.Wishlist {
+// HasTemplateWith applies the HasEdge predicate on the "template" edge with a given conditions (other predicates).
+func HasTemplateWith(preds ...predicate.WishlistTemplate) predicate.Wishlist {
 	return predicate.Wishlist(func(s *sql.Selector) {
-		step := newTemplateIdStep()
+		step := newTemplateStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -22,13 +22,13 @@ import (
 // WishlistTemplateQuery is the builder for querying WishlistTemplate entities.
 type WishlistTemplateQuery struct {
 	config
-	ctx           *QueryContext
-	order         []wishlisttemplate.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.WishlistTemplate
-	withCreatorId *UserQuery
-	withSections  *WishlistTemplateSectionQuery
-	withFKs       bool
+	ctx          *QueryContext
+	order        []wishlisttemplate.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.WishlistTemplate
+	withCreator  *UserQuery
+	withSections *WishlistTemplateSectionQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -65,8 +65,8 @@ func (wtq *WishlistTemplateQuery) Order(o ...wishlisttemplate.OrderOption) *Wish
 	return wtq
 }
 
-// QueryCreatorId chains the current query on the "creatorId" edge.
-func (wtq *WishlistTemplateQuery) QueryCreatorId() *UserQuery {
+// QueryCreator chains the current query on the "creator" edge.
+func (wtq *WishlistTemplateQuery) QueryCreator() *UserQuery {
 	query := (&UserClient{config: wtq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := wtq.prepareQuery(ctx); err != nil {
@@ -79,7 +79,7 @@ func (wtq *WishlistTemplateQuery) QueryCreatorId() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(wishlisttemplate.Table, wishlisttemplate.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlisttemplate.CreatorIdTable, wishlisttemplate.CreatorIdColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, wishlisttemplate.CreatorTable, wishlisttemplate.CreatorColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(wtq.driver.Dialect(), step)
 		return fromU, nil
@@ -296,27 +296,27 @@ func (wtq *WishlistTemplateQuery) Clone() *WishlistTemplateQuery {
 		return nil
 	}
 	return &WishlistTemplateQuery{
-		config:        wtq.config,
-		ctx:           wtq.ctx.Clone(),
-		order:         append([]wishlisttemplate.OrderOption{}, wtq.order...),
-		inters:        append([]Interceptor{}, wtq.inters...),
-		predicates:    append([]predicate.WishlistTemplate{}, wtq.predicates...),
-		withCreatorId: wtq.withCreatorId.Clone(),
-		withSections:  wtq.withSections.Clone(),
+		config:       wtq.config,
+		ctx:          wtq.ctx.Clone(),
+		order:        append([]wishlisttemplate.OrderOption{}, wtq.order...),
+		inters:       append([]Interceptor{}, wtq.inters...),
+		predicates:   append([]predicate.WishlistTemplate{}, wtq.predicates...),
+		withCreator:  wtq.withCreator.Clone(),
+		withSections: wtq.withSections.Clone(),
 		// clone intermediate query.
 		sql:  wtq.sql.Clone(),
 		path: wtq.path,
 	}
 }
 
-// WithCreatorId tells the query-builder to eager-load the nodes that are connected to
-// the "creatorId" edge. The optional arguments are used to configure the query builder of the edge.
-func (wtq *WishlistTemplateQuery) WithCreatorId(opts ...func(*UserQuery)) *WishlistTemplateQuery {
+// WithCreator tells the query-builder to eager-load the nodes that are connected to
+// the "creator" edge. The optional arguments are used to configure the query builder of the edge.
+func (wtq *WishlistTemplateQuery) WithCreator(opts ...func(*UserQuery)) *WishlistTemplateQuery {
 	query := (&UserClient{config: wtq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	wtq.withCreatorId = query
+	wtq.withCreator = query
 	return wtq
 }
 
@@ -411,7 +411,7 @@ func (wtq *WishlistTemplateQuery) sqlAll(ctx context.Context, hooks ...queryHook
 		withFKs     = wtq.withFKs
 		_spec       = wtq.querySpec()
 		loadedTypes = [2]bool{
-			wtq.withCreatorId != nil,
+			wtq.withCreator != nil,
 			wtq.withSections != nil,
 		}
 	)
@@ -436,10 +436,10 @@ func (wtq *WishlistTemplateQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := wtq.withCreatorId; query != nil {
-		if err := wtq.loadCreatorId(ctx, query, nodes,
-			func(n *WishlistTemplate) { n.Edges.CreatorId = []*User{} },
-			func(n *WishlistTemplate, e *User) { n.Edges.CreatorId = append(n.Edges.CreatorId, e) }); err != nil {
+	if query := wtq.withCreator; query != nil {
+		if err := wtq.loadCreator(ctx, query, nodes,
+			func(n *WishlistTemplate) { n.Edges.Creator = []*User{} },
+			func(n *WishlistTemplate, e *User) { n.Edges.Creator = append(n.Edges.Creator, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -453,7 +453,7 @@ func (wtq *WishlistTemplateQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	return nodes, nil
 }
 
-func (wtq *WishlistTemplateQuery) loadCreatorId(ctx context.Context, query *UserQuery, nodes []*WishlistTemplate, init func(*WishlistTemplate), assign func(*WishlistTemplate, *User)) error {
+func (wtq *WishlistTemplateQuery) loadCreator(ctx context.Context, query *UserQuery, nodes []*WishlistTemplate, init func(*WishlistTemplate), assign func(*WishlistTemplate, *User)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*WishlistTemplate)
 	for i := range nodes {
@@ -465,20 +465,20 @@ func (wtq *WishlistTemplateQuery) loadCreatorId(ctx context.Context, query *User
 	}
 	query.withFKs = true
 	query.Where(predicate.User(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(wishlisttemplate.CreatorIdColumn), fks...))
+		s.Where(sql.InValues(s.C(wishlisttemplate.CreatorColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.wishlist_template_creator_id
+		fk := n.wishlist_template_creator
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "wishlist_template_creator_id" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "wishlist_template_creator" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "wishlist_template_creator_id" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "wishlist_template_creator" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -24,19 +24,19 @@ const (
 	FieldDescription = "description"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// EdgeCreatorId holds the string denoting the creatorid edge name in mutations.
-	EdgeCreatorId = "creatorId"
+	// EdgeCreator holds the string denoting the creator edge name in mutations.
+	EdgeCreator = "creator"
 	// EdgeSections holds the string denoting the sections edge name in mutations.
 	EdgeSections = "sections"
 	// Table holds the table name of the wishlisttemplate in the database.
 	Table = "wishlist_templates"
-	// CreatorIdTable is the table that holds the creatorId relation/edge.
-	CreatorIdTable = "users"
-	// CreatorIdInverseTable is the table name for the User entity.
+	// CreatorTable is the table that holds the creator relation/edge.
+	CreatorTable = "users"
+	// CreatorInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	CreatorIdInverseTable = "users"
-	// CreatorIdColumn is the table column denoting the creatorId relation/edge.
-	CreatorIdColumn = "wishlist_template_creator_id"
+	CreatorInverseTable = "users"
+	// CreatorColumn is the table column denoting the creator relation/edge.
+	CreatorColumn = "wishlist_template_creator"
 	// SectionsTable is the table that holds the sections relation/edge.
 	SectionsTable = "wishlist_template_sections"
 	// SectionsInverseTable is the table name for the WishlistTemplateSection entity.
@@ -58,7 +58,7 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "wishlist_templates"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"wishlist_template_id",
+	"wishlist_template",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -141,17 +141,17 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByCreatorIdCount orders the results by creatorId count.
-func ByCreatorIdCount(opts ...sql.OrderTermOption) OrderOption {
+// ByCreatorCount orders the results by creator count.
+func ByCreatorCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newCreatorIdStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newCreatorStep(), opts...)
 	}
 }
 
-// ByCreatorId orders the results by creatorId terms.
-func ByCreatorId(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByCreator orders the results by creator terms.
+func ByCreator(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCreatorIdStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newCreatorStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -168,11 +168,11 @@ func BySections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSectionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newCreatorIdStep() *sqlgraph.Step {
+func newCreatorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CreatorIdInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CreatorIdTable, CreatorIdColumn),
+		sqlgraph.To(CreatorInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CreatorTable, CreatorColumn),
 	)
 }
 func newSectionsStep() *sqlgraph.Step {

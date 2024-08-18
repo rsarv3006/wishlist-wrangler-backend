@@ -261,21 +261,21 @@ func StatusNotIn(vs ...Status) predicate.WishlistTemplate {
 	return predicate.WishlistTemplate(sql.FieldNotIn(FieldStatus, vs...))
 }
 
-// HasCreatorId applies the HasEdge predicate on the "creatorId" edge.
-func HasCreatorId() predicate.WishlistTemplate {
+// HasCreator applies the HasEdge predicate on the "creator" edge.
+func HasCreator() predicate.WishlistTemplate {
 	return predicate.WishlistTemplate(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, CreatorIdTable, CreatorIdColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, CreatorTable, CreatorColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasCreatorIdWith applies the HasEdge predicate on the "creatorId" edge with a given conditions (other predicates).
-func HasCreatorIdWith(preds ...predicate.User) predicate.WishlistTemplate {
+// HasCreatorWith applies the HasEdge predicate on the "creator" edge with a given conditions (other predicates).
+func HasCreatorWith(preds ...predicate.User) predicate.WishlistTemplate {
 	return predicate.WishlistTemplate(func(s *sql.Selector) {
-		step := newCreatorIdStep()
+		step := newCreatorStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

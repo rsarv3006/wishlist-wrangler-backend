@@ -25,10 +25,10 @@ type User struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Status holds the value of the "status" field.
-	Status                       user.Status `json:"status,omitempty"`
-	wishlist_creator_id          *uuid.UUID
-	wishlist_template_creator_id *uuid.UUID
-	selectValues                 sql.SelectValues
+	Status                    user.Status `json:"status,omitempty"`
+	wishlist_creator          *uuid.UUID
+	wishlist_template_creator *uuid.UUID
+	selectValues              sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -42,9 +42,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case user.FieldID:
 			values[i] = new(uuid.UUID)
-		case user.ForeignKeys[0]: // wishlist_creator_id
+		case user.ForeignKeys[0]: // wishlist_creator
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case user.ForeignKeys[1]: // wishlist_template_creator_id
+		case user.ForeignKeys[1]: // wishlist_template_creator
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -93,17 +93,17 @@ func (u *User) assignValues(columns []string, values []any) error {
 			}
 		case user.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field wishlist_creator_id", values[i])
+				return fmt.Errorf("unexpected type %T for field wishlist_creator", values[i])
 			} else if value.Valid {
-				u.wishlist_creator_id = new(uuid.UUID)
-				*u.wishlist_creator_id = *value.S.(*uuid.UUID)
+				u.wishlist_creator = new(uuid.UUID)
+				*u.wishlist_creator = *value.S.(*uuid.UUID)
 			}
 		case user.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field wishlist_template_creator_id", values[i])
+				return fmt.Errorf("unexpected type %T for field wishlist_template_creator", values[i])
 			} else if value.Valid {
-				u.wishlist_template_creator_id = new(uuid.UUID)
-				*u.wishlist_template_creator_id = *value.S.(*uuid.UUID)
+				u.wishlist_template_creator = new(uuid.UUID)
+				*u.wishlist_template_creator = *value.S.(*uuid.UUID)
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])

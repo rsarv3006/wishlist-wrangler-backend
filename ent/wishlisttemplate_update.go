@@ -72,19 +72,19 @@ func (wtu *WishlistTemplateUpdate) SetNillableStatus(w *wishlisttemplate.Status)
 	return wtu
 }
 
-// AddCreatorIdIDs adds the "creatorId" edge to the User entity by IDs.
-func (wtu *WishlistTemplateUpdate) AddCreatorIdIDs(ids ...uuid.UUID) *WishlistTemplateUpdate {
-	wtu.mutation.AddCreatorIdIDs(ids...)
+// AddCreatorIDs adds the "creator" edge to the User entity by IDs.
+func (wtu *WishlistTemplateUpdate) AddCreatorIDs(ids ...uuid.UUID) *WishlistTemplateUpdate {
+	wtu.mutation.AddCreatorIDs(ids...)
 	return wtu
 }
 
-// AddCreatorId adds the "creatorId" edges to the User entity.
-func (wtu *WishlistTemplateUpdate) AddCreatorId(u ...*User) *WishlistTemplateUpdate {
+// AddCreator adds the "creator" edges to the User entity.
+func (wtu *WishlistTemplateUpdate) AddCreator(u ...*User) *WishlistTemplateUpdate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return wtu.AddCreatorIdIDs(ids...)
+	return wtu.AddCreatorIDs(ids...)
 }
 
 // AddSectionIDs adds the "sections" edge to the WishlistTemplateSection entity by IDs.
@@ -107,25 +107,25 @@ func (wtu *WishlistTemplateUpdate) Mutation() *WishlistTemplateMutation {
 	return wtu.mutation
 }
 
-// ClearCreatorId clears all "creatorId" edges to the User entity.
-func (wtu *WishlistTemplateUpdate) ClearCreatorId() *WishlistTemplateUpdate {
-	wtu.mutation.ClearCreatorId()
+// ClearCreator clears all "creator" edges to the User entity.
+func (wtu *WishlistTemplateUpdate) ClearCreator() *WishlistTemplateUpdate {
+	wtu.mutation.ClearCreator()
 	return wtu
 }
 
-// RemoveCreatorIdIDs removes the "creatorId" edge to User entities by IDs.
-func (wtu *WishlistTemplateUpdate) RemoveCreatorIdIDs(ids ...uuid.UUID) *WishlistTemplateUpdate {
-	wtu.mutation.RemoveCreatorIdIDs(ids...)
+// RemoveCreatorIDs removes the "creator" edge to User entities by IDs.
+func (wtu *WishlistTemplateUpdate) RemoveCreatorIDs(ids ...uuid.UUID) *WishlistTemplateUpdate {
+	wtu.mutation.RemoveCreatorIDs(ids...)
 	return wtu
 }
 
-// RemoveCreatorId removes "creatorId" edges to User entities.
-func (wtu *WishlistTemplateUpdate) RemoveCreatorId(u ...*User) *WishlistTemplateUpdate {
+// RemoveCreator removes "creator" edges to User entities.
+func (wtu *WishlistTemplateUpdate) RemoveCreator(u ...*User) *WishlistTemplateUpdate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return wtu.RemoveCreatorIdIDs(ids...)
+	return wtu.RemoveCreatorIDs(ids...)
 }
 
 // ClearSections clears all "sections" edges to the WishlistTemplateSection entity.
@@ -217,12 +217,12 @@ func (wtu *WishlistTemplateUpdate) sqlSave(ctx context.Context) (n int, err erro
 	if value, ok := wtu.mutation.Status(); ok {
 		_spec.SetField(wishlisttemplate.FieldStatus, field.TypeEnum, value)
 	}
-	if wtu.mutation.CreatorIdCleared() {
+	if wtu.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlisttemplate.CreatorIdTable,
-			Columns: []string{wishlisttemplate.CreatorIdColumn},
+			Table:   wishlisttemplate.CreatorTable,
+			Columns: []string{wishlisttemplate.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -230,12 +230,12 @@ func (wtu *WishlistTemplateUpdate) sqlSave(ctx context.Context) (n int, err erro
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wtu.mutation.RemovedCreatorIdIDs(); len(nodes) > 0 && !wtu.mutation.CreatorIdCleared() {
+	if nodes := wtu.mutation.RemovedCreatorIDs(); len(nodes) > 0 && !wtu.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlisttemplate.CreatorIdTable,
-			Columns: []string{wishlisttemplate.CreatorIdColumn},
+			Table:   wishlisttemplate.CreatorTable,
+			Columns: []string{wishlisttemplate.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -246,12 +246,12 @@ func (wtu *WishlistTemplateUpdate) sqlSave(ctx context.Context) (n int, err erro
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wtu.mutation.CreatorIdIDs(); len(nodes) > 0 {
+	if nodes := wtu.mutation.CreatorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlisttemplate.CreatorIdTable,
-			Columns: []string{wishlisttemplate.CreatorIdColumn},
+			Table:   wishlisttemplate.CreatorTable,
+			Columns: []string{wishlisttemplate.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -369,19 +369,19 @@ func (wtuo *WishlistTemplateUpdateOne) SetNillableStatus(w *wishlisttemplate.Sta
 	return wtuo
 }
 
-// AddCreatorIdIDs adds the "creatorId" edge to the User entity by IDs.
-func (wtuo *WishlistTemplateUpdateOne) AddCreatorIdIDs(ids ...uuid.UUID) *WishlistTemplateUpdateOne {
-	wtuo.mutation.AddCreatorIdIDs(ids...)
+// AddCreatorIDs adds the "creator" edge to the User entity by IDs.
+func (wtuo *WishlistTemplateUpdateOne) AddCreatorIDs(ids ...uuid.UUID) *WishlistTemplateUpdateOne {
+	wtuo.mutation.AddCreatorIDs(ids...)
 	return wtuo
 }
 
-// AddCreatorId adds the "creatorId" edges to the User entity.
-func (wtuo *WishlistTemplateUpdateOne) AddCreatorId(u ...*User) *WishlistTemplateUpdateOne {
+// AddCreator adds the "creator" edges to the User entity.
+func (wtuo *WishlistTemplateUpdateOne) AddCreator(u ...*User) *WishlistTemplateUpdateOne {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return wtuo.AddCreatorIdIDs(ids...)
+	return wtuo.AddCreatorIDs(ids...)
 }
 
 // AddSectionIDs adds the "sections" edge to the WishlistTemplateSection entity by IDs.
@@ -404,25 +404,25 @@ func (wtuo *WishlistTemplateUpdateOne) Mutation() *WishlistTemplateMutation {
 	return wtuo.mutation
 }
 
-// ClearCreatorId clears all "creatorId" edges to the User entity.
-func (wtuo *WishlistTemplateUpdateOne) ClearCreatorId() *WishlistTemplateUpdateOne {
-	wtuo.mutation.ClearCreatorId()
+// ClearCreator clears all "creator" edges to the User entity.
+func (wtuo *WishlistTemplateUpdateOne) ClearCreator() *WishlistTemplateUpdateOne {
+	wtuo.mutation.ClearCreator()
 	return wtuo
 }
 
-// RemoveCreatorIdIDs removes the "creatorId" edge to User entities by IDs.
-func (wtuo *WishlistTemplateUpdateOne) RemoveCreatorIdIDs(ids ...uuid.UUID) *WishlistTemplateUpdateOne {
-	wtuo.mutation.RemoveCreatorIdIDs(ids...)
+// RemoveCreatorIDs removes the "creator" edge to User entities by IDs.
+func (wtuo *WishlistTemplateUpdateOne) RemoveCreatorIDs(ids ...uuid.UUID) *WishlistTemplateUpdateOne {
+	wtuo.mutation.RemoveCreatorIDs(ids...)
 	return wtuo
 }
 
-// RemoveCreatorId removes "creatorId" edges to User entities.
-func (wtuo *WishlistTemplateUpdateOne) RemoveCreatorId(u ...*User) *WishlistTemplateUpdateOne {
+// RemoveCreator removes "creator" edges to User entities.
+func (wtuo *WishlistTemplateUpdateOne) RemoveCreator(u ...*User) *WishlistTemplateUpdateOne {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return wtuo.RemoveCreatorIdIDs(ids...)
+	return wtuo.RemoveCreatorIDs(ids...)
 }
 
 // ClearSections clears all "sections" edges to the WishlistTemplateSection entity.
@@ -544,12 +544,12 @@ func (wtuo *WishlistTemplateUpdateOne) sqlSave(ctx context.Context) (_node *Wish
 	if value, ok := wtuo.mutation.Status(); ok {
 		_spec.SetField(wishlisttemplate.FieldStatus, field.TypeEnum, value)
 	}
-	if wtuo.mutation.CreatorIdCleared() {
+	if wtuo.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlisttemplate.CreatorIdTable,
-			Columns: []string{wishlisttemplate.CreatorIdColumn},
+			Table:   wishlisttemplate.CreatorTable,
+			Columns: []string{wishlisttemplate.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -557,12 +557,12 @@ func (wtuo *WishlistTemplateUpdateOne) sqlSave(ctx context.Context) (_node *Wish
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wtuo.mutation.RemovedCreatorIdIDs(); len(nodes) > 0 && !wtuo.mutation.CreatorIdCleared() {
+	if nodes := wtuo.mutation.RemovedCreatorIDs(); len(nodes) > 0 && !wtuo.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlisttemplate.CreatorIdTable,
-			Columns: []string{wishlisttemplate.CreatorIdColumn},
+			Table:   wishlisttemplate.CreatorTable,
+			Columns: []string{wishlisttemplate.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -573,12 +573,12 @@ func (wtuo *WishlistTemplateUpdateOne) sqlSave(ctx context.Context) (_node *Wish
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wtuo.mutation.CreatorIdIDs(); len(nodes) > 0 {
+	if nodes := wtuo.mutation.CreatorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlisttemplate.CreatorIdTable,
-			Columns: []string{wishlisttemplate.CreatorIdColumn},
+			Table:   wishlisttemplate.CreatorTable,
+			Columns: []string{wishlisttemplate.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),

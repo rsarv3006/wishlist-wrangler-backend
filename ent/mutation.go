@@ -1083,25 +1083,25 @@ func (m *UserMutation) ResetEdge(name string) error {
 // WishlistMutation represents an operation that mutates the Wishlist nodes in the graph.
 type WishlistMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *uuid.UUID
-	title             *string
-	created_at        *time.Time
-	status            *wishlist.Status
-	clearedFields     map[string]struct{}
-	creatorId         map[uuid.UUID]struct{}
-	removedcreatorId  map[uuid.UUID]struct{}
-	clearedcreatorId  bool
-	templateId        map[uuid.UUID]struct{}
-	removedtemplateId map[uuid.UUID]struct{}
-	clearedtemplateId bool
-	sections          map[uuid.UUID]struct{}
-	removedsections   map[uuid.UUID]struct{}
-	clearedsections   bool
-	done              bool
-	oldValue          func(context.Context) (*Wishlist, error)
-	predicates        []predicate.Wishlist
+	op              Op
+	typ             string
+	id              *uuid.UUID
+	title           *string
+	created_at      *time.Time
+	status          *wishlist.Status
+	clearedFields   map[string]struct{}
+	creator         map[uuid.UUID]struct{}
+	removedcreator  map[uuid.UUID]struct{}
+	clearedcreator  bool
+	template        map[uuid.UUID]struct{}
+	removedtemplate map[uuid.UUID]struct{}
+	clearedtemplate bool
+	sections        map[uuid.UUID]struct{}
+	removedsections map[uuid.UUID]struct{}
+	clearedsections bool
+	done            bool
+	oldValue        func(context.Context) (*Wishlist, error)
+	predicates      []predicate.Wishlist
 }
 
 var _ ent.Mutation = (*WishlistMutation)(nil)
@@ -1316,112 +1316,112 @@ func (m *WishlistMutation) ResetStatus() {
 	m.status = nil
 }
 
-// AddCreatorIdIDs adds the "creatorId" edge to the User entity by ids.
-func (m *WishlistMutation) AddCreatorIdIDs(ids ...uuid.UUID) {
-	if m.creatorId == nil {
-		m.creatorId = make(map[uuid.UUID]struct{})
+// AddCreatorIDs adds the "creator" edge to the User entity by ids.
+func (m *WishlistMutation) AddCreatorIDs(ids ...uuid.UUID) {
+	if m.creator == nil {
+		m.creator = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.creatorId[ids[i]] = struct{}{}
+		m.creator[ids[i]] = struct{}{}
 	}
 }
 
-// ClearCreatorId clears the "creatorId" edge to the User entity.
-func (m *WishlistMutation) ClearCreatorId() {
-	m.clearedcreatorId = true
+// ClearCreator clears the "creator" edge to the User entity.
+func (m *WishlistMutation) ClearCreator() {
+	m.clearedcreator = true
 }
 
-// CreatorIdCleared reports if the "creatorId" edge to the User entity was cleared.
-func (m *WishlistMutation) CreatorIdCleared() bool {
-	return m.clearedcreatorId
+// CreatorCleared reports if the "creator" edge to the User entity was cleared.
+func (m *WishlistMutation) CreatorCleared() bool {
+	return m.clearedcreator
 }
 
-// RemoveCreatorIdIDs removes the "creatorId" edge to the User entity by IDs.
-func (m *WishlistMutation) RemoveCreatorIdIDs(ids ...uuid.UUID) {
-	if m.removedcreatorId == nil {
-		m.removedcreatorId = make(map[uuid.UUID]struct{})
+// RemoveCreatorIDs removes the "creator" edge to the User entity by IDs.
+func (m *WishlistMutation) RemoveCreatorIDs(ids ...uuid.UUID) {
+	if m.removedcreator == nil {
+		m.removedcreator = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.creatorId, ids[i])
-		m.removedcreatorId[ids[i]] = struct{}{}
+		delete(m.creator, ids[i])
+		m.removedcreator[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedCreatorId returns the removed IDs of the "creatorId" edge to the User entity.
-func (m *WishlistMutation) RemovedCreatorIdIDs() (ids []uuid.UUID) {
-	for id := range m.removedcreatorId {
+// RemovedCreator returns the removed IDs of the "creator" edge to the User entity.
+func (m *WishlistMutation) RemovedCreatorIDs() (ids []uuid.UUID) {
+	for id := range m.removedcreator {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// CreatorIdIDs returns the "creatorId" edge IDs in the mutation.
-func (m *WishlistMutation) CreatorIdIDs() (ids []uuid.UUID) {
-	for id := range m.creatorId {
+// CreatorIDs returns the "creator" edge IDs in the mutation.
+func (m *WishlistMutation) CreatorIDs() (ids []uuid.UUID) {
+	for id := range m.creator {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetCreatorId resets all changes to the "creatorId" edge.
-func (m *WishlistMutation) ResetCreatorId() {
-	m.creatorId = nil
-	m.clearedcreatorId = false
-	m.removedcreatorId = nil
+// ResetCreator resets all changes to the "creator" edge.
+func (m *WishlistMutation) ResetCreator() {
+	m.creator = nil
+	m.clearedcreator = false
+	m.removedcreator = nil
 }
 
-// AddTemplateIdIDs adds the "templateId" edge to the WishlistTemplate entity by ids.
-func (m *WishlistMutation) AddTemplateIdIDs(ids ...uuid.UUID) {
-	if m.templateId == nil {
-		m.templateId = make(map[uuid.UUID]struct{})
+// AddTemplateIDs adds the "template" edge to the WishlistTemplate entity by ids.
+func (m *WishlistMutation) AddTemplateIDs(ids ...uuid.UUID) {
+	if m.template == nil {
+		m.template = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.templateId[ids[i]] = struct{}{}
+		m.template[ids[i]] = struct{}{}
 	}
 }
 
-// ClearTemplateId clears the "templateId" edge to the WishlistTemplate entity.
-func (m *WishlistMutation) ClearTemplateId() {
-	m.clearedtemplateId = true
+// ClearTemplate clears the "template" edge to the WishlistTemplate entity.
+func (m *WishlistMutation) ClearTemplate() {
+	m.clearedtemplate = true
 }
 
-// TemplateIdCleared reports if the "templateId" edge to the WishlistTemplate entity was cleared.
-func (m *WishlistMutation) TemplateIdCleared() bool {
-	return m.clearedtemplateId
+// TemplateCleared reports if the "template" edge to the WishlistTemplate entity was cleared.
+func (m *WishlistMutation) TemplateCleared() bool {
+	return m.clearedtemplate
 }
 
-// RemoveTemplateIdIDs removes the "templateId" edge to the WishlistTemplate entity by IDs.
-func (m *WishlistMutation) RemoveTemplateIdIDs(ids ...uuid.UUID) {
-	if m.removedtemplateId == nil {
-		m.removedtemplateId = make(map[uuid.UUID]struct{})
+// RemoveTemplateIDs removes the "template" edge to the WishlistTemplate entity by IDs.
+func (m *WishlistMutation) RemoveTemplateIDs(ids ...uuid.UUID) {
+	if m.removedtemplate == nil {
+		m.removedtemplate = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.templateId, ids[i])
-		m.removedtemplateId[ids[i]] = struct{}{}
+		delete(m.template, ids[i])
+		m.removedtemplate[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedTemplateId returns the removed IDs of the "templateId" edge to the WishlistTemplate entity.
-func (m *WishlistMutation) RemovedTemplateIdIDs() (ids []uuid.UUID) {
-	for id := range m.removedtemplateId {
+// RemovedTemplate returns the removed IDs of the "template" edge to the WishlistTemplate entity.
+func (m *WishlistMutation) RemovedTemplateIDs() (ids []uuid.UUID) {
+	for id := range m.removedtemplate {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// TemplateIdIDs returns the "templateId" edge IDs in the mutation.
-func (m *WishlistMutation) TemplateIdIDs() (ids []uuid.UUID) {
-	for id := range m.templateId {
+// TemplateIDs returns the "template" edge IDs in the mutation.
+func (m *WishlistMutation) TemplateIDs() (ids []uuid.UUID) {
+	for id := range m.template {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetTemplateId resets all changes to the "templateId" edge.
-func (m *WishlistMutation) ResetTemplateId() {
-	m.templateId = nil
-	m.clearedtemplateId = false
-	m.removedtemplateId = nil
+// ResetTemplate resets all changes to the "template" edge.
+func (m *WishlistMutation) ResetTemplate() {
+	m.template = nil
+	m.clearedtemplate = false
+	m.removedtemplate = nil
 }
 
 // AddSectionIDs adds the "sections" edge to the WishlistSection entity by ids.
@@ -1646,11 +1646,11 @@ func (m *WishlistMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *WishlistMutation) AddedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.creatorId != nil {
-		edges = append(edges, wishlist.EdgeCreatorId)
+	if m.creator != nil {
+		edges = append(edges, wishlist.EdgeCreator)
 	}
-	if m.templateId != nil {
-		edges = append(edges, wishlist.EdgeTemplateId)
+	if m.template != nil {
+		edges = append(edges, wishlist.EdgeTemplate)
 	}
 	if m.sections != nil {
 		edges = append(edges, wishlist.EdgeSections)
@@ -1662,15 +1662,15 @@ func (m *WishlistMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *WishlistMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case wishlist.EdgeCreatorId:
-		ids := make([]ent.Value, 0, len(m.creatorId))
-		for id := range m.creatorId {
+	case wishlist.EdgeCreator:
+		ids := make([]ent.Value, 0, len(m.creator))
+		for id := range m.creator {
 			ids = append(ids, id)
 		}
 		return ids
-	case wishlist.EdgeTemplateId:
-		ids := make([]ent.Value, 0, len(m.templateId))
-		for id := range m.templateId {
+	case wishlist.EdgeTemplate:
+		ids := make([]ent.Value, 0, len(m.template))
+		for id := range m.template {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1687,11 +1687,11 @@ func (m *WishlistMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *WishlistMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.removedcreatorId != nil {
-		edges = append(edges, wishlist.EdgeCreatorId)
+	if m.removedcreator != nil {
+		edges = append(edges, wishlist.EdgeCreator)
 	}
-	if m.removedtemplateId != nil {
-		edges = append(edges, wishlist.EdgeTemplateId)
+	if m.removedtemplate != nil {
+		edges = append(edges, wishlist.EdgeTemplate)
 	}
 	if m.removedsections != nil {
 		edges = append(edges, wishlist.EdgeSections)
@@ -1703,15 +1703,15 @@ func (m *WishlistMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *WishlistMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case wishlist.EdgeCreatorId:
-		ids := make([]ent.Value, 0, len(m.removedcreatorId))
-		for id := range m.removedcreatorId {
+	case wishlist.EdgeCreator:
+		ids := make([]ent.Value, 0, len(m.removedcreator))
+		for id := range m.removedcreator {
 			ids = append(ids, id)
 		}
 		return ids
-	case wishlist.EdgeTemplateId:
-		ids := make([]ent.Value, 0, len(m.removedtemplateId))
-		for id := range m.removedtemplateId {
+	case wishlist.EdgeTemplate:
+		ids := make([]ent.Value, 0, len(m.removedtemplate))
+		for id := range m.removedtemplate {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1728,11 +1728,11 @@ func (m *WishlistMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *WishlistMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.clearedcreatorId {
-		edges = append(edges, wishlist.EdgeCreatorId)
+	if m.clearedcreator {
+		edges = append(edges, wishlist.EdgeCreator)
 	}
-	if m.clearedtemplateId {
-		edges = append(edges, wishlist.EdgeTemplateId)
+	if m.clearedtemplate {
+		edges = append(edges, wishlist.EdgeTemplate)
 	}
 	if m.clearedsections {
 		edges = append(edges, wishlist.EdgeSections)
@@ -1744,10 +1744,10 @@ func (m *WishlistMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *WishlistMutation) EdgeCleared(name string) bool {
 	switch name {
-	case wishlist.EdgeCreatorId:
-		return m.clearedcreatorId
-	case wishlist.EdgeTemplateId:
-		return m.clearedtemplateId
+	case wishlist.EdgeCreator:
+		return m.clearedcreator
+	case wishlist.EdgeTemplate:
+		return m.clearedtemplate
 	case wishlist.EdgeSections:
 		return m.clearedsections
 	}
@@ -1766,11 +1766,11 @@ func (m *WishlistMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *WishlistMutation) ResetEdge(name string) error {
 	switch name {
-	case wishlist.EdgeCreatorId:
-		m.ResetCreatorId()
+	case wishlist.EdgeCreator:
+		m.ResetCreator()
 		return nil
-	case wishlist.EdgeTemplateId:
-		m.ResetTemplateId()
+	case wishlist.EdgeTemplate:
+		m.ResetTemplate()
 		return nil
 	case wishlist.EdgeSections:
 		m.ResetSections()
@@ -2374,23 +2374,23 @@ func (m *WishlistSectionMutation) ResetEdge(name string) error {
 // WishlistTemplateMutation represents an operation that mutates the WishlistTemplate nodes in the graph.
 type WishlistTemplateMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *uuid.UUID
-	title            *string
-	created_at       *time.Time
-	description      *string
-	status           *wishlisttemplate.Status
-	clearedFields    map[string]struct{}
-	creatorId        map[uuid.UUID]struct{}
-	removedcreatorId map[uuid.UUID]struct{}
-	clearedcreatorId bool
-	sections         map[uuid.UUID]struct{}
-	removedsections  map[uuid.UUID]struct{}
-	clearedsections  bool
-	done             bool
-	oldValue         func(context.Context) (*WishlistTemplate, error)
-	predicates       []predicate.WishlistTemplate
+	op              Op
+	typ             string
+	id              *uuid.UUID
+	title           *string
+	created_at      *time.Time
+	description     *string
+	status          *wishlisttemplate.Status
+	clearedFields   map[string]struct{}
+	creator         map[uuid.UUID]struct{}
+	removedcreator  map[uuid.UUID]struct{}
+	clearedcreator  bool
+	sections        map[uuid.UUID]struct{}
+	removedsections map[uuid.UUID]struct{}
+	clearedsections bool
+	done            bool
+	oldValue        func(context.Context) (*WishlistTemplate, error)
+	predicates      []predicate.WishlistTemplate
 }
 
 var _ ent.Mutation = (*WishlistTemplateMutation)(nil)
@@ -2641,58 +2641,58 @@ func (m *WishlistTemplateMutation) ResetStatus() {
 	m.status = nil
 }
 
-// AddCreatorIdIDs adds the "creatorId" edge to the User entity by ids.
-func (m *WishlistTemplateMutation) AddCreatorIdIDs(ids ...uuid.UUID) {
-	if m.creatorId == nil {
-		m.creatorId = make(map[uuid.UUID]struct{})
+// AddCreatorIDs adds the "creator" edge to the User entity by ids.
+func (m *WishlistTemplateMutation) AddCreatorIDs(ids ...uuid.UUID) {
+	if m.creator == nil {
+		m.creator = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.creatorId[ids[i]] = struct{}{}
+		m.creator[ids[i]] = struct{}{}
 	}
 }
 
-// ClearCreatorId clears the "creatorId" edge to the User entity.
-func (m *WishlistTemplateMutation) ClearCreatorId() {
-	m.clearedcreatorId = true
+// ClearCreator clears the "creator" edge to the User entity.
+func (m *WishlistTemplateMutation) ClearCreator() {
+	m.clearedcreator = true
 }
 
-// CreatorIdCleared reports if the "creatorId" edge to the User entity was cleared.
-func (m *WishlistTemplateMutation) CreatorIdCleared() bool {
-	return m.clearedcreatorId
+// CreatorCleared reports if the "creator" edge to the User entity was cleared.
+func (m *WishlistTemplateMutation) CreatorCleared() bool {
+	return m.clearedcreator
 }
 
-// RemoveCreatorIdIDs removes the "creatorId" edge to the User entity by IDs.
-func (m *WishlistTemplateMutation) RemoveCreatorIdIDs(ids ...uuid.UUID) {
-	if m.removedcreatorId == nil {
-		m.removedcreatorId = make(map[uuid.UUID]struct{})
+// RemoveCreatorIDs removes the "creator" edge to the User entity by IDs.
+func (m *WishlistTemplateMutation) RemoveCreatorIDs(ids ...uuid.UUID) {
+	if m.removedcreator == nil {
+		m.removedcreator = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.creatorId, ids[i])
-		m.removedcreatorId[ids[i]] = struct{}{}
+		delete(m.creator, ids[i])
+		m.removedcreator[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedCreatorId returns the removed IDs of the "creatorId" edge to the User entity.
-func (m *WishlistTemplateMutation) RemovedCreatorIdIDs() (ids []uuid.UUID) {
-	for id := range m.removedcreatorId {
+// RemovedCreator returns the removed IDs of the "creator" edge to the User entity.
+func (m *WishlistTemplateMutation) RemovedCreatorIDs() (ids []uuid.UUID) {
+	for id := range m.removedcreator {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// CreatorIdIDs returns the "creatorId" edge IDs in the mutation.
-func (m *WishlistTemplateMutation) CreatorIdIDs() (ids []uuid.UUID) {
-	for id := range m.creatorId {
+// CreatorIDs returns the "creator" edge IDs in the mutation.
+func (m *WishlistTemplateMutation) CreatorIDs() (ids []uuid.UUID) {
+	for id := range m.creator {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetCreatorId resets all changes to the "creatorId" edge.
-func (m *WishlistTemplateMutation) ResetCreatorId() {
-	m.creatorId = nil
-	m.clearedcreatorId = false
-	m.removedcreatorId = nil
+// ResetCreator resets all changes to the "creator" edge.
+func (m *WishlistTemplateMutation) ResetCreator() {
+	m.creator = nil
+	m.clearedcreator = false
+	m.removedcreator = nil
 }
 
 // AddSectionIDs adds the "sections" edge to the WishlistTemplateSection entity by ids.
@@ -2934,8 +2934,8 @@ func (m *WishlistTemplateMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *WishlistTemplateMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.creatorId != nil {
-		edges = append(edges, wishlisttemplate.EdgeCreatorId)
+	if m.creator != nil {
+		edges = append(edges, wishlisttemplate.EdgeCreator)
 	}
 	if m.sections != nil {
 		edges = append(edges, wishlisttemplate.EdgeSections)
@@ -2947,9 +2947,9 @@ func (m *WishlistTemplateMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *WishlistTemplateMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case wishlisttemplate.EdgeCreatorId:
-		ids := make([]ent.Value, 0, len(m.creatorId))
-		for id := range m.creatorId {
+	case wishlisttemplate.EdgeCreator:
+		ids := make([]ent.Value, 0, len(m.creator))
+		for id := range m.creator {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2966,8 +2966,8 @@ func (m *WishlistTemplateMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *WishlistTemplateMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.removedcreatorId != nil {
-		edges = append(edges, wishlisttemplate.EdgeCreatorId)
+	if m.removedcreator != nil {
+		edges = append(edges, wishlisttemplate.EdgeCreator)
 	}
 	if m.removedsections != nil {
 		edges = append(edges, wishlisttemplate.EdgeSections)
@@ -2979,9 +2979,9 @@ func (m *WishlistTemplateMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *WishlistTemplateMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case wishlisttemplate.EdgeCreatorId:
-		ids := make([]ent.Value, 0, len(m.removedcreatorId))
-		for id := range m.removedcreatorId {
+	case wishlisttemplate.EdgeCreator:
+		ids := make([]ent.Value, 0, len(m.removedcreator))
+		for id := range m.removedcreator {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2998,8 +2998,8 @@ func (m *WishlistTemplateMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *WishlistTemplateMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.clearedcreatorId {
-		edges = append(edges, wishlisttemplate.EdgeCreatorId)
+	if m.clearedcreator {
+		edges = append(edges, wishlisttemplate.EdgeCreator)
 	}
 	if m.clearedsections {
 		edges = append(edges, wishlisttemplate.EdgeSections)
@@ -3011,8 +3011,8 @@ func (m *WishlistTemplateMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *WishlistTemplateMutation) EdgeCleared(name string) bool {
 	switch name {
-	case wishlisttemplate.EdgeCreatorId:
-		return m.clearedcreatorId
+	case wishlisttemplate.EdgeCreator:
+		return m.clearedcreator
 	case wishlisttemplate.EdgeSections:
 		return m.clearedsections
 	}
@@ -3031,8 +3031,8 @@ func (m *WishlistTemplateMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *WishlistTemplateMutation) ResetEdge(name string) error {
 	switch name {
-	case wishlisttemplate.EdgeCreatorId:
-		m.ResetCreatorId()
+	case wishlisttemplate.EdgeCreator:
+		m.ResetCreator()
 		return nil
 	case wishlisttemplate.EdgeSections:
 		m.ResetSections()

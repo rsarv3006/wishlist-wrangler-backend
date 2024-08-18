@@ -32,10 +32,10 @@ type Wishlist struct {
 
 // WishlistEdges holds the relations/edges for other nodes in the graph.
 type WishlistEdges struct {
-	// CreatorId holds the value of the creatorId edge.
-	CreatorId []*User `json:"creatorId,omitempty"`
-	// TemplateId holds the value of the templateId edge.
-	TemplateId []*WishlistTemplate `json:"templateId,omitempty"`
+	// Creator holds the value of the creator edge.
+	Creator []*User `json:"creator,omitempty"`
+	// Template holds the value of the template edge.
+	Template []*WishlistTemplate `json:"template,omitempty"`
 	// Sections holds the value of the sections edge.
 	Sections []*WishlistSection `json:"sections,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -43,22 +43,22 @@ type WishlistEdges struct {
 	loadedTypes [3]bool
 }
 
-// CreatorIdOrErr returns the CreatorId value or an error if the edge
+// CreatorOrErr returns the Creator value or an error if the edge
 // was not loaded in eager-loading.
-func (e WishlistEdges) CreatorIdOrErr() ([]*User, error) {
+func (e WishlistEdges) CreatorOrErr() ([]*User, error) {
 	if e.loadedTypes[0] {
-		return e.CreatorId, nil
+		return e.Creator, nil
 	}
-	return nil, &NotLoadedError{edge: "creatorId"}
+	return nil, &NotLoadedError{edge: "creator"}
 }
 
-// TemplateIdOrErr returns the TemplateId value or an error if the edge
+// TemplateOrErr returns the Template value or an error if the edge
 // was not loaded in eager-loading.
-func (e WishlistEdges) TemplateIdOrErr() ([]*WishlistTemplate, error) {
+func (e WishlistEdges) TemplateOrErr() ([]*WishlistTemplate, error) {
 	if e.loadedTypes[1] {
-		return e.TemplateId, nil
+		return e.Template, nil
 	}
-	return nil, &NotLoadedError{edge: "templateId"}
+	return nil, &NotLoadedError{edge: "template"}
 }
 
 // SectionsOrErr returns the Sections value or an error if the edge
@@ -133,14 +133,14 @@ func (w *Wishlist) Value(name string) (ent.Value, error) {
 	return w.selectValues.Get(name)
 }
 
-// QueryCreatorId queries the "creatorId" edge of the Wishlist entity.
-func (w *Wishlist) QueryCreatorId() *UserQuery {
-	return NewWishlistClient(w.config).QueryCreatorId(w)
+// QueryCreator queries the "creator" edge of the Wishlist entity.
+func (w *Wishlist) QueryCreator() *UserQuery {
+	return NewWishlistClient(w.config).QueryCreator(w)
 }
 
-// QueryTemplateId queries the "templateId" edge of the Wishlist entity.
-func (w *Wishlist) QueryTemplateId() *WishlistTemplateQuery {
-	return NewWishlistClient(w.config).QueryTemplateId(w)
+// QueryTemplate queries the "template" edge of the Wishlist entity.
+func (w *Wishlist) QueryTemplate() *WishlistTemplateQuery {
+	return NewWishlistClient(w.config).QueryTemplate(w)
 }
 
 // QuerySections queries the "sections" edge of the Wishlist entity.

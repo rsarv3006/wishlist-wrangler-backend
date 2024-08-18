@@ -59,34 +59,34 @@ func (wu *WishlistUpdate) SetNillableStatus(w *wishlist.Status) *WishlistUpdate 
 	return wu
 }
 
-// AddCreatorIdIDs adds the "creatorId" edge to the User entity by IDs.
-func (wu *WishlistUpdate) AddCreatorIdIDs(ids ...uuid.UUID) *WishlistUpdate {
-	wu.mutation.AddCreatorIdIDs(ids...)
+// AddCreatorIDs adds the "creator" edge to the User entity by IDs.
+func (wu *WishlistUpdate) AddCreatorIDs(ids ...uuid.UUID) *WishlistUpdate {
+	wu.mutation.AddCreatorIDs(ids...)
 	return wu
 }
 
-// AddCreatorId adds the "creatorId" edges to the User entity.
-func (wu *WishlistUpdate) AddCreatorId(u ...*User) *WishlistUpdate {
+// AddCreator adds the "creator" edges to the User entity.
+func (wu *WishlistUpdate) AddCreator(u ...*User) *WishlistUpdate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return wu.AddCreatorIdIDs(ids...)
+	return wu.AddCreatorIDs(ids...)
 }
 
-// AddTemplateIdIDs adds the "templateId" edge to the WishlistTemplate entity by IDs.
-func (wu *WishlistUpdate) AddTemplateIdIDs(ids ...uuid.UUID) *WishlistUpdate {
-	wu.mutation.AddTemplateIdIDs(ids...)
+// AddTemplateIDs adds the "template" edge to the WishlistTemplate entity by IDs.
+func (wu *WishlistUpdate) AddTemplateIDs(ids ...uuid.UUID) *WishlistUpdate {
+	wu.mutation.AddTemplateIDs(ids...)
 	return wu
 }
 
-// AddTemplateId adds the "templateId" edges to the WishlistTemplate entity.
-func (wu *WishlistUpdate) AddTemplateId(w ...*WishlistTemplate) *WishlistUpdate {
+// AddTemplate adds the "template" edges to the WishlistTemplate entity.
+func (wu *WishlistUpdate) AddTemplate(w ...*WishlistTemplate) *WishlistUpdate {
 	ids := make([]uuid.UUID, len(w))
 	for i := range w {
 		ids[i] = w[i].ID
 	}
-	return wu.AddTemplateIdIDs(ids...)
+	return wu.AddTemplateIDs(ids...)
 }
 
 // AddSectionIDs adds the "sections" edge to the WishlistSection entity by IDs.
@@ -109,46 +109,46 @@ func (wu *WishlistUpdate) Mutation() *WishlistMutation {
 	return wu.mutation
 }
 
-// ClearCreatorId clears all "creatorId" edges to the User entity.
-func (wu *WishlistUpdate) ClearCreatorId() *WishlistUpdate {
-	wu.mutation.ClearCreatorId()
+// ClearCreator clears all "creator" edges to the User entity.
+func (wu *WishlistUpdate) ClearCreator() *WishlistUpdate {
+	wu.mutation.ClearCreator()
 	return wu
 }
 
-// RemoveCreatorIdIDs removes the "creatorId" edge to User entities by IDs.
-func (wu *WishlistUpdate) RemoveCreatorIdIDs(ids ...uuid.UUID) *WishlistUpdate {
-	wu.mutation.RemoveCreatorIdIDs(ids...)
+// RemoveCreatorIDs removes the "creator" edge to User entities by IDs.
+func (wu *WishlistUpdate) RemoveCreatorIDs(ids ...uuid.UUID) *WishlistUpdate {
+	wu.mutation.RemoveCreatorIDs(ids...)
 	return wu
 }
 
-// RemoveCreatorId removes "creatorId" edges to User entities.
-func (wu *WishlistUpdate) RemoveCreatorId(u ...*User) *WishlistUpdate {
+// RemoveCreator removes "creator" edges to User entities.
+func (wu *WishlistUpdate) RemoveCreator(u ...*User) *WishlistUpdate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return wu.RemoveCreatorIdIDs(ids...)
+	return wu.RemoveCreatorIDs(ids...)
 }
 
-// ClearTemplateId clears all "templateId" edges to the WishlistTemplate entity.
-func (wu *WishlistUpdate) ClearTemplateId() *WishlistUpdate {
-	wu.mutation.ClearTemplateId()
+// ClearTemplate clears all "template" edges to the WishlistTemplate entity.
+func (wu *WishlistUpdate) ClearTemplate() *WishlistUpdate {
+	wu.mutation.ClearTemplate()
 	return wu
 }
 
-// RemoveTemplateIdIDs removes the "templateId" edge to WishlistTemplate entities by IDs.
-func (wu *WishlistUpdate) RemoveTemplateIdIDs(ids ...uuid.UUID) *WishlistUpdate {
-	wu.mutation.RemoveTemplateIdIDs(ids...)
+// RemoveTemplateIDs removes the "template" edge to WishlistTemplate entities by IDs.
+func (wu *WishlistUpdate) RemoveTemplateIDs(ids ...uuid.UUID) *WishlistUpdate {
+	wu.mutation.RemoveTemplateIDs(ids...)
 	return wu
 }
 
-// RemoveTemplateId removes "templateId" edges to WishlistTemplate entities.
-func (wu *WishlistUpdate) RemoveTemplateId(w ...*WishlistTemplate) *WishlistUpdate {
+// RemoveTemplate removes "template" edges to WishlistTemplate entities.
+func (wu *WishlistUpdate) RemoveTemplate(w ...*WishlistTemplate) *WishlistUpdate {
 	ids := make([]uuid.UUID, len(w))
 	for i := range w {
 		ids[i] = w[i].ID
 	}
-	return wu.RemoveTemplateIdIDs(ids...)
+	return wu.RemoveTemplateIDs(ids...)
 }
 
 // ClearSections clears all "sections" edges to the WishlistSection entity.
@@ -232,12 +232,12 @@ func (wu *WishlistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := wu.mutation.Status(); ok {
 		_spec.SetField(wishlist.FieldStatus, field.TypeEnum, value)
 	}
-	if wu.mutation.CreatorIdCleared() {
+	if wu.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.CreatorIdTable,
-			Columns: []string{wishlist.CreatorIdColumn},
+			Table:   wishlist.CreatorTable,
+			Columns: []string{wishlist.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -245,12 +245,12 @@ func (wu *WishlistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wu.mutation.RemovedCreatorIdIDs(); len(nodes) > 0 && !wu.mutation.CreatorIdCleared() {
+	if nodes := wu.mutation.RemovedCreatorIDs(); len(nodes) > 0 && !wu.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.CreatorIdTable,
-			Columns: []string{wishlist.CreatorIdColumn},
+			Table:   wishlist.CreatorTable,
+			Columns: []string{wishlist.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -261,12 +261,12 @@ func (wu *WishlistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wu.mutation.CreatorIdIDs(); len(nodes) > 0 {
+	if nodes := wu.mutation.CreatorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.CreatorIdTable,
-			Columns: []string{wishlist.CreatorIdColumn},
+			Table:   wishlist.CreatorTable,
+			Columns: []string{wishlist.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -277,12 +277,12 @@ func (wu *WishlistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if wu.mutation.TemplateIdCleared() {
+	if wu.mutation.TemplateCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.TemplateIdTable,
-			Columns: []string{wishlist.TemplateIdColumn},
+			Table:   wishlist.TemplateTable,
+			Columns: []string{wishlist.TemplateColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplate.FieldID, field.TypeUUID),
@@ -290,12 +290,12 @@ func (wu *WishlistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wu.mutation.RemovedTemplateIdIDs(); len(nodes) > 0 && !wu.mutation.TemplateIdCleared() {
+	if nodes := wu.mutation.RemovedTemplateIDs(); len(nodes) > 0 && !wu.mutation.TemplateCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.TemplateIdTable,
-			Columns: []string{wishlist.TemplateIdColumn},
+			Table:   wishlist.TemplateTable,
+			Columns: []string{wishlist.TemplateColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplate.FieldID, field.TypeUUID),
@@ -306,12 +306,12 @@ func (wu *WishlistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wu.mutation.TemplateIdIDs(); len(nodes) > 0 {
+	if nodes := wu.mutation.TemplateIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.TemplateIdTable,
-			Columns: []string{wishlist.TemplateIdColumn},
+			Table:   wishlist.TemplateTable,
+			Columns: []string{wishlist.TemplateColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplate.FieldID, field.TypeUUID),
@@ -415,34 +415,34 @@ func (wuo *WishlistUpdateOne) SetNillableStatus(w *wishlist.Status) *WishlistUpd
 	return wuo
 }
 
-// AddCreatorIdIDs adds the "creatorId" edge to the User entity by IDs.
-func (wuo *WishlistUpdateOne) AddCreatorIdIDs(ids ...uuid.UUID) *WishlistUpdateOne {
-	wuo.mutation.AddCreatorIdIDs(ids...)
+// AddCreatorIDs adds the "creator" edge to the User entity by IDs.
+func (wuo *WishlistUpdateOne) AddCreatorIDs(ids ...uuid.UUID) *WishlistUpdateOne {
+	wuo.mutation.AddCreatorIDs(ids...)
 	return wuo
 }
 
-// AddCreatorId adds the "creatorId" edges to the User entity.
-func (wuo *WishlistUpdateOne) AddCreatorId(u ...*User) *WishlistUpdateOne {
+// AddCreator adds the "creator" edges to the User entity.
+func (wuo *WishlistUpdateOne) AddCreator(u ...*User) *WishlistUpdateOne {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return wuo.AddCreatorIdIDs(ids...)
+	return wuo.AddCreatorIDs(ids...)
 }
 
-// AddTemplateIdIDs adds the "templateId" edge to the WishlistTemplate entity by IDs.
-func (wuo *WishlistUpdateOne) AddTemplateIdIDs(ids ...uuid.UUID) *WishlistUpdateOne {
-	wuo.mutation.AddTemplateIdIDs(ids...)
+// AddTemplateIDs adds the "template" edge to the WishlistTemplate entity by IDs.
+func (wuo *WishlistUpdateOne) AddTemplateIDs(ids ...uuid.UUID) *WishlistUpdateOne {
+	wuo.mutation.AddTemplateIDs(ids...)
 	return wuo
 }
 
-// AddTemplateId adds the "templateId" edges to the WishlistTemplate entity.
-func (wuo *WishlistUpdateOne) AddTemplateId(w ...*WishlistTemplate) *WishlistUpdateOne {
+// AddTemplate adds the "template" edges to the WishlistTemplate entity.
+func (wuo *WishlistUpdateOne) AddTemplate(w ...*WishlistTemplate) *WishlistUpdateOne {
 	ids := make([]uuid.UUID, len(w))
 	for i := range w {
 		ids[i] = w[i].ID
 	}
-	return wuo.AddTemplateIdIDs(ids...)
+	return wuo.AddTemplateIDs(ids...)
 }
 
 // AddSectionIDs adds the "sections" edge to the WishlistSection entity by IDs.
@@ -465,46 +465,46 @@ func (wuo *WishlistUpdateOne) Mutation() *WishlistMutation {
 	return wuo.mutation
 }
 
-// ClearCreatorId clears all "creatorId" edges to the User entity.
-func (wuo *WishlistUpdateOne) ClearCreatorId() *WishlistUpdateOne {
-	wuo.mutation.ClearCreatorId()
+// ClearCreator clears all "creator" edges to the User entity.
+func (wuo *WishlistUpdateOne) ClearCreator() *WishlistUpdateOne {
+	wuo.mutation.ClearCreator()
 	return wuo
 }
 
-// RemoveCreatorIdIDs removes the "creatorId" edge to User entities by IDs.
-func (wuo *WishlistUpdateOne) RemoveCreatorIdIDs(ids ...uuid.UUID) *WishlistUpdateOne {
-	wuo.mutation.RemoveCreatorIdIDs(ids...)
+// RemoveCreatorIDs removes the "creator" edge to User entities by IDs.
+func (wuo *WishlistUpdateOne) RemoveCreatorIDs(ids ...uuid.UUID) *WishlistUpdateOne {
+	wuo.mutation.RemoveCreatorIDs(ids...)
 	return wuo
 }
 
-// RemoveCreatorId removes "creatorId" edges to User entities.
-func (wuo *WishlistUpdateOne) RemoveCreatorId(u ...*User) *WishlistUpdateOne {
+// RemoveCreator removes "creator" edges to User entities.
+func (wuo *WishlistUpdateOne) RemoveCreator(u ...*User) *WishlistUpdateOne {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return wuo.RemoveCreatorIdIDs(ids...)
+	return wuo.RemoveCreatorIDs(ids...)
 }
 
-// ClearTemplateId clears all "templateId" edges to the WishlistTemplate entity.
-func (wuo *WishlistUpdateOne) ClearTemplateId() *WishlistUpdateOne {
-	wuo.mutation.ClearTemplateId()
+// ClearTemplate clears all "template" edges to the WishlistTemplate entity.
+func (wuo *WishlistUpdateOne) ClearTemplate() *WishlistUpdateOne {
+	wuo.mutation.ClearTemplate()
 	return wuo
 }
 
-// RemoveTemplateIdIDs removes the "templateId" edge to WishlistTemplate entities by IDs.
-func (wuo *WishlistUpdateOne) RemoveTemplateIdIDs(ids ...uuid.UUID) *WishlistUpdateOne {
-	wuo.mutation.RemoveTemplateIdIDs(ids...)
+// RemoveTemplateIDs removes the "template" edge to WishlistTemplate entities by IDs.
+func (wuo *WishlistUpdateOne) RemoveTemplateIDs(ids ...uuid.UUID) *WishlistUpdateOne {
+	wuo.mutation.RemoveTemplateIDs(ids...)
 	return wuo
 }
 
-// RemoveTemplateId removes "templateId" edges to WishlistTemplate entities.
-func (wuo *WishlistUpdateOne) RemoveTemplateId(w ...*WishlistTemplate) *WishlistUpdateOne {
+// RemoveTemplate removes "template" edges to WishlistTemplate entities.
+func (wuo *WishlistUpdateOne) RemoveTemplate(w ...*WishlistTemplate) *WishlistUpdateOne {
 	ids := make([]uuid.UUID, len(w))
 	for i := range w {
 		ids[i] = w[i].ID
 	}
-	return wuo.RemoveTemplateIdIDs(ids...)
+	return wuo.RemoveTemplateIDs(ids...)
 }
 
 // ClearSections clears all "sections" edges to the WishlistSection entity.
@@ -618,12 +618,12 @@ func (wuo *WishlistUpdateOne) sqlSave(ctx context.Context) (_node *Wishlist, err
 	if value, ok := wuo.mutation.Status(); ok {
 		_spec.SetField(wishlist.FieldStatus, field.TypeEnum, value)
 	}
-	if wuo.mutation.CreatorIdCleared() {
+	if wuo.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.CreatorIdTable,
-			Columns: []string{wishlist.CreatorIdColumn},
+			Table:   wishlist.CreatorTable,
+			Columns: []string{wishlist.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -631,12 +631,12 @@ func (wuo *WishlistUpdateOne) sqlSave(ctx context.Context) (_node *Wishlist, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wuo.mutation.RemovedCreatorIdIDs(); len(nodes) > 0 && !wuo.mutation.CreatorIdCleared() {
+	if nodes := wuo.mutation.RemovedCreatorIDs(); len(nodes) > 0 && !wuo.mutation.CreatorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.CreatorIdTable,
-			Columns: []string{wishlist.CreatorIdColumn},
+			Table:   wishlist.CreatorTable,
+			Columns: []string{wishlist.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -647,12 +647,12 @@ func (wuo *WishlistUpdateOne) sqlSave(ctx context.Context) (_node *Wishlist, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wuo.mutation.CreatorIdIDs(); len(nodes) > 0 {
+	if nodes := wuo.mutation.CreatorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.CreatorIdTable,
-			Columns: []string{wishlist.CreatorIdColumn},
+			Table:   wishlist.CreatorTable,
+			Columns: []string{wishlist.CreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -663,12 +663,12 @@ func (wuo *WishlistUpdateOne) sqlSave(ctx context.Context) (_node *Wishlist, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if wuo.mutation.TemplateIdCleared() {
+	if wuo.mutation.TemplateCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.TemplateIdTable,
-			Columns: []string{wishlist.TemplateIdColumn},
+			Table:   wishlist.TemplateTable,
+			Columns: []string{wishlist.TemplateColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplate.FieldID, field.TypeUUID),
@@ -676,12 +676,12 @@ func (wuo *WishlistUpdateOne) sqlSave(ctx context.Context) (_node *Wishlist, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wuo.mutation.RemovedTemplateIdIDs(); len(nodes) > 0 && !wuo.mutation.TemplateIdCleared() {
+	if nodes := wuo.mutation.RemovedTemplateIDs(); len(nodes) > 0 && !wuo.mutation.TemplateCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.TemplateIdTable,
-			Columns: []string{wishlist.TemplateIdColumn},
+			Table:   wishlist.TemplateTable,
+			Columns: []string{wishlist.TemplateColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplate.FieldID, field.TypeUUID),
@@ -692,12 +692,12 @@ func (wuo *WishlistUpdateOne) sqlSave(ctx context.Context) (_node *Wishlist, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wuo.mutation.TemplateIdIDs(); len(nodes) > 0 {
+	if nodes := wuo.mutation.TemplateIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   wishlist.TemplateIdTable,
-			Columns: []string{wishlist.TemplateIdColumn},
+			Table:   wishlist.TemplateTable,
+			Columns: []string{wishlist.TemplateColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplate.FieldID, field.TypeUUID),
