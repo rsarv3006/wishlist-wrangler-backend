@@ -12,4 +12,5 @@ func setUpAuthRoutesV1(api fiber.Router, dbClient *ent.Client) {
 
 	auth.Post("/signup", handler.SignUpEndpoint(dbClient))
 	auth.Post("/login", handler.LoginEndpoint(dbClient))
+	auth.Post("/token", handler.UserGetTokenEndpoint(dbClient))
 }

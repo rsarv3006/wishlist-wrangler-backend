@@ -12,7 +12,11 @@ import (
 )
 
 func CreateUser(dbClient *ent.Client, createUserDto dto.CreateUserDto) (*ent.User, error) {
-	user, err := dbClient.User.Create().SetEmail(createUserDto.Email).SetDisplayName(createUserDto.DisplayName).Save(context.Background())
+	user, err := dbClient.User.
+		Create().
+		SetEmail(createUserDto.Email).
+		SetDisplayName(createUserDto.DisplayName).
+		Save(context.Background())
 
 	if err != nil {
 		return nil, err
@@ -28,16 +32,32 @@ func GetUserById(dbClient *ent.Client, userId uuid.UUID) (*ent.User, error) {
 }
 
 func GetUserByEmail(dbClient *ent.Client, email string) (*ent.User, error) {
-	user, err := dbClient.User.Query().Where(user.Email(email)).First(context.Background())
+	user, err := dbClient.User.
+		Query().
+		Where(
+			user.And(
+				user.Email(email),
+				user.StatusNEQ(user.StatusDELETED),
+			),
+		).
+		First(context.Background())
 	return user, err
 }
 
 func DeleteUser(dbClient *ent.Client, userId uuid.UUID) error {
-	return dbClient.User.Update().Where(user.ID(userId)).SetStatus(user.StatusDELETED).Exec(context.Background())
+	return dbClient.User.
+		Update().
+		Where(user.ID(userId)).
+		SetStatus(user.StatusDELETED).
+		Exec(context.Background())
 }
 
 func UpdateUserStatus(dbClient *ent.Client, userId uuid.UUID, status user.Status) error {
-	return dbClient.User.Update().Where(user.ID(userId)).SetStatus(status).Exec(context.Background())
+	return dbClient.User.
+		Update().
+		Where(user.ID(userId)).
+		SetStatus(status).
+		Exec(context.Background())
 }
 
 func UpdateUser(dbClient *ent.Client, updateUserDto *dto.UpdateUserDto) error {
@@ -51,7 +71,11 @@ func UpdateUser(dbClient *ent.Client, updateUserDto *dto.UpdateUserDto) error {
 		return errors.New("Display name is invalid")
 	}
 
-	err := dbClient.User.Update().Where(user.ID(updateUserDto.UserId)).SetDisplayName(updateUserDto.DisplayName).Exec(context.Background())
+	err := dbClient.User.
+		Update().
+		Where(user.ID(updateUserDto.UserId)).
+		SetDisplayName(updateUserDto.DisplayName).
+		Exec(context.Background())
 
 	return err
 }

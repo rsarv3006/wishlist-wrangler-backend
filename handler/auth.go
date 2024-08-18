@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"wishlist-wrangler-api/auth"
 	"wishlist-wrangler-api/dto"
 	"wishlist-wrangler-api/ent"
+	EntUser "wishlist-wrangler-api/ent/user"
 	"wishlist-wrangler-api/helper"
 	"wishlist-wrangler-api/repository"
 
@@ -110,14 +112,23 @@ func UserGetTokenEndpoint(dbClient *ent.Client) fiber.Handler {
 			return sendBadRequestResponse(c, nil, "Login request id does not match")
 		}
 
-		// TODO: Create token
+		if user.Status == EntUser.StatusPENDING {
+			err = repository.UpdateUserStatus(dbClient, user.ID, EntUser.StatusACTIVE)
+			if err != nil {
+				return sendInternalServerErrorResponse(c, err)
+			}
+
+			user.Status = EntUser.StatusACTIVE
+		}
+
+		token, err := auth.GenerateJWT(user, c)
 
 		if err != nil {
 			return sendInternalServerErrorResponse(c, err)
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-			"token": "TODO: Create token",
+			"token": token,
 		})
 	}
 }

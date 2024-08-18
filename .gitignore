@@ -1,2 +1,4 @@
 **/*.env
 **/.idea
+**/api.http
+api.http
