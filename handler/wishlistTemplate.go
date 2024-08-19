@@ -7,6 +7,7 @@ import (
 	"wishlist-wrangler-api/repository"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 func CreateWishlistTemplate(dbClient *ent.Client) fiber.Handler {
@@ -40,4 +41,59 @@ func CreateWishlistTemplate(dbClient *ent.Client) fiber.Handler {
 			"wishlistTemplateSections": wishlistTemplateSections,
 		})
 	}
+}
+
+func GetWishlistTemplatesForUser(dbClient *ent.Client) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		currentUser := c.Locals("currentUser").(*ent.User)
+
+		wishlistTemplates, err := repository.GetWishlistTemplatesByUser(dbClient, currentUser.ID)
+
+		if err != nil {
+			return sendBadRequestResponse(c, err, "Failed to get wishlist templates")
+		}
+
+		templateIds := make([]uuid.UUID, 0, len(wishlistTemplates))
+		for _, template := range wishlistTemplates {
+			templateIds = append(templateIds, template.ID)
+		}
+
+		sections, err := repository.GetWishlistTemplateSectionsForTemplateArray(dbClient, templateIds)
+
+		if err != nil {
+			return sendBadRequestResponse(c, err, "Failed to get wishlist template sections")
+		}
+
+		sectionsByTemplateId := matchSectionsToTemplates(sections, templateIds)
+
+		wishlistTemplatesAndSections := make([]*dto.WishlistTemplateAndSectionsReturnDto, 0, len(wishlistTemplates))
+		for _, template := range wishlistTemplates {
+			sections := sectionsByTemplateId[template.ID]
+			wishlistTemplatesAndSections = append(wishlistTemplatesAndSections, &dto.WishlistTemplateAndSectionsReturnDto{
+				WishlistTemplate:         template,
+				WishlistTemplateSections: sections,
+			})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"wishlistTemplates": wishlistTemplatesAndSections,
+		})
+	}
+}
+
+func matchSectionsToTemplates(sections []*ent.WishlistTemplateSection, templateIds []uuid.UUID) map[uuid.UUID][]*ent.WishlistTemplateSection {
+	result := make(map[uuid.UUID][]*ent.WishlistTemplateSection)
+
+	for _, id := range templateIds {
+		result[id] = []*ent.WishlistTemplateSection{}
+	}
+
+	for _, section := range sections {
+		templateId := section.WishlistTemplateID
+		if _, ok := result[templateId]; ok {
+			result[templateId] = append(result[templateId], section)
+		}
+	}
+
+	return result
 }

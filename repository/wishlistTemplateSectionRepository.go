@@ -4,6 +4,7 @@ import (
 	"context"
 	"wishlist-wrangler-api/dto"
 	"wishlist-wrangler-api/ent"
+	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"github.com/google/uuid"
 )
@@ -33,5 +34,27 @@ func CreateWishlistTemplateSections(dbClient *ent.Client,
 		sections = append(sections, section)
 	}
 
+	return sections, nil
+}
+
+func GetWishlistTemplateSections(dbClient *ent.Client, templateId uuid.UUID) ([]*ent.WishlistTemplateSection, error) {
+	return dbClient.WishlistTemplateSection.
+		Query().
+		Where(
+			wishlisttemplatesection.And(
+				wishlisttemplatesection.WishlistTemplateID(templateId),
+			),
+		).
+		All(context.Background())
+}
+
+func GetWishlistTemplateSectionsForTemplateArray(dbClient *ent.Client, templateIds []uuid.UUID) ([]*ent.WishlistTemplateSection, error) {
+	sections, err := dbClient.WishlistTemplateSection.
+		Query().
+		Where(wishlisttemplatesection.WishlistTemplateIDIn(templateIds...)).
+		All(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	return sections, nil
 }
