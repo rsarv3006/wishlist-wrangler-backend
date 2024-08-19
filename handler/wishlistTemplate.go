@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"wishlist-wrangler-api/dto"
 	"wishlist-wrangler-api/ent"
 	"wishlist-wrangler-api/repository"
@@ -23,9 +22,6 @@ func CreateWishlistTemplate(dbClient *ent.Client) fiber.Handler {
 		if len(createWishTemplateDto.Title) == 0 {
 			return sendBadRequestResponse(c, nil, "Title is required")
 		}
-
-		log.Println(createWishTemplateDto)
-		log.Println(len(createWishTemplateDto.TemplateSections))
 
 		wishlistTemplate, err := repository.CreateWishlistTemplate(dbClient, createWishTemplateDto, currentUser)
 

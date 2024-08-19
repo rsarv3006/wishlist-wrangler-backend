@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"wishlist-wrangler-api/dto"
 	"wishlist-wrangler-api/ent"
 	"wishlist-wrangler-api/ent/wishlisttemplate"
@@ -18,8 +17,6 @@ func CreateWishlistTemplate(dbClient *ent.Client, templateDto *dto.CreateWishlis
 		Save(context.Background())
 
 	if err != nil {
-		log.Println("failed to create wishlist template - you know where you are")
-
 		return nil, err
 	}
 
@@ -39,7 +36,7 @@ func GetWishlistTemplatesByUser(dbClient *ent.Client, userId uuid.UUID) ([]*ent.
 		Query().
 		Where(
 			wishlisttemplate.And(
-				// wishlisttemplate.HasCreatorWith(user.ID(userId)),
+				wishlisttemplate.CreatorID(userId),
 				wishlisttemplate.StatusEQ(wishlisttemplate.StatusACTIVE),
 			),
 		).

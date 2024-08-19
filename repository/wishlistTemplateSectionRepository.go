@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"wishlist-wrangler-api/dto"
 	"wishlist-wrangler-api/ent"
 
@@ -14,7 +13,6 @@ func CreateWishlistTemplateSections(dbClient *ent.Client,
 	templateId uuid.UUID) ([]*ent.WishlistTemplateSection, error) {
 
 	sections := make([]*ent.WishlistTemplateSection, 0, len(templateSectionDto))
-	// TODO: Double creating the sections
 	for _, sectionDto := range templateSectionDto {
 
 		section, err := dbClient.WishlistTemplateSection.Create().
@@ -34,8 +32,6 @@ func CreateWishlistTemplateSections(dbClient *ent.Client,
 
 		sections = append(sections, section)
 	}
-	log.Println("sections")
-	log.Println(sections)
 
 	return sections, nil
 }
