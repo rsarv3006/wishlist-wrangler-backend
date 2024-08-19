@@ -11,9 +11,10 @@ func sendBadRequestResponse(c *fiber.Ctx, err error, message string) error {
 	if err != nil {
 		log.Println(err)
 	}
+
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 		"message": message,
-		"error":   err.Error(),
+		"error":   err,
 	})
 }
 
