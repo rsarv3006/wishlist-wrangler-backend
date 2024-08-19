@@ -7,9 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"wishlist-wrangler-api/ent/wishlist"
 	"wishlist-wrangler-api/ent/wishlistsection"
-	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,40 +59,6 @@ func (wsc *WishlistSectionCreate) SetNillableID(u *uuid.UUID) *WishlistSectionCr
 		wsc.SetID(*u)
 	}
 	return wsc
-}
-
-// SetWishlistID sets the "wishlist" edge to the Wishlist entity by ID.
-func (wsc *WishlistSectionCreate) SetWishlistID(id uuid.UUID) *WishlistSectionCreate {
-	wsc.mutation.SetWishlistID(id)
-	return wsc
-}
-
-// SetNillableWishlistID sets the "wishlist" edge to the Wishlist entity by ID if the given value is not nil.
-func (wsc *WishlistSectionCreate) SetNillableWishlistID(id *uuid.UUID) *WishlistSectionCreate {
-	if id != nil {
-		wsc = wsc.SetWishlistID(*id)
-	}
-	return wsc
-}
-
-// SetWishlist sets the "wishlist" edge to the Wishlist entity.
-func (wsc *WishlistSectionCreate) SetWishlist(w *Wishlist) *WishlistSectionCreate {
-	return wsc.SetWishlistID(w.ID)
-}
-
-// AddWishlistTemplateSectionIDs adds the "wishlistTemplateSection" edge to the WishlistTemplateSection entity by IDs.
-func (wsc *WishlistSectionCreate) AddWishlistTemplateSectionIDs(ids ...uuid.UUID) *WishlistSectionCreate {
-	wsc.mutation.AddWishlistTemplateSectionIDs(ids...)
-	return wsc
-}
-
-// AddWishlistTemplateSection adds the "wishlistTemplateSection" edges to the WishlistTemplateSection entity.
-func (wsc *WishlistSectionCreate) AddWishlistTemplateSection(w ...*WishlistTemplateSection) *WishlistSectionCreate {
-	ids := make([]uuid.UUID, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
-	}
-	return wsc.AddWishlistTemplateSectionIDs(ids...)
 }
 
 // Mutation returns the WishlistSectionMutation object of the builder.
@@ -209,39 +173,6 @@ func (wsc *WishlistSectionCreate) createSpec() (*WishlistSection, *sqlgraph.Crea
 	if value, ok := wsc.mutation.CreatedAt(); ok {
 		_spec.SetField(wishlistsection.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
-	}
-	if nodes := wsc.mutation.WishlistIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   wishlistsection.WishlistTable,
-			Columns: []string{wishlistsection.WishlistColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wishlist.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.wishlist_sections = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := wsc.mutation.WishlistTemplateSectionIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   wishlistsection.WishlistTemplateSectionTable,
-			Columns: []string{wishlistsection.WishlistTemplateSectionColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplatesection.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

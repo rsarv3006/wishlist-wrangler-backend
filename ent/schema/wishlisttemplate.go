@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 )
@@ -40,13 +39,11 @@ func (WishlistTemplate) Fields() []ent.Field {
 		field.Enum("status").
 			Values(WishlistTemplateStatus...).
 			Default(WishlistTemplateStatusActive),
+		field.UUID("creator_id", uuid.UUID{}),
 	}
 }
 
 // Edges of the WishlistTemplate.
 func (WishlistTemplate) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("creator", User.Type),
-		edge.To("sections", WishlistTemplateSection.Type),
-	}
+	return nil
 }

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -24,26 +23,10 @@ const (
 	FieldDescription = "description"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// EdgeCreator holds the string denoting the creator edge name in mutations.
-	EdgeCreator = "creator"
-	// EdgeSections holds the string denoting the sections edge name in mutations.
-	EdgeSections = "sections"
+	// FieldCreatorID holds the string denoting the creator_id field in the database.
+	FieldCreatorID = "creator_id"
 	// Table holds the table name of the wishlisttemplate in the database.
 	Table = "wishlist_templates"
-	// CreatorTable is the table that holds the creator relation/edge.
-	CreatorTable = "users"
-	// CreatorInverseTable is the table name for the User entity.
-	// It exists in this package in order to avoid circular dependency with the "user" package.
-	CreatorInverseTable = "users"
-	// CreatorColumn is the table column denoting the creator relation/edge.
-	CreatorColumn = "wishlist_template_creator"
-	// SectionsTable is the table that holds the sections relation/edge.
-	SectionsTable = "wishlist_template_sections"
-	// SectionsInverseTable is the table name for the WishlistTemplateSection entity.
-	// It exists in this package in order to avoid circular dependency with the "wishlisttemplatesection" package.
-	SectionsInverseTable = "wishlist_template_sections"
-	// SectionsColumn is the table column denoting the sections relation/edge.
-	SectionsColumn = "wishlist_template_sections"
 )
 
 // Columns holds all SQL columns for wishlisttemplate fields.
@@ -53,23 +36,13 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldDescription,
 	FieldStatus,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "wishlist_templates"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"wishlist_template",
+	FieldCreatorID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -141,44 +114,7 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByCreatorCount orders the results by creator count.
-func ByCreatorCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newCreatorStep(), opts...)
-	}
-}
-
-// ByCreator orders the results by creator terms.
-func ByCreator(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCreatorStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// BySectionsCount orders the results by sections count.
-func BySectionsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSectionsStep(), opts...)
-	}
-}
-
-// BySections orders the results by sections terms.
-func BySections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSectionsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newCreatorStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CreatorInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CreatorTable, CreatorColumn),
-	)
-}
-func newSectionsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SectionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SectionsTable, SectionsColumn),
-	)
+// ByCreatorID orders the results by the creator_id field.
+func ByCreatorID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatorID, opts...).ToFunc()
 }

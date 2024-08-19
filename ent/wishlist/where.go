@@ -7,7 +7,6 @@ import (
 	"wishlist-wrangler-api/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -189,75 +188,6 @@ func StatusIn(vs ...Status) predicate.Wishlist {
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldNotIn(FieldStatus, vs...))
-}
-
-// HasCreator applies the HasEdge predicate on the "creator" edge.
-func HasCreator() predicate.Wishlist {
-	return predicate.Wishlist(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, CreatorTable, CreatorColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasCreatorWith applies the HasEdge predicate on the "creator" edge with a given conditions (other predicates).
-func HasCreatorWith(preds ...predicate.User) predicate.Wishlist {
-	return predicate.Wishlist(func(s *sql.Selector) {
-		step := newCreatorStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasTemplate applies the HasEdge predicate on the "template" edge.
-func HasTemplate() predicate.Wishlist {
-	return predicate.Wishlist(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, TemplateTable, TemplateColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasTemplateWith applies the HasEdge predicate on the "template" edge with a given conditions (other predicates).
-func HasTemplateWith(preds ...predicate.WishlistTemplate) predicate.Wishlist {
-	return predicate.Wishlist(func(s *sql.Selector) {
-		step := newTemplateStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasSections applies the HasEdge predicate on the "sections" edge.
-func HasSections() predicate.Wishlist {
-	return predicate.Wishlist(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, SectionsTable, SectionsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasSectionsWith applies the HasEdge predicate on the "sections" edge with a given conditions (other predicates).
-func HasSectionsWith(preds ...predicate.WishlistSection) predicate.Wishlist {
-	return predicate.Wishlist(func(s *sql.Selector) {
-		step := newSectionsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

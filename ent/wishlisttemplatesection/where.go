@@ -7,7 +7,6 @@ import (
 	"wishlist-wrangler-api/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -64,6 +63,11 @@ func Title(v string) predicate.WishlistTemplateSection {
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.WishlistTemplateSection {
 	return predicate.WishlistTemplateSection(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// WishlistTemplateID applies equality check predicate on the "wishlist_template_id" field. It's identical to WishlistTemplateIDEQ.
+func WishlistTemplateID(v uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldEQ(FieldWishlistTemplateID, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -171,27 +175,44 @@ func CreatedAtLTE(v time.Time) predicate.WishlistTemplateSection {
 	return predicate.WishlistTemplateSection(sql.FieldLTE(FieldCreatedAt, v))
 }
 
-// HasWishlistTemplate applies the HasEdge predicate on the "wishlistTemplate" edge.
-func HasWishlistTemplate() predicate.WishlistTemplateSection {
-	return predicate.WishlistTemplateSection(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, WishlistTemplateTable, WishlistTemplateColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// WishlistTemplateIDEQ applies the EQ predicate on the "wishlist_template_id" field.
+func WishlistTemplateIDEQ(v uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldEQ(FieldWishlistTemplateID, v))
 }
 
-// HasWishlistTemplateWith applies the HasEdge predicate on the "wishlistTemplate" edge with a given conditions (other predicates).
-func HasWishlistTemplateWith(preds ...predicate.WishlistTemplate) predicate.WishlistTemplateSection {
-	return predicate.WishlistTemplateSection(func(s *sql.Selector) {
-		step := newWishlistTemplateStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// WishlistTemplateIDNEQ applies the NEQ predicate on the "wishlist_template_id" field.
+func WishlistTemplateIDNEQ(v uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldNEQ(FieldWishlistTemplateID, v))
+}
+
+// WishlistTemplateIDIn applies the In predicate on the "wishlist_template_id" field.
+func WishlistTemplateIDIn(vs ...uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldIn(FieldWishlistTemplateID, vs...))
+}
+
+// WishlistTemplateIDNotIn applies the NotIn predicate on the "wishlist_template_id" field.
+func WishlistTemplateIDNotIn(vs ...uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldNotIn(FieldWishlistTemplateID, vs...))
+}
+
+// WishlistTemplateIDGT applies the GT predicate on the "wishlist_template_id" field.
+func WishlistTemplateIDGT(v uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldGT(FieldWishlistTemplateID, v))
+}
+
+// WishlistTemplateIDGTE applies the GTE predicate on the "wishlist_template_id" field.
+func WishlistTemplateIDGTE(v uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldGTE(FieldWishlistTemplateID, v))
+}
+
+// WishlistTemplateIDLT applies the LT predicate on the "wishlist_template_id" field.
+func WishlistTemplateIDLT(v uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldLT(FieldWishlistTemplateID, v))
+}
+
+// WishlistTemplateIDLTE applies the LTE predicate on the "wishlist_template_id" field.
+func WishlistTemplateIDLTE(v uuid.UUID) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldLTE(FieldWishlistTemplateID, v))
 }
 
 // And groups predicates with the AND operator between them.

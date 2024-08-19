@@ -7,9 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"wishlist-wrangler-api/ent/user"
 	"wishlist-wrangler-api/ent/wishlisttemplate"
-	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -63,6 +61,12 @@ func (wtc *WishlistTemplateCreate) SetNillableStatus(w *wishlisttemplate.Status)
 	return wtc
 }
 
+// SetCreatorID sets the "creator_id" field.
+func (wtc *WishlistTemplateCreate) SetCreatorID(u uuid.UUID) *WishlistTemplateCreate {
+	wtc.mutation.SetCreatorID(u)
+	return wtc
+}
+
 // SetID sets the "id" field.
 func (wtc *WishlistTemplateCreate) SetID(u uuid.UUID) *WishlistTemplateCreate {
 	wtc.mutation.SetID(u)
@@ -75,36 +79,6 @@ func (wtc *WishlistTemplateCreate) SetNillableID(u *uuid.UUID) *WishlistTemplate
 		wtc.SetID(*u)
 	}
 	return wtc
-}
-
-// AddCreatorIDs adds the "creator" edge to the User entity by IDs.
-func (wtc *WishlistTemplateCreate) AddCreatorIDs(ids ...uuid.UUID) *WishlistTemplateCreate {
-	wtc.mutation.AddCreatorIDs(ids...)
-	return wtc
-}
-
-// AddCreator adds the "creator" edges to the User entity.
-func (wtc *WishlistTemplateCreate) AddCreator(u ...*User) *WishlistTemplateCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return wtc.AddCreatorIDs(ids...)
-}
-
-// AddSectionIDs adds the "sections" edge to the WishlistTemplateSection entity by IDs.
-func (wtc *WishlistTemplateCreate) AddSectionIDs(ids ...uuid.UUID) *WishlistTemplateCreate {
-	wtc.mutation.AddSectionIDs(ids...)
-	return wtc
-}
-
-// AddSections adds the "sections" edges to the WishlistTemplateSection entity.
-func (wtc *WishlistTemplateCreate) AddSections(w ...*WishlistTemplateSection) *WishlistTemplateCreate {
-	ids := make([]uuid.UUID, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
-	}
-	return wtc.AddSectionIDs(ids...)
 }
 
 // Mutation returns the WishlistTemplateMutation object of the builder.
@@ -185,6 +159,9 @@ func (wtc *WishlistTemplateCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplate.status": %w`, err)}
 		}
 	}
+	if _, ok := wtc.mutation.CreatorID(); !ok {
+		return &ValidationError{Name: "creator_id", err: errors.New(`ent: missing required field "WishlistTemplate.creator_id"`)}
+	}
 	return nil
 }
 
@@ -236,37 +213,9 @@ func (wtc *WishlistTemplateCreate) createSpec() (*WishlistTemplate, *sqlgraph.Cr
 		_spec.SetField(wishlisttemplate.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if nodes := wtc.mutation.CreatorIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   wishlisttemplate.CreatorTable,
-			Columns: []string{wishlisttemplate.CreatorColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := wtc.mutation.SectionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   wishlisttemplate.SectionsTable,
-			Columns: []string{wishlisttemplate.SectionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplatesection.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := wtc.mutation.CreatorID(); ok {
+		_spec.SetField(wishlisttemplate.FieldCreatorID, field.TypeUUID, value)
+		_node.CreatorID = value
 	}
 	return _node, _spec
 }

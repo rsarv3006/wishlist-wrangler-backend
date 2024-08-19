@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -22,26 +21,8 @@ const (
 	FieldTextValue = "text_value"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
-	// EdgeWishlist holds the string denoting the wishlist edge name in mutations.
-	EdgeWishlist = "wishlist"
-	// EdgeWishlistTemplateSection holds the string denoting the wishlisttemplatesection edge name in mutations.
-	EdgeWishlistTemplateSection = "wishlistTemplateSection"
 	// Table holds the table name of the wishlistsection in the database.
 	Table = "wishlist_sections"
-	// WishlistTable is the table that holds the wishlist relation/edge.
-	WishlistTable = "wishlist_sections"
-	// WishlistInverseTable is the table name for the Wishlist entity.
-	// It exists in this package in order to avoid circular dependency with the "wishlist" package.
-	WishlistInverseTable = "wishlists"
-	// WishlistColumn is the table column denoting the wishlist relation/edge.
-	WishlistColumn = "wishlist_sections"
-	// WishlistTemplateSectionTable is the table that holds the wishlistTemplateSection relation/edge.
-	WishlistTemplateSectionTable = "wishlist_template_sections"
-	// WishlistTemplateSectionInverseTable is the table name for the WishlistTemplateSection entity.
-	// It exists in this package in order to avoid circular dependency with the "wishlisttemplatesection" package.
-	WishlistTemplateSectionInverseTable = "wishlist_template_sections"
-	// WishlistTemplateSectionColumn is the table column denoting the wishlistTemplateSection relation/edge.
-	WishlistTemplateSectionColumn = "wishlist_section_wishlist_template_section"
 )
 
 // Columns holds all SQL columns for wishlistsection fields.
@@ -52,21 +33,10 @@ var Columns = []string{
 	FieldCreatedAt,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "wishlist_sections"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"wishlist_sections",
-}
-
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -129,39 +99,4 @@ func ByTextValue(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByWishlistField orders the results by wishlist field.
-func ByWishlistField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newWishlistStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByWishlistTemplateSectionCount orders the results by wishlistTemplateSection count.
-func ByWishlistTemplateSectionCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newWishlistTemplateSectionStep(), opts...)
-	}
-}
-
-// ByWishlistTemplateSection orders the results by wishlistTemplateSection terms.
-func ByWishlistTemplateSection(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newWishlistTemplateSectionStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newWishlistStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(WishlistInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, WishlistTable, WishlistColumn),
-	)
-}
-func newWishlistTemplateSectionStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(WishlistTemplateSectionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, WishlistTemplateSectionTable, WishlistTemplateSectionColumn),
-	)
 }

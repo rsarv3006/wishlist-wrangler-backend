@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 )
@@ -25,14 +24,11 @@ func (WishlistTemplateSection) Fields() []ent.Field {
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable(),
+		field.UUID("wishlist_template_id", uuid.UUID{}),
 	}
 }
 
 // Edges of the WishlistTemplateSection.
 func (WishlistTemplateSection) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.From("wishlistTemplate", WishlistTemplate.Type).
-			Ref("sections").
-			Unique(),
-	}
+	return nil
 }

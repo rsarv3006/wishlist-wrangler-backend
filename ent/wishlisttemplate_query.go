@@ -4,13 +4,10 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 	"wishlist-wrangler-api/ent/predicate"
-	"wishlist-wrangler-api/ent/user"
 	"wishlist-wrangler-api/ent/wishlisttemplate"
-	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -22,13 +19,10 @@ import (
 // WishlistTemplateQuery is the builder for querying WishlistTemplate entities.
 type WishlistTemplateQuery struct {
 	config
-	ctx          *QueryContext
-	order        []wishlisttemplate.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.WishlistTemplate
-	withCreator  *UserQuery
-	withSections *WishlistTemplateSectionQuery
-	withFKs      bool
+	ctx        *QueryContext
+	order      []wishlisttemplate.OrderOption
+	inters     []Interceptor
+	predicates []predicate.WishlistTemplate
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,50 +57,6 @@ func (wtq *WishlistTemplateQuery) Unique(unique bool) *WishlistTemplateQuery {
 func (wtq *WishlistTemplateQuery) Order(o ...wishlisttemplate.OrderOption) *WishlistTemplateQuery {
 	wtq.order = append(wtq.order, o...)
 	return wtq
-}
-
-// QueryCreator chains the current query on the "creator" edge.
-func (wtq *WishlistTemplateQuery) QueryCreator() *UserQuery {
-	query := (&UserClient{config: wtq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := wtq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := wtq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlisttemplate.Table, wishlisttemplate.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlisttemplate.CreatorTable, wishlisttemplate.CreatorColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(wtq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QuerySections chains the current query on the "sections" edge.
-func (wtq *WishlistTemplateQuery) QuerySections() *WishlistTemplateSectionQuery {
-	query := (&WishlistTemplateSectionClient{config: wtq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := wtq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := wtq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlisttemplate.Table, wishlisttemplate.FieldID, selector),
-			sqlgraph.To(wishlisttemplatesection.Table, wishlisttemplatesection.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlisttemplate.SectionsTable, wishlisttemplate.SectionsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(wtq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first WishlistTemplate entity from the query.
@@ -296,39 +246,15 @@ func (wtq *WishlistTemplateQuery) Clone() *WishlistTemplateQuery {
 		return nil
 	}
 	return &WishlistTemplateQuery{
-		config:       wtq.config,
-		ctx:          wtq.ctx.Clone(),
-		order:        append([]wishlisttemplate.OrderOption{}, wtq.order...),
-		inters:       append([]Interceptor{}, wtq.inters...),
-		predicates:   append([]predicate.WishlistTemplate{}, wtq.predicates...),
-		withCreator:  wtq.withCreator.Clone(),
-		withSections: wtq.withSections.Clone(),
+		config:     wtq.config,
+		ctx:        wtq.ctx.Clone(),
+		order:      append([]wishlisttemplate.OrderOption{}, wtq.order...),
+		inters:     append([]Interceptor{}, wtq.inters...),
+		predicates: append([]predicate.WishlistTemplate{}, wtq.predicates...),
 		// clone intermediate query.
 		sql:  wtq.sql.Clone(),
 		path: wtq.path,
 	}
-}
-
-// WithCreator tells the query-builder to eager-load the nodes that are connected to
-// the "creator" edge. The optional arguments are used to configure the query builder of the edge.
-func (wtq *WishlistTemplateQuery) WithCreator(opts ...func(*UserQuery)) *WishlistTemplateQuery {
-	query := (&UserClient{config: wtq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	wtq.withCreator = query
-	return wtq
-}
-
-// WithSections tells the query-builder to eager-load the nodes that are connected to
-// the "sections" edge. The optional arguments are used to configure the query builder of the edge.
-func (wtq *WishlistTemplateQuery) WithSections(opts ...func(*WishlistTemplateSectionQuery)) *WishlistTemplateQuery {
-	query := (&WishlistTemplateSectionClient{config: wtq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	wtq.withSections = query
-	return wtq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -407,24 +333,15 @@ func (wtq *WishlistTemplateQuery) prepareQuery(ctx context.Context) error {
 
 func (wtq *WishlistTemplateQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*WishlistTemplate, error) {
 	var (
-		nodes       = []*WishlistTemplate{}
-		withFKs     = wtq.withFKs
-		_spec       = wtq.querySpec()
-		loadedTypes = [2]bool{
-			wtq.withCreator != nil,
-			wtq.withSections != nil,
-		}
+		nodes = []*WishlistTemplate{}
+		_spec = wtq.querySpec()
 	)
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, wishlisttemplate.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*WishlistTemplate).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &WishlistTemplate{config: wtq.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -436,84 +353,7 @@ func (wtq *WishlistTemplateQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := wtq.withCreator; query != nil {
-		if err := wtq.loadCreator(ctx, query, nodes,
-			func(n *WishlistTemplate) { n.Edges.Creator = []*User{} },
-			func(n *WishlistTemplate, e *User) { n.Edges.Creator = append(n.Edges.Creator, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := wtq.withSections; query != nil {
-		if err := wtq.loadSections(ctx, query, nodes,
-			func(n *WishlistTemplate) { n.Edges.Sections = []*WishlistTemplateSection{} },
-			func(n *WishlistTemplate, e *WishlistTemplateSection) { n.Edges.Sections = append(n.Edges.Sections, e) }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (wtq *WishlistTemplateQuery) loadCreator(ctx context.Context, query *UserQuery, nodes []*WishlistTemplate, init func(*WishlistTemplate), assign func(*WishlistTemplate, *User)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*WishlistTemplate)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.User(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(wishlisttemplate.CreatorColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.wishlist_template_creator
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "wishlist_template_creator" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "wishlist_template_creator" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (wtq *WishlistTemplateQuery) loadSections(ctx context.Context, query *WishlistTemplateSectionQuery, nodes []*WishlistTemplate, init func(*WishlistTemplate), assign func(*WishlistTemplate, *WishlistTemplateSection)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*WishlistTemplate)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.WishlistTemplateSection(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(wishlisttemplate.SectionsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.wishlist_template_sections
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "wishlist_template_sections" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "wishlist_template_sections" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
 }
 
 func (wtq *WishlistTemplateQuery) sqlCount(ctx context.Context) (int, error) {

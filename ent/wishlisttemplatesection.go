@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"wishlist-wrangler-api/ent/wishlisttemplate"
 	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent"
@@ -23,32 +22,9 @@ type WishlistTemplateSection struct {
 	Title string `json:"title,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the WishlistTemplateSectionQuery when eager-loading is set.
-	Edges                                      WishlistTemplateSectionEdges `json:"edges"`
-	wishlist_section_wishlist_template_section *uuid.UUID
-	wishlist_template_sections                 *uuid.UUID
-	selectValues                               sql.SelectValues
-}
-
-// WishlistTemplateSectionEdges holds the relations/edges for other nodes in the graph.
-type WishlistTemplateSectionEdges struct {
-	// WishlistTemplate holds the value of the wishlistTemplate edge.
-	WishlistTemplate *WishlistTemplate `json:"wishlistTemplate,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
-}
-
-// WishlistTemplateOrErr returns the WishlistTemplate value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e WishlistTemplateSectionEdges) WishlistTemplateOrErr() (*WishlistTemplate, error) {
-	if e.WishlistTemplate != nil {
-		return e.WishlistTemplate, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: wishlisttemplate.Label}
-	}
-	return nil, &NotLoadedError{edge: "wishlistTemplate"}
+	// WishlistTemplateID holds the value of the "wishlist_template_id" field.
+	WishlistTemplateID uuid.UUID `json:"wishlist_template_id,omitempty"`
+	selectValues       sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -60,12 +36,8 @@ func (*WishlistTemplateSection) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case wishlisttemplatesection.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case wishlisttemplatesection.FieldID:
+		case wishlisttemplatesection.FieldID, wishlisttemplatesection.FieldWishlistTemplateID:
 			values[i] = new(uuid.UUID)
-		case wishlisttemplatesection.ForeignKeys[0]: // wishlist_section_wishlist_template_section
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case wishlisttemplatesection.ForeignKeys[1]: // wishlist_template_sections
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -99,19 +71,11 @@ func (wts *WishlistTemplateSection) assignValues(columns []string, values []any)
 			} else if value.Valid {
 				wts.CreatedAt = value.Time
 			}
-		case wishlisttemplatesection.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field wishlist_section_wishlist_template_section", values[i])
-			} else if value.Valid {
-				wts.wishlist_section_wishlist_template_section = new(uuid.UUID)
-				*wts.wishlist_section_wishlist_template_section = *value.S.(*uuid.UUID)
-			}
-		case wishlisttemplatesection.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field wishlist_template_sections", values[i])
-			} else if value.Valid {
-				wts.wishlist_template_sections = new(uuid.UUID)
-				*wts.wishlist_template_sections = *value.S.(*uuid.UUID)
+		case wishlisttemplatesection.FieldWishlistTemplateID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field wishlist_template_id", values[i])
+			} else if value != nil {
+				wts.WishlistTemplateID = *value
 			}
 		default:
 			wts.selectValues.Set(columns[i], values[i])
@@ -124,11 +88,6 @@ func (wts *WishlistTemplateSection) assignValues(columns []string, values []any)
 // This includes values selected through modifiers, order, etc.
 func (wts *WishlistTemplateSection) Value(name string) (ent.Value, error) {
 	return wts.selectValues.Get(name)
-}
-
-// QueryWishlistTemplate queries the "wishlistTemplate" edge of the WishlistTemplateSection entity.
-func (wts *WishlistTemplateSection) QueryWishlistTemplate() *WishlistTemplateQuery {
-	return NewWishlistTemplateSectionClient(wts.config).QueryWishlistTemplate(wts)
 }
 
 // Update returns a builder for updating this WishlistTemplateSection.
@@ -159,6 +118,9 @@ func (wts *WishlistTemplateSection) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(wts.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("wishlist_template_id=")
+	builder.WriteString(fmt.Sprintf("%v", wts.WishlistTemplateID))
 	builder.WriteByte(')')
 	return builder.String()
 }

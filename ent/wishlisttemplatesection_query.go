@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math"
 	"wishlist-wrangler-api/ent/predicate"
-	"wishlist-wrangler-api/ent/wishlisttemplate"
 	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent"
@@ -20,12 +19,10 @@ import (
 // WishlistTemplateSectionQuery is the builder for querying WishlistTemplateSection entities.
 type WishlistTemplateSectionQuery struct {
 	config
-	ctx                  *QueryContext
-	order                []wishlisttemplatesection.OrderOption
-	inters               []Interceptor
-	predicates           []predicate.WishlistTemplateSection
-	withWishlistTemplate *WishlistTemplateQuery
-	withFKs              bool
+	ctx        *QueryContext
+	order      []wishlisttemplatesection.OrderOption
+	inters     []Interceptor
+	predicates []predicate.WishlistTemplateSection
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -60,28 +57,6 @@ func (wtsq *WishlistTemplateSectionQuery) Unique(unique bool) *WishlistTemplateS
 func (wtsq *WishlistTemplateSectionQuery) Order(o ...wishlisttemplatesection.OrderOption) *WishlistTemplateSectionQuery {
 	wtsq.order = append(wtsq.order, o...)
 	return wtsq
-}
-
-// QueryWishlistTemplate chains the current query on the "wishlistTemplate" edge.
-func (wtsq *WishlistTemplateSectionQuery) QueryWishlistTemplate() *WishlistTemplateQuery {
-	query := (&WishlistTemplateClient{config: wtsq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := wtsq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := wtsq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlisttemplatesection.Table, wishlisttemplatesection.FieldID, selector),
-			sqlgraph.To(wishlisttemplate.Table, wishlisttemplate.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, wishlisttemplatesection.WishlistTemplateTable, wishlisttemplatesection.WishlistTemplateColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(wtsq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first WishlistTemplateSection entity from the query.
@@ -271,27 +246,15 @@ func (wtsq *WishlistTemplateSectionQuery) Clone() *WishlistTemplateSectionQuery 
 		return nil
 	}
 	return &WishlistTemplateSectionQuery{
-		config:               wtsq.config,
-		ctx:                  wtsq.ctx.Clone(),
-		order:                append([]wishlisttemplatesection.OrderOption{}, wtsq.order...),
-		inters:               append([]Interceptor{}, wtsq.inters...),
-		predicates:           append([]predicate.WishlistTemplateSection{}, wtsq.predicates...),
-		withWishlistTemplate: wtsq.withWishlistTemplate.Clone(),
+		config:     wtsq.config,
+		ctx:        wtsq.ctx.Clone(),
+		order:      append([]wishlisttemplatesection.OrderOption{}, wtsq.order...),
+		inters:     append([]Interceptor{}, wtsq.inters...),
+		predicates: append([]predicate.WishlistTemplateSection{}, wtsq.predicates...),
 		// clone intermediate query.
 		sql:  wtsq.sql.Clone(),
 		path: wtsq.path,
 	}
-}
-
-// WithWishlistTemplate tells the query-builder to eager-load the nodes that are connected to
-// the "wishlistTemplate" edge. The optional arguments are used to configure the query builder of the edge.
-func (wtsq *WishlistTemplateSectionQuery) WithWishlistTemplate(opts ...func(*WishlistTemplateQuery)) *WishlistTemplateSectionQuery {
-	query := (&WishlistTemplateClient{config: wtsq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	wtsq.withWishlistTemplate = query
-	return wtsq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -370,26 +333,15 @@ func (wtsq *WishlistTemplateSectionQuery) prepareQuery(ctx context.Context) erro
 
 func (wtsq *WishlistTemplateSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*WishlistTemplateSection, error) {
 	var (
-		nodes       = []*WishlistTemplateSection{}
-		withFKs     = wtsq.withFKs
-		_spec       = wtsq.querySpec()
-		loadedTypes = [1]bool{
-			wtsq.withWishlistTemplate != nil,
-		}
+		nodes = []*WishlistTemplateSection{}
+		_spec = wtsq.querySpec()
 	)
-	if wtsq.withWishlistTemplate != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, wishlisttemplatesection.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*WishlistTemplateSection).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &WishlistTemplateSection{config: wtsq.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -401,46 +353,7 @@ func (wtsq *WishlistTemplateSectionQuery) sqlAll(ctx context.Context, hooks ...q
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := wtsq.withWishlistTemplate; query != nil {
-		if err := wtsq.loadWishlistTemplate(ctx, query, nodes, nil,
-			func(n *WishlistTemplateSection, e *WishlistTemplate) { n.Edges.WishlistTemplate = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (wtsq *WishlistTemplateSectionQuery) loadWishlistTemplate(ctx context.Context, query *WishlistTemplateQuery, nodes []*WishlistTemplateSection, init func(*WishlistTemplateSection), assign func(*WishlistTemplateSection, *WishlistTemplate)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*WishlistTemplateSection)
-	for i := range nodes {
-		if nodes[i].wishlist_template_sections == nil {
-			continue
-		}
-		fk := *nodes[i].wishlist_template_sections
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(wishlisttemplate.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "wishlist_template_sections" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
 }
 
 func (wtsq *WishlistTemplateSectionQuery) sqlCount(ctx context.Context) (int, error) {

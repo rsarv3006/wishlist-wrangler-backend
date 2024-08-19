@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 )
@@ -48,11 +47,5 @@ func (WishlistSection) Fields() []ent.Field {
 
 // Edges of the WishlistSection.
 func (WishlistSection) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.From("wishlist", Wishlist.Type).
-			Ref("sections").
-			Unique(),
-
-		edge.To("wishlistTemplateSection", WishlistTemplateSection.Type),
-	}
+	return nil
 }

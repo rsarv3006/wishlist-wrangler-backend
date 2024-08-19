@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -22,35 +21,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// EdgeCreator holds the string denoting the creator edge name in mutations.
-	EdgeCreator = "creator"
-	// EdgeTemplate holds the string denoting the template edge name in mutations.
-	EdgeTemplate = "template"
-	// EdgeSections holds the string denoting the sections edge name in mutations.
-	EdgeSections = "sections"
 	// Table holds the table name of the wishlist in the database.
 	Table = "wishlists"
-	// CreatorTable is the table that holds the creator relation/edge.
-	CreatorTable = "users"
-	// CreatorInverseTable is the table name for the User entity.
-	// It exists in this package in order to avoid circular dependency with the "user" package.
-	CreatorInverseTable = "users"
-	// CreatorColumn is the table column denoting the creator relation/edge.
-	CreatorColumn = "wishlist_creator"
-	// TemplateTable is the table that holds the template relation/edge.
-	TemplateTable = "wishlist_templates"
-	// TemplateInverseTable is the table name for the WishlistTemplate entity.
-	// It exists in this package in order to avoid circular dependency with the "wishlisttemplate" package.
-	TemplateInverseTable = "wishlist_templates"
-	// TemplateColumn is the table column denoting the template relation/edge.
-	TemplateColumn = "wishlist_template"
-	// SectionsTable is the table that holds the sections relation/edge.
-	SectionsTable = "wishlist_sections"
-	// SectionsInverseTable is the table name for the WishlistSection entity.
-	// It exists in this package in order to avoid circular dependency with the "wishlistsection" package.
-	SectionsInverseTable = "wishlist_sections"
-	// SectionsColumn is the table column denoting the sections relation/edge.
-	SectionsColumn = "wishlist_sections"
 )
 
 // Columns holds all SQL columns for wishlist fields.
@@ -129,67 +101,4 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
-}
-
-// ByCreatorCount orders the results by creator count.
-func ByCreatorCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newCreatorStep(), opts...)
-	}
-}
-
-// ByCreator orders the results by creator terms.
-func ByCreator(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCreatorStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByTemplateCount orders the results by template count.
-func ByTemplateCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newTemplateStep(), opts...)
-	}
-}
-
-// ByTemplate orders the results by template terms.
-func ByTemplate(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newTemplateStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// BySectionsCount orders the results by sections count.
-func BySectionsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSectionsStep(), opts...)
-	}
-}
-
-// BySections orders the results by sections terms.
-func BySections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSectionsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newCreatorStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CreatorInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CreatorTable, CreatorColumn),
-	)
-}
-func newTemplateStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(TemplateInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, TemplateTable, TemplateColumn),
-	)
-}
-func newSectionsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SectionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SectionsTable, SectionsColumn),
-	)
 }

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"wishlist-wrangler-api/ent/wishlisttemplate"
 	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -42,6 +41,12 @@ func (wtsc *WishlistTemplateSectionCreate) SetNillableCreatedAt(t *time.Time) *W
 	return wtsc
 }
 
+// SetWishlistTemplateID sets the "wishlist_template_id" field.
+func (wtsc *WishlistTemplateSectionCreate) SetWishlistTemplateID(u uuid.UUID) *WishlistTemplateSectionCreate {
+	wtsc.mutation.SetWishlistTemplateID(u)
+	return wtsc
+}
+
 // SetID sets the "id" field.
 func (wtsc *WishlistTemplateSectionCreate) SetID(u uuid.UUID) *WishlistTemplateSectionCreate {
 	wtsc.mutation.SetID(u)
@@ -54,25 +59,6 @@ func (wtsc *WishlistTemplateSectionCreate) SetNillableID(u *uuid.UUID) *Wishlist
 		wtsc.SetID(*u)
 	}
 	return wtsc
-}
-
-// SetWishlistTemplateID sets the "wishlistTemplate" edge to the WishlistTemplate entity by ID.
-func (wtsc *WishlistTemplateSectionCreate) SetWishlistTemplateID(id uuid.UUID) *WishlistTemplateSectionCreate {
-	wtsc.mutation.SetWishlistTemplateID(id)
-	return wtsc
-}
-
-// SetNillableWishlistTemplateID sets the "wishlistTemplate" edge to the WishlistTemplate entity by ID if the given value is not nil.
-func (wtsc *WishlistTemplateSectionCreate) SetNillableWishlistTemplateID(id *uuid.UUID) *WishlistTemplateSectionCreate {
-	if id != nil {
-		wtsc = wtsc.SetWishlistTemplateID(*id)
-	}
-	return wtsc
-}
-
-// SetWishlistTemplate sets the "wishlistTemplate" edge to the WishlistTemplate entity.
-func (wtsc *WishlistTemplateSectionCreate) SetWishlistTemplate(w *WishlistTemplate) *WishlistTemplateSectionCreate {
-	return wtsc.SetWishlistTemplateID(w.ID)
 }
 
 // Mutation returns the WishlistTemplateSectionMutation object of the builder.
@@ -133,6 +119,9 @@ func (wtsc *WishlistTemplateSectionCreate) check() error {
 	if _, ok := wtsc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "WishlistTemplateSection.created_at"`)}
 	}
+	if _, ok := wtsc.mutation.WishlistTemplateID(); !ok {
+		return &ValidationError{Name: "wishlist_template_id", err: errors.New(`ent: missing required field "WishlistTemplateSection.wishlist_template_id"`)}
+	}
 	return nil
 }
 
@@ -176,22 +165,9 @@ func (wtsc *WishlistTemplateSectionCreate) createSpec() (*WishlistTemplateSectio
 		_spec.SetField(wishlisttemplatesection.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if nodes := wtsc.mutation.WishlistTemplateIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   wishlisttemplatesection.WishlistTemplateTable,
-			Columns: []string{wishlisttemplatesection.WishlistTemplateColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wishlisttemplate.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.wishlist_template_sections = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := wtsc.mutation.WishlistTemplateID(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldWishlistTemplateID, field.TypeUUID, value)
+		_node.WishlistTemplateID = value
 	}
 	return _node, _spec
 }

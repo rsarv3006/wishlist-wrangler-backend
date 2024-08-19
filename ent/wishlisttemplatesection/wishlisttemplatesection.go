@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -19,17 +18,10 @@ const (
 	FieldTitle = "title"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
-	// EdgeWishlistTemplate holds the string denoting the wishlisttemplate edge name in mutations.
-	EdgeWishlistTemplate = "wishlistTemplate"
+	// FieldWishlistTemplateID holds the string denoting the wishlist_template_id field in the database.
+	FieldWishlistTemplateID = "wishlist_template_id"
 	// Table holds the table name of the wishlisttemplatesection in the database.
 	Table = "wishlist_template_sections"
-	// WishlistTemplateTable is the table that holds the wishlistTemplate relation/edge.
-	WishlistTemplateTable = "wishlist_template_sections"
-	// WishlistTemplateInverseTable is the table name for the WishlistTemplate entity.
-	// It exists in this package in order to avoid circular dependency with the "wishlisttemplate" package.
-	WishlistTemplateInverseTable = "wishlist_templates"
-	// WishlistTemplateColumn is the table column denoting the wishlistTemplate relation/edge.
-	WishlistTemplateColumn = "wishlist_template_sections"
 )
 
 // Columns holds all SQL columns for wishlisttemplatesection fields.
@@ -37,24 +29,13 @@ var Columns = []string{
 	FieldID,
 	FieldTitle,
 	FieldCreatedAt,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "wishlist_template_sections"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"wishlist_section_wishlist_template_section",
-	"wishlist_template_sections",
+	FieldWishlistTemplateID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -88,16 +69,7 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
 }
 
-// ByWishlistTemplateField orders the results by wishlistTemplate field.
-func ByWishlistTemplateField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newWishlistTemplateStep(), sql.OrderByField(field, opts...))
-	}
-}
-func newWishlistTemplateStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(WishlistTemplateInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, WishlistTemplateTable, WishlistTemplateColumn),
-	)
+// ByWishlistTemplateID orders the results by the wishlist_template_id field.
+func ByWishlistTemplateID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWishlistTemplateID, opts...).ToFunc()
 }

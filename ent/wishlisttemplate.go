@@ -26,40 +26,9 @@ type WishlistTemplate struct {
 	Description string `json:"description,omitempty"`
 	// Status holds the value of the "status" field.
 	Status wishlisttemplate.Status `json:"status,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the WishlistTemplateQuery when eager-loading is set.
-	Edges             WishlistTemplateEdges `json:"edges"`
-	wishlist_template *uuid.UUID
-	selectValues      sql.SelectValues
-}
-
-// WishlistTemplateEdges holds the relations/edges for other nodes in the graph.
-type WishlistTemplateEdges struct {
-	// Creator holds the value of the creator edge.
-	Creator []*User `json:"creator,omitempty"`
-	// Sections holds the value of the sections edge.
-	Sections []*WishlistTemplateSection `json:"sections,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// CreatorOrErr returns the Creator value or an error if the edge
-// was not loaded in eager-loading.
-func (e WishlistTemplateEdges) CreatorOrErr() ([]*User, error) {
-	if e.loadedTypes[0] {
-		return e.Creator, nil
-	}
-	return nil, &NotLoadedError{edge: "creator"}
-}
-
-// SectionsOrErr returns the Sections value or an error if the edge
-// was not loaded in eager-loading.
-func (e WishlistTemplateEdges) SectionsOrErr() ([]*WishlistTemplateSection, error) {
-	if e.loadedTypes[1] {
-		return e.Sections, nil
-	}
-	return nil, &NotLoadedError{edge: "sections"}
+	// CreatorID holds the value of the "creator_id" field.
+	CreatorID    uuid.UUID `json:"creator_id,omitempty"`
+	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -71,10 +40,8 @@ func (*WishlistTemplate) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case wishlisttemplate.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case wishlisttemplate.FieldID:
+		case wishlisttemplate.FieldID, wishlisttemplate.FieldCreatorID:
 			values[i] = new(uuid.UUID)
-		case wishlisttemplate.ForeignKeys[0]: // wishlist_template
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -120,12 +87,11 @@ func (wt *WishlistTemplate) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				wt.Status = wishlisttemplate.Status(value.String)
 			}
-		case wishlisttemplate.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field wishlist_template", values[i])
-			} else if value.Valid {
-				wt.wishlist_template = new(uuid.UUID)
-				*wt.wishlist_template = *value.S.(*uuid.UUID)
+		case wishlisttemplate.FieldCreatorID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field creator_id", values[i])
+			} else if value != nil {
+				wt.CreatorID = *value
 			}
 		default:
 			wt.selectValues.Set(columns[i], values[i])
@@ -138,16 +104,6 @@ func (wt *WishlistTemplate) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (wt *WishlistTemplate) Value(name string) (ent.Value, error) {
 	return wt.selectValues.Get(name)
-}
-
-// QueryCreator queries the "creator" edge of the WishlistTemplate entity.
-func (wt *WishlistTemplate) QueryCreator() *UserQuery {
-	return NewWishlistTemplateClient(wt.config).QueryCreator(wt)
-}
-
-// QuerySections queries the "sections" edge of the WishlistTemplate entity.
-func (wt *WishlistTemplate) QuerySections() *WishlistTemplateSectionQuery {
-	return NewWishlistTemplateClient(wt.config).QuerySections(wt)
 }
 
 // Update returns a builder for updating this WishlistTemplate.
@@ -184,6 +140,9 @@ func (wt *WishlistTemplate) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", wt.Status))
+	builder.WriteString(", ")
+	builder.WriteString("creator_id=")
+	builder.WriteString(fmt.Sprintf("%v", wt.CreatorID))
 	builder.WriteByte(')')
 	return builder.String()
 }

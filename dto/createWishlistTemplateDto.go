@@ -1,7 +1,7 @@
 package dto
 
 type CreateWishlistTemplateDto struct {
-	Title            string                              `json:"name" validate:"required"`
+	Title            string                              `json:"title" validate:"required"`
 	Description      string                              `json:"description"`
 	TemplateSections []CreateWishtlistTemplateSectionDto `json:"templateSections"`
 }

@@ -13,7 +13,7 @@ func sendBadRequestResponse(c *fiber.Ctx, err error, message string) error {
 	}
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 		"message": message,
-		"error":   err,
+		"error":   err.Error(),
 	})
 }
 

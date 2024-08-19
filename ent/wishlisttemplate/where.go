@@ -7,7 +7,6 @@ import (
 	"wishlist-wrangler-api/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -69,6 +68,11 @@ func CreatedAt(v time.Time) predicate.WishlistTemplate {
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.WishlistTemplate {
 	return predicate.WishlistTemplate(sql.FieldEQ(FieldDescription, v))
+}
+
+// CreatorID applies equality check predicate on the "creator_id" field. It's identical to CreatorIDEQ.
+func CreatorID(v uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldEQ(FieldCreatorID, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -261,50 +265,44 @@ func StatusNotIn(vs ...Status) predicate.WishlistTemplate {
 	return predicate.WishlistTemplate(sql.FieldNotIn(FieldStatus, vs...))
 }
 
-// HasCreator applies the HasEdge predicate on the "creator" edge.
-func HasCreator() predicate.WishlistTemplate {
-	return predicate.WishlistTemplate(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, CreatorTable, CreatorColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// CreatorIDEQ applies the EQ predicate on the "creator_id" field.
+func CreatorIDEQ(v uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldEQ(FieldCreatorID, v))
 }
 
-// HasCreatorWith applies the HasEdge predicate on the "creator" edge with a given conditions (other predicates).
-func HasCreatorWith(preds ...predicate.User) predicate.WishlistTemplate {
-	return predicate.WishlistTemplate(func(s *sql.Selector) {
-		step := newCreatorStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// CreatorIDNEQ applies the NEQ predicate on the "creator_id" field.
+func CreatorIDNEQ(v uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldNEQ(FieldCreatorID, v))
 }
 
-// HasSections applies the HasEdge predicate on the "sections" edge.
-func HasSections() predicate.WishlistTemplate {
-	return predicate.WishlistTemplate(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, SectionsTable, SectionsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// CreatorIDIn applies the In predicate on the "creator_id" field.
+func CreatorIDIn(vs ...uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldIn(FieldCreatorID, vs...))
 }
 
-// HasSectionsWith applies the HasEdge predicate on the "sections" edge with a given conditions (other predicates).
-func HasSectionsWith(preds ...predicate.WishlistTemplateSection) predicate.WishlistTemplate {
-	return predicate.WishlistTemplate(func(s *sql.Selector) {
-		step := newSectionsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// CreatorIDNotIn applies the NotIn predicate on the "creator_id" field.
+func CreatorIDNotIn(vs ...uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldNotIn(FieldCreatorID, vs...))
+}
+
+// CreatorIDGT applies the GT predicate on the "creator_id" field.
+func CreatorIDGT(v uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldGT(FieldCreatorID, v))
+}
+
+// CreatorIDGTE applies the GTE predicate on the "creator_id" field.
+func CreatorIDGTE(v uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldGTE(FieldCreatorID, v))
+}
+
+// CreatorIDLT applies the LT predicate on the "creator_id" field.
+func CreatorIDLT(v uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldLT(FieldCreatorID, v))
+}
+
+// CreatorIDLTE applies the LTE predicate on the "creator_id" field.
+func CreatorIDLTE(v uuid.UUID) predicate.WishlistTemplate {
+	return predicate.WishlistTemplate(sql.FieldLTE(FieldCreatorID, v))
 }
 
 // And groups predicates with the AND operator between them.

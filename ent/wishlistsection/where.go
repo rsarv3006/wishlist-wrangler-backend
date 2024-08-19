@@ -7,7 +7,6 @@ import (
 	"wishlist-wrangler-api/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -189,52 +188,6 @@ func CreatedAtLT(v time.Time) predicate.WishlistSection {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.WishlistSection {
 	return predicate.WishlistSection(sql.FieldLTE(FieldCreatedAt, v))
-}
-
-// HasWishlist applies the HasEdge predicate on the "wishlist" edge.
-func HasWishlist() predicate.WishlistSection {
-	return predicate.WishlistSection(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, WishlistTable, WishlistColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasWishlistWith applies the HasEdge predicate on the "wishlist" edge with a given conditions (other predicates).
-func HasWishlistWith(preds ...predicate.Wishlist) predicate.WishlistSection {
-	return predicate.WishlistSection(func(s *sql.Selector) {
-		step := newWishlistStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasWishlistTemplateSection applies the HasEdge predicate on the "wishlistTemplateSection" edge.
-func HasWishlistTemplateSection() predicate.WishlistSection {
-	return predicate.WishlistSection(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, WishlistTemplateSectionTable, WishlistTemplateSectionColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasWishlistTemplateSectionWith applies the HasEdge predicate on the "wishlistTemplateSection" edge with a given conditions (other predicates).
-func HasWishlistTemplateSectionWith(preds ...predicate.WishlistTemplateSection) predicate.WishlistSection {
-	return predicate.WishlistSection(func(s *sql.Selector) {
-		step := newWishlistTemplateSectionStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

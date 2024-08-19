@@ -21,7 +21,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -623,54 +622,6 @@ func (c *WishlistClient) GetX(ctx context.Context, id uuid.UUID) *Wishlist {
 	return obj
 }
 
-// QueryCreator queries the creator edge of a Wishlist.
-func (c *WishlistClient) QueryCreator(w *Wishlist) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := w.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlist.Table, wishlist.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlist.CreatorTable, wishlist.CreatorColumn),
-		)
-		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTemplate queries the template edge of a Wishlist.
-func (c *WishlistClient) QueryTemplate(w *Wishlist) *WishlistTemplateQuery {
-	query := (&WishlistTemplateClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := w.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlist.Table, wishlist.FieldID, id),
-			sqlgraph.To(wishlisttemplate.Table, wishlisttemplate.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlist.TemplateTable, wishlist.TemplateColumn),
-		)
-		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QuerySections queries the sections edge of a Wishlist.
-func (c *WishlistClient) QuerySections(w *Wishlist) *WishlistSectionQuery {
-	query := (&WishlistSectionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := w.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlist.Table, wishlist.FieldID, id),
-			sqlgraph.To(wishlistsection.Table, wishlistsection.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlist.SectionsTable, wishlist.SectionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *WishlistClient) Hooks() []Hook {
 	return c.hooks.Wishlist
@@ -802,38 +753,6 @@ func (c *WishlistSectionClient) GetX(ctx context.Context, id uuid.UUID) *Wishlis
 		panic(err)
 	}
 	return obj
-}
-
-// QueryWishlist queries the wishlist edge of a WishlistSection.
-func (c *WishlistSectionClient) QueryWishlist(ws *WishlistSection) *WishlistQuery {
-	query := (&WishlistClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ws.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlistsection.Table, wishlistsection.FieldID, id),
-			sqlgraph.To(wishlist.Table, wishlist.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, wishlistsection.WishlistTable, wishlistsection.WishlistColumn),
-		)
-		fromV = sqlgraph.Neighbors(ws.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryWishlistTemplateSection queries the wishlistTemplateSection edge of a WishlistSection.
-func (c *WishlistSectionClient) QueryWishlistTemplateSection(ws *WishlistSection) *WishlistTemplateSectionQuery {
-	query := (&WishlistTemplateSectionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ws.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlistsection.Table, wishlistsection.FieldID, id),
-			sqlgraph.To(wishlisttemplatesection.Table, wishlisttemplatesection.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlistsection.WishlistTemplateSectionTable, wishlistsection.WishlistTemplateSectionColumn),
-		)
-		fromV = sqlgraph.Neighbors(ws.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // Hooks returns the client hooks.
@@ -969,38 +888,6 @@ func (c *WishlistTemplateClient) GetX(ctx context.Context, id uuid.UUID) *Wishli
 	return obj
 }
 
-// QueryCreator queries the creator edge of a WishlistTemplate.
-func (c *WishlistTemplateClient) QueryCreator(wt *WishlistTemplate) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := wt.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlisttemplate.Table, wishlisttemplate.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlisttemplate.CreatorTable, wishlisttemplate.CreatorColumn),
-		)
-		fromV = sqlgraph.Neighbors(wt.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QuerySections queries the sections edge of a WishlistTemplate.
-func (c *WishlistTemplateClient) QuerySections(wt *WishlistTemplate) *WishlistTemplateSectionQuery {
-	query := (&WishlistTemplateSectionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := wt.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlisttemplate.Table, wishlisttemplate.FieldID, id),
-			sqlgraph.To(wishlisttemplatesection.Table, wishlisttemplatesection.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, wishlisttemplate.SectionsTable, wishlisttemplate.SectionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(wt.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *WishlistTemplateClient) Hooks() []Hook {
 	return c.hooks.WishlistTemplate
@@ -1132,22 +1019,6 @@ func (c *WishlistTemplateSectionClient) GetX(ctx context.Context, id uuid.UUID) 
 		panic(err)
 	}
 	return obj
-}
-
-// QueryWishlistTemplate queries the wishlistTemplate edge of a WishlistTemplateSection.
-func (c *WishlistTemplateSectionClient) QueryWishlistTemplate(wts *WishlistTemplateSection) *WishlistTemplateQuery {
-	query := (&WishlistTemplateClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := wts.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(wishlisttemplatesection.Table, wishlisttemplatesection.FieldID, id),
-			sqlgraph.To(wishlisttemplate.Table, wishlisttemplate.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, wishlisttemplatesection.WishlistTemplateTable, wishlisttemplatesection.WishlistTemplateColumn),
-		)
-		fromV = sqlgraph.Neighbors(wts.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // Hooks returns the client hooks.

@@ -23,51 +23,8 @@ type Wishlist struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Status holds the value of the "status" field.
-	Status wishlist.Status `json:"status,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the WishlistQuery when eager-loading is set.
-	Edges        WishlistEdges `json:"edges"`
+	Status       wishlist.Status `json:"status,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// WishlistEdges holds the relations/edges for other nodes in the graph.
-type WishlistEdges struct {
-	// Creator holds the value of the creator edge.
-	Creator []*User `json:"creator,omitempty"`
-	// Template holds the value of the template edge.
-	Template []*WishlistTemplate `json:"template,omitempty"`
-	// Sections holds the value of the sections edge.
-	Sections []*WishlistSection `json:"sections,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
-}
-
-// CreatorOrErr returns the Creator value or an error if the edge
-// was not loaded in eager-loading.
-func (e WishlistEdges) CreatorOrErr() ([]*User, error) {
-	if e.loadedTypes[0] {
-		return e.Creator, nil
-	}
-	return nil, &NotLoadedError{edge: "creator"}
-}
-
-// TemplateOrErr returns the Template value or an error if the edge
-// was not loaded in eager-loading.
-func (e WishlistEdges) TemplateOrErr() ([]*WishlistTemplate, error) {
-	if e.loadedTypes[1] {
-		return e.Template, nil
-	}
-	return nil, &NotLoadedError{edge: "template"}
-}
-
-// SectionsOrErr returns the Sections value or an error if the edge
-// was not loaded in eager-loading.
-func (e WishlistEdges) SectionsOrErr() ([]*WishlistSection, error) {
-	if e.loadedTypes[2] {
-		return e.Sections, nil
-	}
-	return nil, &NotLoadedError{edge: "sections"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -131,21 +88,6 @@ func (w *Wishlist) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (w *Wishlist) Value(name string) (ent.Value, error) {
 	return w.selectValues.Get(name)
-}
-
-// QueryCreator queries the "creator" edge of the Wishlist entity.
-func (w *Wishlist) QueryCreator() *UserQuery {
-	return NewWishlistClient(w.config).QueryCreator(w)
-}
-
-// QueryTemplate queries the "template" edge of the Wishlist entity.
-func (w *Wishlist) QueryTemplate() *WishlistTemplateQuery {
-	return NewWishlistClient(w.config).QueryTemplate(w)
-}
-
-// QuerySections queries the "sections" edge of the Wishlist entity.
-func (w *Wishlist) QuerySections() *WishlistSectionQuery {
-	return NewWishlistClient(w.config).QuerySections(w)
 }
 
 // Update returns a builder for updating this Wishlist.
