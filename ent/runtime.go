@@ -187,6 +187,42 @@ func init() {
 	wishlisttemplatesectionDescCreatedAt := wishlisttemplatesectionFields[2].Descriptor()
 	// wishlisttemplatesection.DefaultCreatedAt holds the default value on creation for the created_at field.
 	wishlisttemplatesection.DefaultCreatedAt = wishlisttemplatesectionDescCreatedAt.Default.(func() time.Time)
+	// wishlisttemplatesectionDescType is the schema descriptor for type field.
+	wishlisttemplatesectionDescType := wishlisttemplatesectionFields[4].Descriptor()
+	// wishlisttemplatesection.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	wishlisttemplatesection.TypeValidator = func() func(string) error {
+		validators := wishlisttemplatesectionDescType.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(_type string) error {
+			for _, fn := range fns {
+				if err := fn(_type); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// wishlisttemplatesectionDescSectionId is the schema descriptor for sectionId field.
+	wishlisttemplatesectionDescSectionId := wishlisttemplatesectionFields[5].Descriptor()
+	// wishlisttemplatesection.SectionIdValidator is a validator for the "sectionId" field. It is called by the builders before save.
+	wishlisttemplatesection.SectionIdValidator = func() func(string) error {
+		validators := wishlisttemplatesectionDescSectionId.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(sectionId string) error {
+			for _, fn := range fns {
+				if err := fn(sectionId); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// wishlisttemplatesectionDescID is the schema descriptor for id field.
 	wishlisttemplatesectionDescID := wishlisttemplatesectionFields[0].Descriptor()
 	// wishlisttemplatesection.DefaultID holds the default value on creation for the id field.

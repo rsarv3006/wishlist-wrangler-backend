@@ -47,6 +47,18 @@ func (wtsc *WishlistTemplateSectionCreate) SetWishlistTemplateID(u uuid.UUID) *W
 	return wtsc
 }
 
+// SetType sets the "type" field.
+func (wtsc *WishlistTemplateSectionCreate) SetType(s string) *WishlistTemplateSectionCreate {
+	wtsc.mutation.SetType(s)
+	return wtsc
+}
+
+// SetSectionId sets the "sectionId" field.
+func (wtsc *WishlistTemplateSectionCreate) SetSectionId(s string) *WishlistTemplateSectionCreate {
+	wtsc.mutation.SetSectionId(s)
+	return wtsc
+}
+
 // SetID sets the "id" field.
 func (wtsc *WishlistTemplateSectionCreate) SetID(u uuid.UUID) *WishlistTemplateSectionCreate {
 	wtsc.mutation.SetID(u)
@@ -122,6 +134,22 @@ func (wtsc *WishlistTemplateSectionCreate) check() error {
 	if _, ok := wtsc.mutation.WishlistTemplateID(); !ok {
 		return &ValidationError{Name: "wishlist_template_id", err: errors.New(`ent: missing required field "WishlistTemplateSection.wishlist_template_id"`)}
 	}
+	if _, ok := wtsc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "WishlistTemplateSection.type"`)}
+	}
+	if v, ok := wtsc.mutation.GetType(); ok {
+		if err := wishlisttemplatesection.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.type": %w`, err)}
+		}
+	}
+	if _, ok := wtsc.mutation.SectionId(); !ok {
+		return &ValidationError{Name: "sectionId", err: errors.New(`ent: missing required field "WishlistTemplateSection.sectionId"`)}
+	}
+	if v, ok := wtsc.mutation.SectionId(); ok {
+		if err := wishlisttemplatesection.SectionIdValidator(v); err != nil {
+			return &ValidationError{Name: "sectionId", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.sectionId": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -168,6 +196,14 @@ func (wtsc *WishlistTemplateSectionCreate) createSpec() (*WishlistTemplateSectio
 	if value, ok := wtsc.mutation.WishlistTemplateID(); ok {
 		_spec.SetField(wishlisttemplatesection.FieldWishlistTemplateID, field.TypeUUID, value)
 		_node.WishlistTemplateID = value
+	}
+	if value, ok := wtsc.mutation.GetType(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldType, field.TypeString, value)
+		_node.Type = value
+	}
+	if value, ok := wtsc.mutation.SectionId(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldSectionId, field.TypeString, value)
+		_node.SectionId = value
 	}
 	return _node, _spec
 }

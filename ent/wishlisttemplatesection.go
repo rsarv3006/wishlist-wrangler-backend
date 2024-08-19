@@ -24,7 +24,11 @@ type WishlistTemplateSection struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// WishlistTemplateID holds the value of the "wishlist_template_id" field.
 	WishlistTemplateID uuid.UUID `json:"wishlist_template_id,omitempty"`
-	selectValues       sql.SelectValues
+	// Type holds the value of the "type" field.
+	Type string `json:"type,omitempty"`
+	// SectionId holds the value of the "sectionId" field.
+	SectionId    string `json:"sectionId,omitempty"`
+	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -32,7 +36,7 @@ func (*WishlistTemplateSection) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case wishlisttemplatesection.FieldTitle:
+		case wishlisttemplatesection.FieldTitle, wishlisttemplatesection.FieldType, wishlisttemplatesection.FieldSectionId:
 			values[i] = new(sql.NullString)
 		case wishlisttemplatesection.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -76,6 +80,18 @@ func (wts *WishlistTemplateSection) assignValues(columns []string, values []any)
 				return fmt.Errorf("unexpected type %T for field wishlist_template_id", values[i])
 			} else if value != nil {
 				wts.WishlistTemplateID = *value
+			}
+		case wishlisttemplatesection.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				wts.Type = value.String
+			}
+		case wishlisttemplatesection.FieldSectionId:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field sectionId", values[i])
+			} else if value.Valid {
+				wts.SectionId = value.String
 			}
 		default:
 			wts.selectValues.Set(columns[i], values[i])
@@ -121,6 +137,12 @@ func (wts *WishlistTemplateSection) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("wishlist_template_id=")
 	builder.WriteString(fmt.Sprintf("%v", wts.WishlistTemplateID))
+	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(wts.Type)
+	builder.WriteString(", ")
+	builder.WriteString("sectionId=")
+	builder.WriteString(wts.SectionId)
 	builder.WriteByte(')')
 	return builder.String()
 }

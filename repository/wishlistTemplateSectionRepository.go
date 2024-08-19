@@ -14,12 +14,14 @@ func CreateWishlistTemplateSections(dbClient *ent.Client,
 	templateId uuid.UUID) ([]*ent.WishlistTemplateSection, error) {
 
 	sections := make([]*ent.WishlistTemplateSection, 0, len(templateSectionDto))
-
+	// TODO: Double creating the sections
 	for _, sectionDto := range templateSectionDto {
 
 		section, err := dbClient.WishlistTemplateSection.Create().
 			SetTitle(sectionDto.Title).
 			SetWishlistTemplateID(templateId).
+			SetType(sectionDto.Type).
+			SetSectionId(sectionDto.SectionId).
 			Save(context.Background())
 
 		if err != nil {

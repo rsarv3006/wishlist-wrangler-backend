@@ -25,6 +25,12 @@ func (WishlistTemplateSection) Fields() []ent.Field {
 			Default(time.Now).
 			Immutable(),
 		field.UUID("wishlist_template_id", uuid.UUID{}),
+		field.String("type").
+			MaxLen(255).
+			NotEmpty(),
+		field.String("sectionId").
+			MaxLen(255).
+			NotEmpty(),
 	}
 }
 

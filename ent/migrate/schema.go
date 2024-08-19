@@ -84,6 +84,8 @@ var (
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "wishlist_template_id", Type: field.TypeUUID},
+		{Name: "type", Type: field.TypeString, Size: 255},
+		{Name: "section_id", Type: field.TypeString, Size: 255},
 	}
 	// WishlistTemplateSectionsTable holds the schema information for the "wishlist_template_sections" table.
 	WishlistTemplateSectionsTable = &schema.Table{

@@ -7,5 +7,7 @@ type CreateWishlistTemplateDto struct {
 }
 
 type CreateWishtlistTemplateSectionDto struct {
-	Title string `json:"title" validate:"required"`
+	Title     string `json:"title" validate:"required"`
+	Type      string `json:"type" validate:"required"`
+	SectionId string `json:"sectionId" validate:"required"`
 }

@@ -13,6 +13,7 @@ func CreateWishlistTemplate(dbClient *ent.Client) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		currentUser := c.Locals("currentUser").(*ent.User)
 
+		// TODO: Fully validate the request body
 		createWishTemplateDto := new(dto.CreateWishlistTemplateDto)
 
 		if err := c.BodyParser(createWishTemplateDto); err != nil {

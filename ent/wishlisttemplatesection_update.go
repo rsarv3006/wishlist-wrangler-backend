@@ -56,6 +56,34 @@ func (wtsu *WishlistTemplateSectionUpdate) SetNillableWishlistTemplateID(u *uuid
 	return wtsu
 }
 
+// SetType sets the "type" field.
+func (wtsu *WishlistTemplateSectionUpdate) SetType(s string) *WishlistTemplateSectionUpdate {
+	wtsu.mutation.SetType(s)
+	return wtsu
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (wtsu *WishlistTemplateSectionUpdate) SetNillableType(s *string) *WishlistTemplateSectionUpdate {
+	if s != nil {
+		wtsu.SetType(*s)
+	}
+	return wtsu
+}
+
+// SetSectionId sets the "sectionId" field.
+func (wtsu *WishlistTemplateSectionUpdate) SetSectionId(s string) *WishlistTemplateSectionUpdate {
+	wtsu.mutation.SetSectionId(s)
+	return wtsu
+}
+
+// SetNillableSectionId sets the "sectionId" field if the given value is not nil.
+func (wtsu *WishlistTemplateSectionUpdate) SetNillableSectionId(s *string) *WishlistTemplateSectionUpdate {
+	if s != nil {
+		wtsu.SetSectionId(*s)
+	}
+	return wtsu
+}
+
 // Mutation returns the WishlistTemplateSectionMutation object of the builder.
 func (wtsu *WishlistTemplateSectionUpdate) Mutation() *WishlistTemplateSectionMutation {
 	return wtsu.mutation
@@ -95,6 +123,16 @@ func (wtsu *WishlistTemplateSectionUpdate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.title": %w`, err)}
 		}
 	}
+	if v, ok := wtsu.mutation.GetType(); ok {
+		if err := wishlisttemplatesection.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.type": %w`, err)}
+		}
+	}
+	if v, ok := wtsu.mutation.SectionId(); ok {
+		if err := wishlisttemplatesection.SectionIdValidator(v); err != nil {
+			return &ValidationError{Name: "sectionId", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.sectionId": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -115,6 +153,12 @@ func (wtsu *WishlistTemplateSectionUpdate) sqlSave(ctx context.Context) (n int, 
 	}
 	if value, ok := wtsu.mutation.WishlistTemplateID(); ok {
 		_spec.SetField(wishlisttemplatesection.FieldWishlistTemplateID, field.TypeUUID, value)
+	}
+	if value, ok := wtsu.mutation.GetType(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldType, field.TypeString, value)
+	}
+	if value, ok := wtsu.mutation.SectionId(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldSectionId, field.TypeString, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, wtsu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -160,6 +204,34 @@ func (wtsuo *WishlistTemplateSectionUpdateOne) SetWishlistTemplateID(u uuid.UUID
 func (wtsuo *WishlistTemplateSectionUpdateOne) SetNillableWishlistTemplateID(u *uuid.UUID) *WishlistTemplateSectionUpdateOne {
 	if u != nil {
 		wtsuo.SetWishlistTemplateID(*u)
+	}
+	return wtsuo
+}
+
+// SetType sets the "type" field.
+func (wtsuo *WishlistTemplateSectionUpdateOne) SetType(s string) *WishlistTemplateSectionUpdateOne {
+	wtsuo.mutation.SetType(s)
+	return wtsuo
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (wtsuo *WishlistTemplateSectionUpdateOne) SetNillableType(s *string) *WishlistTemplateSectionUpdateOne {
+	if s != nil {
+		wtsuo.SetType(*s)
+	}
+	return wtsuo
+}
+
+// SetSectionId sets the "sectionId" field.
+func (wtsuo *WishlistTemplateSectionUpdateOne) SetSectionId(s string) *WishlistTemplateSectionUpdateOne {
+	wtsuo.mutation.SetSectionId(s)
+	return wtsuo
+}
+
+// SetNillableSectionId sets the "sectionId" field if the given value is not nil.
+func (wtsuo *WishlistTemplateSectionUpdateOne) SetNillableSectionId(s *string) *WishlistTemplateSectionUpdateOne {
+	if s != nil {
+		wtsuo.SetSectionId(*s)
 	}
 	return wtsuo
 }
@@ -216,6 +288,16 @@ func (wtsuo *WishlistTemplateSectionUpdateOne) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.title": %w`, err)}
 		}
 	}
+	if v, ok := wtsuo.mutation.GetType(); ok {
+		if err := wishlisttemplatesection.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.type": %w`, err)}
+		}
+	}
+	if v, ok := wtsuo.mutation.SectionId(); ok {
+		if err := wishlisttemplatesection.SectionIdValidator(v); err != nil {
+			return &ValidationError{Name: "sectionId", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.sectionId": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -253,6 +335,12 @@ func (wtsuo *WishlistTemplateSectionUpdateOne) sqlSave(ctx context.Context) (_no
 	}
 	if value, ok := wtsuo.mutation.WishlistTemplateID(); ok {
 		_spec.SetField(wishlisttemplatesection.FieldWishlistTemplateID, field.TypeUUID, value)
+	}
+	if value, ok := wtsuo.mutation.GetType(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldType, field.TypeString, value)
+	}
+	if value, ok := wtsuo.mutation.SectionId(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldSectionId, field.TypeString, value)
 	}
 	_node = &WishlistTemplateSection{config: wtsuo.config}
 	_spec.Assign = _node.assignValues
