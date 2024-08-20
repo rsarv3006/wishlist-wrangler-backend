@@ -70,6 +70,11 @@ func TemplateID(v uuid.UUID) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldEQ(FieldTemplateID, v))
 }
 
+// CreatorID applies equality check predicate on the "creator_id" field. It's identical to CreatorIDEQ.
+func CreatorID(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldEQ(FieldCreatorID, v))
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldEQ(FieldTitle, v))
@@ -233,6 +238,46 @@ func TemplateIDLT(v uuid.UUID) predicate.Wishlist {
 // TemplateIDLTE applies the LTE predicate on the "template_id" field.
 func TemplateIDLTE(v uuid.UUID) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldLTE(FieldTemplateID, v))
+}
+
+// CreatorIDEQ applies the EQ predicate on the "creator_id" field.
+func CreatorIDEQ(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldEQ(FieldCreatorID, v))
+}
+
+// CreatorIDNEQ applies the NEQ predicate on the "creator_id" field.
+func CreatorIDNEQ(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldNEQ(FieldCreatorID, v))
+}
+
+// CreatorIDIn applies the In predicate on the "creator_id" field.
+func CreatorIDIn(vs ...uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldIn(FieldCreatorID, vs...))
+}
+
+// CreatorIDNotIn applies the NotIn predicate on the "creator_id" field.
+func CreatorIDNotIn(vs ...uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldNotIn(FieldCreatorID, vs...))
+}
+
+// CreatorIDGT applies the GT predicate on the "creator_id" field.
+func CreatorIDGT(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldGT(FieldCreatorID, v))
+}
+
+// CreatorIDGTE applies the GTE predicate on the "creator_id" field.
+func CreatorIDGTE(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldGTE(FieldCreatorID, v))
+}
+
+// CreatorIDLT applies the LT predicate on the "creator_id" field.
+func CreatorIDLT(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldLT(FieldCreatorID, v))
+}
+
+// CreatorIDLTE applies the LTE predicate on the "creator_id" field.
+func CreatorIDLTE(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldLTE(FieldCreatorID, v))
 }
 
 // And groups predicates with the AND operator between them.

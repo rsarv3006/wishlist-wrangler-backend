@@ -1090,6 +1090,7 @@ type WishlistMutation struct {
 	created_at    *time.Time
 	status        *wishlist.Status
 	template_id   *uuid.UUID
+	creator_id    *uuid.UUID
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Wishlist, error)
@@ -1344,6 +1345,42 @@ func (m *WishlistMutation) ResetTemplateID() {
 	m.template_id = nil
 }
 
+// SetCreatorID sets the "creator_id" field.
+func (m *WishlistMutation) SetCreatorID(u uuid.UUID) {
+	m.creator_id = &u
+}
+
+// CreatorID returns the value of the "creator_id" field in the mutation.
+func (m *WishlistMutation) CreatorID() (r uuid.UUID, exists bool) {
+	v := m.creator_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatorID returns the old "creator_id" field's value of the Wishlist entity.
+// If the Wishlist object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistMutation) OldCreatorID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatorID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatorID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatorID: %w", err)
+	}
+	return oldValue.CreatorID, nil
+}
+
+// ResetCreatorID resets all changes to the "creator_id" field.
+func (m *WishlistMutation) ResetCreatorID() {
+	m.creator_id = nil
+}
+
 // Where appends a list predicates to the WishlistMutation builder.
 func (m *WishlistMutation) Where(ps ...predicate.Wishlist) {
 	m.predicates = append(m.predicates, ps...)
@@ -1378,7 +1415,7 @@ func (m *WishlistMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *WishlistMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.title != nil {
 		fields = append(fields, wishlist.FieldTitle)
 	}
@@ -1390,6 +1427,9 @@ func (m *WishlistMutation) Fields() []string {
 	}
 	if m.template_id != nil {
 		fields = append(fields, wishlist.FieldTemplateID)
+	}
+	if m.creator_id != nil {
+		fields = append(fields, wishlist.FieldCreatorID)
 	}
 	return fields
 }
@@ -1407,6 +1447,8 @@ func (m *WishlistMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case wishlist.FieldTemplateID:
 		return m.TemplateID()
+	case wishlist.FieldCreatorID:
+		return m.CreatorID()
 	}
 	return nil, false
 }
@@ -1424,6 +1466,8 @@ func (m *WishlistMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldStatus(ctx)
 	case wishlist.FieldTemplateID:
 		return m.OldTemplateID(ctx)
+	case wishlist.FieldCreatorID:
+		return m.OldCreatorID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Wishlist field %s", name)
 }
@@ -1460,6 +1504,13 @@ func (m *WishlistMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTemplateID(v)
+		return nil
+	case wishlist.FieldCreatorID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatorID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Wishlist field %s", name)
@@ -1521,6 +1572,9 @@ func (m *WishlistMutation) ResetField(name string) error {
 		return nil
 	case wishlist.FieldTemplateID:
 		m.ResetTemplateID()
+		return nil
+	case wishlist.FieldCreatorID:
+		m.ResetCreatorID()
 		return nil
 	}
 	return fmt.Errorf("unknown Wishlist field %s", name)

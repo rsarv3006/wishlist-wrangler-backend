@@ -25,7 +25,9 @@ type Wishlist struct {
 	// Status holds the value of the "status" field.
 	Status wishlist.Status `json:"status,omitempty"`
 	// TemplateID holds the value of the "template_id" field.
-	TemplateID   uuid.UUID `json:"template_id,omitempty"`
+	TemplateID uuid.UUID `json:"template_id,omitempty"`
+	// CreatorID holds the value of the "creator_id" field.
+	CreatorID    uuid.UUID `json:"creator_id,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -38,7 +40,7 @@ func (*Wishlist) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case wishlist.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case wishlist.FieldID, wishlist.FieldTemplateID:
+		case wishlist.FieldID, wishlist.FieldTemplateID, wishlist.FieldCreatorID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -84,6 +86,12 @@ func (w *Wishlist) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field template_id", values[i])
 			} else if value != nil {
 				w.TemplateID = *value
+			}
+		case wishlist.FieldCreatorID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field creator_id", values[i])
+			} else if value != nil {
+				w.CreatorID = *value
 			}
 		default:
 			w.selectValues.Set(columns[i], values[i])
@@ -132,6 +140,9 @@ func (w *Wishlist) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("template_id=")
 	builder.WriteString(fmt.Sprintf("%v", w.TemplateID))
+	builder.WriteString(", ")
+	builder.WriteString("creator_id=")
+	builder.WriteString(fmt.Sprintf("%v", w.CreatorID))
 	builder.WriteByte(')')
 	return builder.String()
 }

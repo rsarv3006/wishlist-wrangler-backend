@@ -61,6 +61,12 @@ func (wc *WishlistCreate) SetTemplateID(u uuid.UUID) *WishlistCreate {
 	return wc
 }
 
+// SetCreatorID sets the "creator_id" field.
+func (wc *WishlistCreate) SetCreatorID(u uuid.UUID) *WishlistCreate {
+	wc.mutation.SetCreatorID(u)
+	return wc
+}
+
 // SetID sets the "id" field.
 func (wc *WishlistCreate) SetID(u uuid.UUID) *WishlistCreate {
 	wc.mutation.SetID(u)
@@ -148,6 +154,9 @@ func (wc *WishlistCreate) check() error {
 	if _, ok := wc.mutation.TemplateID(); !ok {
 		return &ValidationError{Name: "template_id", err: errors.New(`ent: missing required field "Wishlist.template_id"`)}
 	}
+	if _, ok := wc.mutation.CreatorID(); !ok {
+		return &ValidationError{Name: "creator_id", err: errors.New(`ent: missing required field "Wishlist.creator_id"`)}
+	}
 	return nil
 }
 
@@ -198,6 +207,10 @@ func (wc *WishlistCreate) createSpec() (*Wishlist, *sqlgraph.CreateSpec) {
 	if value, ok := wc.mutation.TemplateID(); ok {
 		_spec.SetField(wishlist.FieldTemplateID, field.TypeUUID, value)
 		_node.TemplateID = value
+	}
+	if value, ok := wc.mutation.CreatorID(); ok {
+		_spec.SetField(wishlist.FieldCreatorID, field.TypeUUID, value)
+		_node.CreatorID = value
 	}
 	return _node, _spec
 }

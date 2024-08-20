@@ -44,6 +44,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"PENDING", "ACTIVE", "REMOVED", "COMPLETED"}, Default: "PENDING"},
 		{Name: "template_id", Type: field.TypeUUID},
+		{Name: "creator_id", Type: field.TypeUUID},
 	}
 	// WishlistsTable holds the schema information for the "wishlists" table.
 	WishlistsTable = &schema.Table{

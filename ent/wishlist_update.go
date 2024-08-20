@@ -70,6 +70,20 @@ func (wu *WishlistUpdate) SetNillableTemplateID(u *uuid.UUID) *WishlistUpdate {
 	return wu
 }
 
+// SetCreatorID sets the "creator_id" field.
+func (wu *WishlistUpdate) SetCreatorID(u uuid.UUID) *WishlistUpdate {
+	wu.mutation.SetCreatorID(u)
+	return wu
+}
+
+// SetNillableCreatorID sets the "creator_id" field if the given value is not nil.
+func (wu *WishlistUpdate) SetNillableCreatorID(u *uuid.UUID) *WishlistUpdate {
+	if u != nil {
+		wu.SetCreatorID(*u)
+	}
+	return wu
+}
+
 // Mutation returns the WishlistMutation object of the builder.
 func (wu *WishlistUpdate) Mutation() *WishlistMutation {
 	return wu.mutation
@@ -138,6 +152,9 @@ func (wu *WishlistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := wu.mutation.TemplateID(); ok {
 		_spec.SetField(wishlist.FieldTemplateID, field.TypeUUID, value)
 	}
+	if value, ok := wu.mutation.CreatorID(); ok {
+		_spec.SetField(wishlist.FieldCreatorID, field.TypeUUID, value)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, wu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{wishlist.Label}
@@ -196,6 +213,20 @@ func (wuo *WishlistUpdateOne) SetTemplateID(u uuid.UUID) *WishlistUpdateOne {
 func (wuo *WishlistUpdateOne) SetNillableTemplateID(u *uuid.UUID) *WishlistUpdateOne {
 	if u != nil {
 		wuo.SetTemplateID(*u)
+	}
+	return wuo
+}
+
+// SetCreatorID sets the "creator_id" field.
+func (wuo *WishlistUpdateOne) SetCreatorID(u uuid.UUID) *WishlistUpdateOne {
+	wuo.mutation.SetCreatorID(u)
+	return wuo
+}
+
+// SetNillableCreatorID sets the "creator_id" field if the given value is not nil.
+func (wuo *WishlistUpdateOne) SetNillableCreatorID(u *uuid.UUID) *WishlistUpdateOne {
+	if u != nil {
+		wuo.SetCreatorID(*u)
 	}
 	return wuo
 }
@@ -297,6 +328,9 @@ func (wuo *WishlistUpdateOne) sqlSave(ctx context.Context) (_node *Wishlist, err
 	}
 	if value, ok := wuo.mutation.TemplateID(); ok {
 		_spec.SetField(wishlist.FieldTemplateID, field.TypeUUID, value)
+	}
+	if value, ok := wuo.mutation.CreatorID(); ok {
+		_spec.SetField(wishlist.FieldCreatorID, field.TypeUUID, value)
 	}
 	_node = &Wishlist{config: wuo.config}
 	_spec.Assign = _node.assignValues
