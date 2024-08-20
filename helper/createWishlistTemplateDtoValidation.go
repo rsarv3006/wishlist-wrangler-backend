@@ -29,7 +29,6 @@ func DidCreateWishlistTemplateDtoPassValidation(dto dto.CreateWishlistTemplateDt
 		if len(section.Type) == 0 {
 			valid = false
 		}
-
 	}
 
 	return valid

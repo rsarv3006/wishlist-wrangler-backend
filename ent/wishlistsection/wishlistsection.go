@@ -17,10 +17,14 @@ const (
 	FieldID = "id"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
-	// FieldTextValue holds the string denoting the textvalue field in the database.
-	FieldTextValue = "text_value"
+	// FieldValue holds the string denoting the value field in the database.
+	FieldValue = "value"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldWishlistID holds the string denoting the wishlist_id field in the database.
+	FieldWishlistID = "wishlist_id"
+	// FieldTemplateSectionID holds the string denoting the template_section_id field in the database.
+	FieldTemplateSectionID = "template_section_id"
 	// Table holds the table name of the wishlistsection in the database.
 	Table = "wishlist_sections"
 )
@@ -29,8 +33,10 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldType,
-	FieldTextValue,
+	FieldValue,
 	FieldCreatedAt,
+	FieldWishlistID,
+	FieldTemplateSectionID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -44,8 +50,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// TextValueValidator is a validator for the "textValue" field. It is called by the builders before save.
-	TextValueValidator func(string) error
+	// ValueValidator is a validator for the "value" field. It is called by the builders before save.
+	ValueValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
@@ -57,11 +63,10 @@ type Type string
 
 // Type values.
 const (
-	TypeWISHLIST_SECTION_TYPE_TEXT    Type = "WISHLIST_SECTION_TYPE_TEXT"
-	TypeWISHLIST_SECTION_TYPE_IMAGE   Type = "WISHLIST_SECTION_TYPE_IMAGE"
-	TypeWISHLIST_SECTION_TYPE_VIDEO   Type = "WISHLIST_SECTION_TYPE_VIDEO"
-	TypeWISHLIST_SECTION_TYPE_LINK    Type = "WISHLIST_SECTION_TYPE_LINK"
-	TypeWISHLIST_SECTION_TYPE_BOOLEAN Type = "WISHLIST_SECTION_TYPE_BOOLEAN"
+	TypeTEXT  Type = "TEXT"
+	TypeIMAGE Type = "IMAGE"
+	TypeVIDEO Type = "VIDEO"
+	TypeLINK  Type = "LINK"
 )
 
 func (_type Type) String() string {
@@ -71,7 +76,7 @@ func (_type Type) String() string {
 // TypeValidator is a validator for the "type" field enum values. It is called by the builders before save.
 func TypeValidator(_type Type) error {
 	switch _type {
-	case TypeWISHLIST_SECTION_TYPE_TEXT, TypeWISHLIST_SECTION_TYPE_IMAGE, TypeWISHLIST_SECTION_TYPE_VIDEO, TypeWISHLIST_SECTION_TYPE_LINK, TypeWISHLIST_SECTION_TYPE_BOOLEAN:
+	case TypeTEXT, TypeIMAGE, TypeVIDEO, TypeLINK:
 		return nil
 	default:
 		return fmt.Errorf("wishlistsection: invalid enum value for type field: %q", _type)
@@ -91,12 +96,22 @@ func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
-// ByTextValue orders the results by the textValue field.
-func ByTextValue(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTextValue, opts...).ToFunc()
+// ByValue orders the results by the value field.
+func ByValue(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldValue, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByWishlistID orders the results by the wishlist_id field.
+func ByWishlistID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWishlistID, opts...).ToFunc()
+}
+
+// ByTemplateSectionID orders the results by the template_section_id field.
+func ByTemplateSectionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTemplateSectionID, opts...).ToFunc()
 }

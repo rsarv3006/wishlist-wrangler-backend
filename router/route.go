@@ -18,4 +18,5 @@ func SetupRoutes(app *fiber.App, dbClient *ent.Client) {
 	setUpUserRoutesV1(apiV1, dbClient)
 	setUpAuthRoutesV1(apiV1, dbClient)
 	setUpWishlistTemplateRoutesV1(apiV1, dbClient)
+	setUpWishlistRoutesV1(apiV1, dbClient)
 }

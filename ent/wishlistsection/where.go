@@ -55,14 +55,24 @@ func IDLTE(id uuid.UUID) predicate.WishlistSection {
 	return predicate.WishlistSection(sql.FieldLTE(FieldID, id))
 }
 
-// TextValue applies equality check predicate on the "textValue" field. It's identical to TextValueEQ.
-func TextValue(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldEQ(FieldTextValue, v))
+// Value applies equality check predicate on the "value" field. It's identical to ValueEQ.
+func Value(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldEQ(FieldValue, v))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.WishlistSection {
 	return predicate.WishlistSection(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// WishlistID applies equality check predicate on the "wishlist_id" field. It's identical to WishlistIDEQ.
+func WishlistID(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldEQ(FieldWishlistID, v))
+}
+
+// TemplateSectionID applies equality check predicate on the "template_section_id" field. It's identical to TemplateSectionIDEQ.
+func TemplateSectionID(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldEQ(FieldTemplateSectionID, v))
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.
@@ -85,69 +95,69 @@ func TypeNotIn(vs ...Type) predicate.WishlistSection {
 	return predicate.WishlistSection(sql.FieldNotIn(FieldType, vs...))
 }
 
-// TextValueEQ applies the EQ predicate on the "textValue" field.
-func TextValueEQ(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldEQ(FieldTextValue, v))
+// ValueEQ applies the EQ predicate on the "value" field.
+func ValueEQ(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldEQ(FieldValue, v))
 }
 
-// TextValueNEQ applies the NEQ predicate on the "textValue" field.
-func TextValueNEQ(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldNEQ(FieldTextValue, v))
+// ValueNEQ applies the NEQ predicate on the "value" field.
+func ValueNEQ(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldNEQ(FieldValue, v))
 }
 
-// TextValueIn applies the In predicate on the "textValue" field.
-func TextValueIn(vs ...string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldIn(FieldTextValue, vs...))
+// ValueIn applies the In predicate on the "value" field.
+func ValueIn(vs ...string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldIn(FieldValue, vs...))
 }
 
-// TextValueNotIn applies the NotIn predicate on the "textValue" field.
-func TextValueNotIn(vs ...string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldNotIn(FieldTextValue, vs...))
+// ValueNotIn applies the NotIn predicate on the "value" field.
+func ValueNotIn(vs ...string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldNotIn(FieldValue, vs...))
 }
 
-// TextValueGT applies the GT predicate on the "textValue" field.
-func TextValueGT(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldGT(FieldTextValue, v))
+// ValueGT applies the GT predicate on the "value" field.
+func ValueGT(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldGT(FieldValue, v))
 }
 
-// TextValueGTE applies the GTE predicate on the "textValue" field.
-func TextValueGTE(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldGTE(FieldTextValue, v))
+// ValueGTE applies the GTE predicate on the "value" field.
+func ValueGTE(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldGTE(FieldValue, v))
 }
 
-// TextValueLT applies the LT predicate on the "textValue" field.
-func TextValueLT(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldLT(FieldTextValue, v))
+// ValueLT applies the LT predicate on the "value" field.
+func ValueLT(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldLT(FieldValue, v))
 }
 
-// TextValueLTE applies the LTE predicate on the "textValue" field.
-func TextValueLTE(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldLTE(FieldTextValue, v))
+// ValueLTE applies the LTE predicate on the "value" field.
+func ValueLTE(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldLTE(FieldValue, v))
 }
 
-// TextValueContains applies the Contains predicate on the "textValue" field.
-func TextValueContains(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldContains(FieldTextValue, v))
+// ValueContains applies the Contains predicate on the "value" field.
+func ValueContains(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldContains(FieldValue, v))
 }
 
-// TextValueHasPrefix applies the HasPrefix predicate on the "textValue" field.
-func TextValueHasPrefix(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldHasPrefix(FieldTextValue, v))
+// ValueHasPrefix applies the HasPrefix predicate on the "value" field.
+func ValueHasPrefix(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldHasPrefix(FieldValue, v))
 }
 
-// TextValueHasSuffix applies the HasSuffix predicate on the "textValue" field.
-func TextValueHasSuffix(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldHasSuffix(FieldTextValue, v))
+// ValueHasSuffix applies the HasSuffix predicate on the "value" field.
+func ValueHasSuffix(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldHasSuffix(FieldValue, v))
 }
 
-// TextValueEqualFold applies the EqualFold predicate on the "textValue" field.
-func TextValueEqualFold(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldEqualFold(FieldTextValue, v))
+// ValueEqualFold applies the EqualFold predicate on the "value" field.
+func ValueEqualFold(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldEqualFold(FieldValue, v))
 }
 
-// TextValueContainsFold applies the ContainsFold predicate on the "textValue" field.
-func TextValueContainsFold(v string) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldContainsFold(FieldTextValue, v))
+// ValueContainsFold applies the ContainsFold predicate on the "value" field.
+func ValueContainsFold(v string) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldContainsFold(FieldValue, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -188,6 +198,86 @@ func CreatedAtLT(v time.Time) predicate.WishlistSection {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.WishlistSection {
 	return predicate.WishlistSection(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// WishlistIDEQ applies the EQ predicate on the "wishlist_id" field.
+func WishlistIDEQ(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldEQ(FieldWishlistID, v))
+}
+
+// WishlistIDNEQ applies the NEQ predicate on the "wishlist_id" field.
+func WishlistIDNEQ(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldNEQ(FieldWishlistID, v))
+}
+
+// WishlistIDIn applies the In predicate on the "wishlist_id" field.
+func WishlistIDIn(vs ...uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldIn(FieldWishlistID, vs...))
+}
+
+// WishlistIDNotIn applies the NotIn predicate on the "wishlist_id" field.
+func WishlistIDNotIn(vs ...uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldNotIn(FieldWishlistID, vs...))
+}
+
+// WishlistIDGT applies the GT predicate on the "wishlist_id" field.
+func WishlistIDGT(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldGT(FieldWishlistID, v))
+}
+
+// WishlistIDGTE applies the GTE predicate on the "wishlist_id" field.
+func WishlistIDGTE(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldGTE(FieldWishlistID, v))
+}
+
+// WishlistIDLT applies the LT predicate on the "wishlist_id" field.
+func WishlistIDLT(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldLT(FieldWishlistID, v))
+}
+
+// WishlistIDLTE applies the LTE predicate on the "wishlist_id" field.
+func WishlistIDLTE(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldLTE(FieldWishlistID, v))
+}
+
+// TemplateSectionIDEQ applies the EQ predicate on the "template_section_id" field.
+func TemplateSectionIDEQ(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldEQ(FieldTemplateSectionID, v))
+}
+
+// TemplateSectionIDNEQ applies the NEQ predicate on the "template_section_id" field.
+func TemplateSectionIDNEQ(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldNEQ(FieldTemplateSectionID, v))
+}
+
+// TemplateSectionIDIn applies the In predicate on the "template_section_id" field.
+func TemplateSectionIDIn(vs ...uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldIn(FieldTemplateSectionID, vs...))
+}
+
+// TemplateSectionIDNotIn applies the NotIn predicate on the "template_section_id" field.
+func TemplateSectionIDNotIn(vs ...uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldNotIn(FieldTemplateSectionID, vs...))
+}
+
+// TemplateSectionIDGT applies the GT predicate on the "template_section_id" field.
+func TemplateSectionIDGT(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldGT(FieldTemplateSectionID, v))
+}
+
+// TemplateSectionIDGTE applies the GTE predicate on the "template_section_id" field.
+func TemplateSectionIDGTE(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldGTE(FieldTemplateSectionID, v))
+}
+
+// TemplateSectionIDLT applies the LT predicate on the "template_section_id" field.
+func TemplateSectionIDLT(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldLT(FieldTemplateSectionID, v))
+}
+
+// TemplateSectionIDLTE applies the LTE predicate on the "template_section_id" field.
+func TemplateSectionIDLTE(v uuid.UUID) predicate.WishlistSection {
+	return predicate.WishlistSection(sql.FieldLTE(FieldTemplateSectionID, v))
 }
 
 // And groups predicates with the AND operator between them.

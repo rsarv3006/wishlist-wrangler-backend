@@ -20,11 +20,15 @@ type WishlistSection struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Type holds the value of the "type" field.
 	Type wishlistsection.Type `json:"type,omitempty"`
-	// TextValue holds the value of the "textValue" field.
-	TextValue string `json:"textValue,omitempty"`
+	// Value holds the value of the "value" field.
+	Value string `json:"value,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt    time.Time `json:"created_at,omitempty"`
-	selectValues sql.SelectValues
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// WishlistID holds the value of the "wishlist_id" field.
+	WishlistID uuid.UUID `json:"wishlist_id,omitempty"`
+	// TemplateSectionID holds the value of the "template_section_id" field.
+	TemplateSectionID uuid.UUID `json:"template_section_id,omitempty"`
+	selectValues      sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -32,11 +36,11 @@ func (*WishlistSection) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case wishlistsection.FieldType, wishlistsection.FieldTextValue:
+		case wishlistsection.FieldType, wishlistsection.FieldValue:
 			values[i] = new(sql.NullString)
 		case wishlistsection.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case wishlistsection.FieldID:
+		case wishlistsection.FieldID, wishlistsection.FieldWishlistID, wishlistsection.FieldTemplateSectionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -65,17 +69,29 @@ func (ws *WishlistSection) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ws.Type = wishlistsection.Type(value.String)
 			}
-		case wishlistsection.FieldTextValue:
+		case wishlistsection.FieldValue:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field textValue", values[i])
+				return fmt.Errorf("unexpected type %T for field value", values[i])
 			} else if value.Valid {
-				ws.TextValue = value.String
+				ws.Value = value.String
 			}
 		case wishlistsection.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				ws.CreatedAt = value.Time
+			}
+		case wishlistsection.FieldWishlistID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field wishlist_id", values[i])
+			} else if value != nil {
+				ws.WishlistID = *value
+			}
+		case wishlistsection.FieldTemplateSectionID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field template_section_id", values[i])
+			} else if value != nil {
+				ws.TemplateSectionID = *value
 			}
 		default:
 			ws.selectValues.Set(columns[i], values[i])
@@ -84,9 +100,9 @@ func (ws *WishlistSection) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the WishlistSection.
+// GetValue returns the ent.Value that was dynamically selected and assigned to the WishlistSection.
 // This includes values selected through modifiers, order, etc.
-func (ws *WishlistSection) Value(name string) (ent.Value, error) {
+func (ws *WishlistSection) GetValue(name string) (ent.Value, error) {
 	return ws.selectValues.Get(name)
 }
 
@@ -116,11 +132,17 @@ func (ws *WishlistSection) String() string {
 	builder.WriteString("type=")
 	builder.WriteString(fmt.Sprintf("%v", ws.Type))
 	builder.WriteString(", ")
-	builder.WriteString("textValue=")
-	builder.WriteString(ws.TextValue)
+	builder.WriteString("value=")
+	builder.WriteString(ws.Value)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(ws.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("wishlist_id=")
+	builder.WriteString(fmt.Sprintf("%v", ws.WishlistID))
+	builder.WriteString(", ")
+	builder.WriteString("template_section_id=")
+	builder.WriteString(fmt.Sprintf("%v", ws.TemplateSectionID))
 	builder.WriteByte(')')
 	return builder.String()
 }

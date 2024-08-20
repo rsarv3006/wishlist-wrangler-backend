@@ -1,0 +1,55 @@
+run:
+  # Timeout for analysis, as a duration (10m, 30s, 1h, etc).
+  timeout: 5m
+
+linters:
+  # Enable the linters you want to run.
+  enable:
+    - revive
+    - staticcheck
+    - unused
+    - gosimple
+    - govet
+    - gocyclo
+    - gofmt
+    - goimports
+    - gosec
+    - ineffassign
+    - misspell
+    - unconvert
+    - whitespace
+
+linters-settings:
+  # Configure options for specific linters.
+  govet:
+    # Check for unsafe calls to reflect.Value.Interface.
+    check-shadow: true
+  
+  revive:
+    # Minimum confidence level for issues, one of [low, medium, high].
+    min-confidence: 0.8
+    
+    # Disable the 'var-naming' rule.
+    rules:
+      - name: var-naming
+        disabled: true
+        
+  unused:
+    # Treat code as a program (not a library) and report unused exported identifiers.
+    check-exported: true
+        
+  gocyclo:
+    # Set the minimum cyclomatic complexity threshold.
+    min-complexity: 15
+        
+  ineffassign:
+    # Check for ineffectual assignments in addition to unused variables.
+    check-assigned: true
+
+issues:
+  # Exclude configuration.
+  exclude-rules:
+    # Exclude linter messages matching the regular expressions.
+    - linters:
+        - revive
+      text: "exported .* should have comment or be unexported"

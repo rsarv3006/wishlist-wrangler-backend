@@ -9,13 +9,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateWishlistTemplateSections(dbClient *ent.Client,
+func CreateWishlistTemplateSections(
+	dbClient *ent.Client,
 	templateSectionDto []dto.CreateWishtlistTemplateSectionDto,
-	templateId uuid.UUID) ([]*ent.WishlistTemplateSection, error) {
-
+	templateId uuid.UUID,
+) ([]*ent.WishlistTemplateSection, error) {
 	sections := make([]*ent.WishlistTemplateSection, 0, len(templateSectionDto))
 	for _, sectionDto := range templateSectionDto {
-
 		section, err := dbClient.WishlistTemplateSection.Create().
 			SetTitle(sectionDto.Title).
 			SetWishlistTemplateID(templateId).
@@ -30,7 +30,6 @@ func CreateWishlistTemplateSections(dbClient *ent.Client,
 		if section == nil {
 			return nil, err
 		}
-
 		sections = append(sections, section)
 	}
 

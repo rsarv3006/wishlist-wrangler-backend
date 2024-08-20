@@ -33,6 +33,5 @@ func IsExpired() fiber.Handler {
 		}()
 
 		return c.Next()
-
 	}
 }

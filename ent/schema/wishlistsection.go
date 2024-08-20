@@ -9,11 +9,10 @@ import (
 )
 
 const (
-	WishlistSectionTypeText    = "WISHLIST_SECTION_TYPE_TEXT"
-	WishlistSectionTypeImage   = "WISHLIST_SECTION_TYPE_IMAGE"
-	WishlistSectionTypeVideo   = "WISHLIST_SECTION_TYPE_VIDEO"
-	WishlistSectionTypeLink    = "WISHLIST_SECTION_TYPE_LINK"
-	WishlistSectionTypeBoolean = "WISHLIST_SECTION_TYPE_BOOLEAN"
+	WishlistSectionTypeText  = "TEXT"
+	WishlistSectionTypeImage = "IMAGE"
+	WishlistSectionTypeVideo = "VIDEO"
+	WishlistSectionTypeLink  = "LINK"
 )
 
 var WishlistSectionTypeVariant = []string{
@@ -21,7 +20,6 @@ var WishlistSectionTypeVariant = []string{
 	WishlistSectionTypeImage,
 	WishlistSectionTypeVideo,
 	WishlistSectionTypeLink,
-	WishlistSectionTypeBoolean,
 }
 
 // WishlistSection holds the schema definition for the WishlistSection entity.
@@ -36,12 +34,14 @@ func (WishlistSection) Fields() []ent.Field {
 			Default(uuid.New),
 		field.Enum("type").
 			Values(WishlistSectionTypeVariant...),
-		field.String("textValue").
-			MaxLen(1024).
+		field.String("value").
+			MaxLen(6144).
 			NotEmpty(),
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable(),
+		field.UUID("wishlist_id", uuid.UUID{}),
+		field.UUID("template_section_id", uuid.UUID{}),
 	}
 }
 

@@ -27,9 +27,9 @@ func (wsc *WishlistSectionCreate) SetType(w wishlistsection.Type) *WishlistSecti
 	return wsc
 }
 
-// SetTextValue sets the "textValue" field.
-func (wsc *WishlistSectionCreate) SetTextValue(s string) *WishlistSectionCreate {
-	wsc.mutation.SetTextValue(s)
+// SetValue sets the "value" field.
+func (wsc *WishlistSectionCreate) SetValue(s string) *WishlistSectionCreate {
+	wsc.mutation.SetValue(s)
 	return wsc
 }
 
@@ -44,6 +44,18 @@ func (wsc *WishlistSectionCreate) SetNillableCreatedAt(t *time.Time) *WishlistSe
 	if t != nil {
 		wsc.SetCreatedAt(*t)
 	}
+	return wsc
+}
+
+// SetWishlistID sets the "wishlist_id" field.
+func (wsc *WishlistSectionCreate) SetWishlistID(u uuid.UUID) *WishlistSectionCreate {
+	wsc.mutation.SetWishlistID(u)
+	return wsc
+}
+
+// SetTemplateSectionID sets the "template_section_id" field.
+func (wsc *WishlistSectionCreate) SetTemplateSectionID(u uuid.UUID) *WishlistSectionCreate {
+	wsc.mutation.SetTemplateSectionID(u)
 	return wsc
 }
 
@@ -116,16 +128,22 @@ func (wsc *WishlistSectionCreate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.type": %w`, err)}
 		}
 	}
-	if _, ok := wsc.mutation.TextValue(); !ok {
-		return &ValidationError{Name: "textValue", err: errors.New(`ent: missing required field "WishlistSection.textValue"`)}
+	if _, ok := wsc.mutation.Value(); !ok {
+		return &ValidationError{Name: "value", err: errors.New(`ent: missing required field "WishlistSection.value"`)}
 	}
-	if v, ok := wsc.mutation.TextValue(); ok {
-		if err := wishlistsection.TextValueValidator(v); err != nil {
-			return &ValidationError{Name: "textValue", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.textValue": %w`, err)}
+	if v, ok := wsc.mutation.Value(); ok {
+		if err := wishlistsection.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.value": %w`, err)}
 		}
 	}
 	if _, ok := wsc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "WishlistSection.created_at"`)}
+	}
+	if _, ok := wsc.mutation.WishlistID(); !ok {
+		return &ValidationError{Name: "wishlist_id", err: errors.New(`ent: missing required field "WishlistSection.wishlist_id"`)}
+	}
+	if _, ok := wsc.mutation.TemplateSectionID(); !ok {
+		return &ValidationError{Name: "template_section_id", err: errors.New(`ent: missing required field "WishlistSection.template_section_id"`)}
 	}
 	return nil
 }
@@ -166,13 +184,21 @@ func (wsc *WishlistSectionCreate) createSpec() (*WishlistSection, *sqlgraph.Crea
 		_spec.SetField(wishlistsection.FieldType, field.TypeEnum, value)
 		_node.Type = value
 	}
-	if value, ok := wsc.mutation.TextValue(); ok {
-		_spec.SetField(wishlistsection.FieldTextValue, field.TypeString, value)
-		_node.TextValue = value
+	if value, ok := wsc.mutation.Value(); ok {
+		_spec.SetField(wishlistsection.FieldValue, field.TypeString, value)
+		_node.Value = value
 	}
 	if value, ok := wsc.mutation.CreatedAt(); ok {
 		_spec.SetField(wishlistsection.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := wsc.mutation.WishlistID(); ok {
+		_spec.SetField(wishlistsection.FieldWishlistID, field.TypeUUID, value)
+		_node.WishlistID = value
+	}
+	if value, ok := wsc.mutation.TemplateSectionID(); ok {
+		_spec.SetField(wishlistsection.FieldTemplateSectionID, field.TypeUUID, value)
+		_node.TemplateSectionID = value
 	}
 	return _node, _spec
 }

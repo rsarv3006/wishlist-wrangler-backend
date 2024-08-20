@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // WishlistSectionUpdate is the builder for updating WishlistSection entities.
@@ -41,16 +42,44 @@ func (wsu *WishlistSectionUpdate) SetNillableType(w *wishlistsection.Type) *Wish
 	return wsu
 }
 
-// SetTextValue sets the "textValue" field.
-func (wsu *WishlistSectionUpdate) SetTextValue(s string) *WishlistSectionUpdate {
-	wsu.mutation.SetTextValue(s)
+// SetValue sets the "value" field.
+func (wsu *WishlistSectionUpdate) SetValue(s string) *WishlistSectionUpdate {
+	wsu.mutation.SetValue(s)
 	return wsu
 }
 
-// SetNillableTextValue sets the "textValue" field if the given value is not nil.
-func (wsu *WishlistSectionUpdate) SetNillableTextValue(s *string) *WishlistSectionUpdate {
+// SetNillableValue sets the "value" field if the given value is not nil.
+func (wsu *WishlistSectionUpdate) SetNillableValue(s *string) *WishlistSectionUpdate {
 	if s != nil {
-		wsu.SetTextValue(*s)
+		wsu.SetValue(*s)
+	}
+	return wsu
+}
+
+// SetWishlistID sets the "wishlist_id" field.
+func (wsu *WishlistSectionUpdate) SetWishlistID(u uuid.UUID) *WishlistSectionUpdate {
+	wsu.mutation.SetWishlistID(u)
+	return wsu
+}
+
+// SetNillableWishlistID sets the "wishlist_id" field if the given value is not nil.
+func (wsu *WishlistSectionUpdate) SetNillableWishlistID(u *uuid.UUID) *WishlistSectionUpdate {
+	if u != nil {
+		wsu.SetWishlistID(*u)
+	}
+	return wsu
+}
+
+// SetTemplateSectionID sets the "template_section_id" field.
+func (wsu *WishlistSectionUpdate) SetTemplateSectionID(u uuid.UUID) *WishlistSectionUpdate {
+	wsu.mutation.SetTemplateSectionID(u)
+	return wsu
+}
+
+// SetNillableTemplateSectionID sets the "template_section_id" field if the given value is not nil.
+func (wsu *WishlistSectionUpdate) SetNillableTemplateSectionID(u *uuid.UUID) *WishlistSectionUpdate {
+	if u != nil {
+		wsu.SetTemplateSectionID(*u)
 	}
 	return wsu
 }
@@ -94,9 +123,9 @@ func (wsu *WishlistSectionUpdate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.type": %w`, err)}
 		}
 	}
-	if v, ok := wsu.mutation.TextValue(); ok {
-		if err := wishlistsection.TextValueValidator(v); err != nil {
-			return &ValidationError{Name: "textValue", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.textValue": %w`, err)}
+	if v, ok := wsu.mutation.Value(); ok {
+		if err := wishlistsection.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.value": %w`, err)}
 		}
 	}
 	return nil
@@ -117,8 +146,14 @@ func (wsu *WishlistSectionUpdate) sqlSave(ctx context.Context) (n int, err error
 	if value, ok := wsu.mutation.GetType(); ok {
 		_spec.SetField(wishlistsection.FieldType, field.TypeEnum, value)
 	}
-	if value, ok := wsu.mutation.TextValue(); ok {
-		_spec.SetField(wishlistsection.FieldTextValue, field.TypeString, value)
+	if value, ok := wsu.mutation.Value(); ok {
+		_spec.SetField(wishlistsection.FieldValue, field.TypeString, value)
+	}
+	if value, ok := wsu.mutation.WishlistID(); ok {
+		_spec.SetField(wishlistsection.FieldWishlistID, field.TypeUUID, value)
+	}
+	if value, ok := wsu.mutation.TemplateSectionID(); ok {
+		_spec.SetField(wishlistsection.FieldTemplateSectionID, field.TypeUUID, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, wsu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -154,16 +189,44 @@ func (wsuo *WishlistSectionUpdateOne) SetNillableType(w *wishlistsection.Type) *
 	return wsuo
 }
 
-// SetTextValue sets the "textValue" field.
-func (wsuo *WishlistSectionUpdateOne) SetTextValue(s string) *WishlistSectionUpdateOne {
-	wsuo.mutation.SetTextValue(s)
+// SetValue sets the "value" field.
+func (wsuo *WishlistSectionUpdateOne) SetValue(s string) *WishlistSectionUpdateOne {
+	wsuo.mutation.SetValue(s)
 	return wsuo
 }
 
-// SetNillableTextValue sets the "textValue" field if the given value is not nil.
-func (wsuo *WishlistSectionUpdateOne) SetNillableTextValue(s *string) *WishlistSectionUpdateOne {
+// SetNillableValue sets the "value" field if the given value is not nil.
+func (wsuo *WishlistSectionUpdateOne) SetNillableValue(s *string) *WishlistSectionUpdateOne {
 	if s != nil {
-		wsuo.SetTextValue(*s)
+		wsuo.SetValue(*s)
+	}
+	return wsuo
+}
+
+// SetWishlistID sets the "wishlist_id" field.
+func (wsuo *WishlistSectionUpdateOne) SetWishlistID(u uuid.UUID) *WishlistSectionUpdateOne {
+	wsuo.mutation.SetWishlistID(u)
+	return wsuo
+}
+
+// SetNillableWishlistID sets the "wishlist_id" field if the given value is not nil.
+func (wsuo *WishlistSectionUpdateOne) SetNillableWishlistID(u *uuid.UUID) *WishlistSectionUpdateOne {
+	if u != nil {
+		wsuo.SetWishlistID(*u)
+	}
+	return wsuo
+}
+
+// SetTemplateSectionID sets the "template_section_id" field.
+func (wsuo *WishlistSectionUpdateOne) SetTemplateSectionID(u uuid.UUID) *WishlistSectionUpdateOne {
+	wsuo.mutation.SetTemplateSectionID(u)
+	return wsuo
+}
+
+// SetNillableTemplateSectionID sets the "template_section_id" field if the given value is not nil.
+func (wsuo *WishlistSectionUpdateOne) SetNillableTemplateSectionID(u *uuid.UUID) *WishlistSectionUpdateOne {
+	if u != nil {
+		wsuo.SetTemplateSectionID(*u)
 	}
 	return wsuo
 }
@@ -220,9 +283,9 @@ func (wsuo *WishlistSectionUpdateOne) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.type": %w`, err)}
 		}
 	}
-	if v, ok := wsuo.mutation.TextValue(); ok {
-		if err := wishlistsection.TextValueValidator(v); err != nil {
-			return &ValidationError{Name: "textValue", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.textValue": %w`, err)}
+	if v, ok := wsuo.mutation.Value(); ok {
+		if err := wishlistsection.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.value": %w`, err)}
 		}
 	}
 	return nil
@@ -260,8 +323,14 @@ func (wsuo *WishlistSectionUpdateOne) sqlSave(ctx context.Context) (_node *Wishl
 	if value, ok := wsuo.mutation.GetType(); ok {
 		_spec.SetField(wishlistsection.FieldType, field.TypeEnum, value)
 	}
-	if value, ok := wsuo.mutation.TextValue(); ok {
-		_spec.SetField(wishlistsection.FieldTextValue, field.TypeString, value)
+	if value, ok := wsuo.mutation.Value(); ok {
+		_spec.SetField(wishlistsection.FieldValue, field.TypeString, value)
+	}
+	if value, ok := wsuo.mutation.WishlistID(); ok {
+		_spec.SetField(wishlistsection.FieldWishlistID, field.TypeUUID, value)
+	}
+	if value, ok := wsuo.mutation.TemplateSectionID(); ok {
+		_spec.SetField(wishlistsection.FieldTemplateSectionID, field.TypeUUID, value)
 	}
 	_node = &WishlistSection{config: wsuo.config}
 	_spec.Assign = _node.assignValues

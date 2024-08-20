@@ -45,7 +45,7 @@ func ValidateToken(signedToken string, ctx *fiber.Ctx) (*ent.User, error) {
 		signedToken,
 		&JWTClaims{},
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(jwtKey), nil
+			return jwtKey, nil
 		},
 	)
 

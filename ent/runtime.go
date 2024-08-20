@@ -105,18 +105,18 @@ func init() {
 	wishlist.DefaultID = wishlistDescID.Default.(func() uuid.UUID)
 	wishlistsectionFields := schema.WishlistSection{}.Fields()
 	_ = wishlistsectionFields
-	// wishlistsectionDescTextValue is the schema descriptor for textValue field.
-	wishlistsectionDescTextValue := wishlistsectionFields[2].Descriptor()
-	// wishlistsection.TextValueValidator is a validator for the "textValue" field. It is called by the builders before save.
-	wishlistsection.TextValueValidator = func() func(string) error {
-		validators := wishlistsectionDescTextValue.Validators
+	// wishlistsectionDescValue is the schema descriptor for value field.
+	wishlistsectionDescValue := wishlistsectionFields[2].Descriptor()
+	// wishlistsection.ValueValidator is a validator for the "value" field. It is called by the builders before save.
+	wishlistsection.ValueValidator = func() func(string) error {
+		validators := wishlistsectionDescValue.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
 		}
-		return func(textValue string) error {
+		return func(value string) error {
 			for _, fn := range fns {
-				if err := fn(textValue); err != nil {
+				if err := fn(value); err != nil {
 					return err
 				}
 			}
