@@ -21,6 +21,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldTemplateID holds the string denoting the template_id field in the database.
+	FieldTemplateID = "template_id"
 	// Table holds the table name of the wishlist in the database.
 	Table = "wishlists"
 )
@@ -31,6 +33,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldCreatedAt,
 	FieldStatus,
+	FieldTemplateID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -101,4 +104,9 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByTemplateID orders the results by the template_id field.
+func ByTemplateID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTemplateID, opts...).ToFunc()
 }

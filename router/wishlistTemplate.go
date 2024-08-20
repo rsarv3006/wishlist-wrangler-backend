@@ -14,4 +14,5 @@ func setUpWishlistTemplateRoutesV1(api fiber.Router, dbClient *ent.Client) {
 
 	wishlistTemplate.Post("/", handler.CreateWishlistTemplate(dbClient))
 	wishlistTemplate.Get("/ByUser", handler.GetWishlistTemplatesForUser(dbClient))
+	wishlistTemplate.Delete("/:templateId", handler.DeleteWishlistTemplate(dbClient))
 }

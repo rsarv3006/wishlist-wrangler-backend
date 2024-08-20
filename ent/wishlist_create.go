@@ -55,6 +55,12 @@ func (wc *WishlistCreate) SetNillableStatus(w *wishlist.Status) *WishlistCreate 
 	return wc
 }
 
+// SetTemplateID sets the "template_id" field.
+func (wc *WishlistCreate) SetTemplateID(u uuid.UUID) *WishlistCreate {
+	wc.mutation.SetTemplateID(u)
+	return wc
+}
+
 // SetID sets the "id" field.
 func (wc *WishlistCreate) SetID(u uuid.UUID) *WishlistCreate {
 	wc.mutation.SetID(u)
@@ -139,6 +145,9 @@ func (wc *WishlistCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Wishlist.status": %w`, err)}
 		}
 	}
+	if _, ok := wc.mutation.TemplateID(); !ok {
+		return &ValidationError{Name: "template_id", err: errors.New(`ent: missing required field "Wishlist.template_id"`)}
+	}
 	return nil
 }
 
@@ -185,6 +194,10 @@ func (wc *WishlistCreate) createSpec() (*Wishlist, *sqlgraph.CreateSpec) {
 	if value, ok := wc.mutation.Status(); ok {
 		_spec.SetField(wishlist.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
+	}
+	if value, ok := wc.mutation.TemplateID(); ok {
+		_spec.SetField(wishlist.FieldTemplateID, field.TypeUUID, value)
+		_node.TemplateID = value
 	}
 	return _node, _spec
 }

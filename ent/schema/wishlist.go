@@ -41,6 +41,7 @@ func (Wishlist) Fields() []ent.Field {
 		field.Enum("status").
 			Values(WishlistStatus...).
 			Default(WishlistStatusPending),
+		field.UUID("template_id", uuid.UUID{}),
 	}
 }
 

@@ -42,3 +42,23 @@ func GetWishlistTemplatesByUser(dbClient *ent.Client, userId uuid.UUID) ([]*ent.
 		).
 		All(context.Background())
 }
+
+func DeleteWishlistTemplate(dbClient *ent.Client, templateId uuid.UUID, currentUserId uuid.UUID) error {
+	template, err := dbClient.WishlistTemplate.Query().
+		Where(
+			wishlisttemplate.And(
+				wishlisttemplate.ID(templateId),
+				wishlisttemplate.CreatorID(currentUserId),
+			)).
+		Only(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	if err := dbClient.WishlistTemplate.DeleteOneID(template.ID).Exec(context.Background()); err != nil {
+		return err
+	}
+
+	return nil
+}

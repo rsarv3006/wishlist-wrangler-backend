@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"wishlist-wrangler-api/dto"
 	"wishlist-wrangler-api/ent"
 	"wishlist-wrangler-api/helper"
@@ -96,4 +97,38 @@ func matchSectionsToTemplates(sections []*ent.WishlistTemplateSection, templateI
 	}
 
 	return result
+}
+
+func DeleteWishlistTemplate(dbClient *ent.Client) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		currentUser := c.Locals("currentUser").(*ent.User)
+
+		templateId, err := uuid.Parse(c.Params("templateId"))
+
+		if err != nil {
+			return sendBadRequestResponse(c, err, "Failed to parse template id")
+		}
+
+		wishlistsUsingTemplate, err := repository.GetWishlistsByTemplate(dbClient, templateId)
+
+		if err != nil {
+			return err
+		}
+
+		if len(wishlistsUsingTemplate) > 0 {
+			return sendBadRequestResponse(c, nil, "Template is in use by one or more wishlists")
+		}
+
+		if err := repository.DeleteWishlistTemplate(dbClient, templateId, currentUser.ID); err != nil {
+			return sendBadRequestResponse(c, err, "Failed to delete wishlist template")
+		}
+
+		if err := repository.DeleteTemplateSectionsForTemplate(context.Background(), dbClient, templateId); err != nil {
+			return sendBadRequestResponse(c, err, "Failed to delete wishlist template sections")
+		}
+
+		return c.Status(fiber.StatusNoContent).JSON(fiber.Map{
+			"message": "Wishlist template deleted",
+		})
+	}
 }

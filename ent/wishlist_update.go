@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // WishlistUpdate is the builder for updating Wishlist entities.
@@ -51,6 +52,20 @@ func (wu *WishlistUpdate) SetStatus(w wishlist.Status) *WishlistUpdate {
 func (wu *WishlistUpdate) SetNillableStatus(w *wishlist.Status) *WishlistUpdate {
 	if w != nil {
 		wu.SetStatus(*w)
+	}
+	return wu
+}
+
+// SetTemplateID sets the "template_id" field.
+func (wu *WishlistUpdate) SetTemplateID(u uuid.UUID) *WishlistUpdate {
+	wu.mutation.SetTemplateID(u)
+	return wu
+}
+
+// SetNillableTemplateID sets the "template_id" field if the given value is not nil.
+func (wu *WishlistUpdate) SetNillableTemplateID(u *uuid.UUID) *WishlistUpdate {
+	if u != nil {
+		wu.SetTemplateID(*u)
 	}
 	return wu
 }
@@ -120,6 +135,9 @@ func (wu *WishlistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := wu.mutation.Status(); ok {
 		_spec.SetField(wishlist.FieldStatus, field.TypeEnum, value)
 	}
+	if value, ok := wu.mutation.TemplateID(); ok {
+		_spec.SetField(wishlist.FieldTemplateID, field.TypeUUID, value)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, wu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{wishlist.Label}
@@ -164,6 +182,20 @@ func (wuo *WishlistUpdateOne) SetStatus(w wishlist.Status) *WishlistUpdateOne {
 func (wuo *WishlistUpdateOne) SetNillableStatus(w *wishlist.Status) *WishlistUpdateOne {
 	if w != nil {
 		wuo.SetStatus(*w)
+	}
+	return wuo
+}
+
+// SetTemplateID sets the "template_id" field.
+func (wuo *WishlistUpdateOne) SetTemplateID(u uuid.UUID) *WishlistUpdateOne {
+	wuo.mutation.SetTemplateID(u)
+	return wuo
+}
+
+// SetNillableTemplateID sets the "template_id" field if the given value is not nil.
+func (wuo *WishlistUpdateOne) SetNillableTemplateID(u *uuid.UUID) *WishlistUpdateOne {
+	if u != nil {
+		wuo.SetTemplateID(*u)
 	}
 	return wuo
 }
@@ -262,6 +294,9 @@ func (wuo *WishlistUpdateOne) sqlSave(ctx context.Context) (_node *Wishlist, err
 	}
 	if value, ok := wuo.mutation.Status(); ok {
 		_spec.SetField(wishlist.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := wuo.mutation.TemplateID(); ok {
+		_spec.SetField(wishlist.FieldTemplateID, field.TypeUUID, value)
 	}
 	_node = &Wishlist{config: wuo.config}
 	_spec.Assign = _node.assignValues

@@ -58,3 +58,27 @@ func GetWishlistTemplateSectionsForTemplateArray(dbClient *ent.Client, templateI
 	}
 	return sections, nil
 }
+
+func DeleteWishlistTemplateSection(ctx context.Context, dbClient *ent.Client, sectionId uuid.UUID) error {
+	return dbClient.WishlistTemplateSection.DeleteOneID(sectionId).Exec(ctx)
+}
+
+func DeleteWishlistTemplateSections(ctx context.Context, dbClient *ent.Client, sectionIds []uuid.UUID) error {
+	if len(sectionIds) == 0 {
+		return nil
+	}
+
+	_, err := dbClient.WishlistTemplateSection.Delete().
+		Where(wishlisttemplatesection.IDIn(sectionIds...)).
+		Exec(ctx)
+
+	return err
+}
+
+func DeleteTemplateSectionsForTemplate(ctx context.Context, dbClient *ent.Client, templateId uuid.UUID) error {
+	_, err := dbClient.WishlistTemplateSection.Delete().
+		Where(wishlisttemplatesection.WishlistTemplateID(templateId)).
+		Exec(ctx)
+
+	return err
+}

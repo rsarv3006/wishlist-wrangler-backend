@@ -65,6 +65,11 @@ func CreatedAt(v time.Time) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldEQ(FieldCreatedAt, v))
 }
 
+// TemplateID applies equality check predicate on the "template_id" field. It's identical to TemplateIDEQ.
+func TemplateID(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldEQ(FieldTemplateID, v))
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldEQ(FieldTitle, v))
@@ -188,6 +193,46 @@ func StatusIn(vs ...Status) predicate.Wishlist {
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.Wishlist {
 	return predicate.Wishlist(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// TemplateIDEQ applies the EQ predicate on the "template_id" field.
+func TemplateIDEQ(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldEQ(FieldTemplateID, v))
+}
+
+// TemplateIDNEQ applies the NEQ predicate on the "template_id" field.
+func TemplateIDNEQ(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldNEQ(FieldTemplateID, v))
+}
+
+// TemplateIDIn applies the In predicate on the "template_id" field.
+func TemplateIDIn(vs ...uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldIn(FieldTemplateID, vs...))
+}
+
+// TemplateIDNotIn applies the NotIn predicate on the "template_id" field.
+func TemplateIDNotIn(vs ...uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldNotIn(FieldTemplateID, vs...))
+}
+
+// TemplateIDGT applies the GT predicate on the "template_id" field.
+func TemplateIDGT(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldGT(FieldTemplateID, v))
+}
+
+// TemplateIDGTE applies the GTE predicate on the "template_id" field.
+func TemplateIDGTE(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldGTE(FieldTemplateID, v))
+}
+
+// TemplateIDLT applies the LT predicate on the "template_id" field.
+func TemplateIDLT(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldLT(FieldTemplateID, v))
+}
+
+// TemplateIDLTE applies the LTE predicate on the "template_id" field.
+func TemplateIDLTE(v uuid.UUID) predicate.Wishlist {
+	return predicate.Wishlist(sql.FieldLTE(FieldTemplateID, v))
 }
 
 // And groups predicates with the AND operator between them.
