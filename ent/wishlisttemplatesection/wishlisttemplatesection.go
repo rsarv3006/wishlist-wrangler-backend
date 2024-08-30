@@ -3,6 +3,7 @@
 package wishlisttemplatesection
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -20,10 +21,10 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldWishlistTemplateID holds the string denoting the wishlist_template_id field in the database.
 	FieldWishlistTemplateID = "wishlist_template_id"
-	// FieldType holds the string denoting the type field in the database.
-	FieldType = "type"
 	// FieldSectionId holds the string denoting the sectionid field in the database.
 	FieldSectionId = "section_id"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// Table holds the table name of the wishlisttemplatesection in the database.
 	Table = "wishlist_template_sections"
 )
@@ -34,8 +35,8 @@ var Columns = []string{
 	FieldTitle,
 	FieldCreatedAt,
 	FieldWishlistTemplateID,
-	FieldType,
 	FieldSectionId,
+	FieldType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -53,13 +54,36 @@ var (
 	TitleValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
-	// TypeValidator is a validator for the "type" field. It is called by the builders before save.
-	TypeValidator func(string) error
 	// SectionIdValidator is a validator for the "sectionId" field. It is called by the builders before save.
 	SectionIdValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
+
+// Type defines the type for the "type" enum field.
+type Type string
+
+// Type values.
+const (
+	TypeTEXT  Type = "TEXT"
+	TypeIMAGE Type = "IMAGE"
+	TypeVIDEO Type = "VIDEO"
+	TypeLINK  Type = "LINK"
+)
+
+func (_type Type) String() string {
+	return string(_type)
+}
+
+// TypeValidator is a validator for the "type" field enum values. It is called by the builders before save.
+func TypeValidator(_type Type) error {
+	switch _type {
+	case TypeTEXT, TypeIMAGE, TypeVIDEO, TypeLINK:
+		return nil
+	default:
+		return fmt.Errorf("wishlisttemplatesection: invalid enum value for type field: %q", _type)
+	}
+}
 
 // OrderOption defines the ordering options for the WishlistTemplateSection queries.
 type OrderOption func(*sql.Selector)
@@ -84,12 +108,12 @@ func ByWishlistTemplateID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWishlistTemplateID, opts...).ToFunc()
 }
 
-// ByType orders the results by the type field.
-func ByType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldType, opts...).ToFunc()
-}
-
 // BySectionId orders the results by the sectionId field.
 func BySectionId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSectionId, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
 }

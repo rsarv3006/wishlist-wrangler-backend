@@ -75,26 +75,6 @@ func TemplateSectionID(v uuid.UUID) predicate.WishlistSection {
 	return predicate.WishlistSection(sql.FieldEQ(FieldTemplateSectionID, v))
 }
 
-// TypeEQ applies the EQ predicate on the "type" field.
-func TypeEQ(v Type) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldEQ(FieldType, v))
-}
-
-// TypeNEQ applies the NEQ predicate on the "type" field.
-func TypeNEQ(v Type) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldNEQ(FieldType, v))
-}
-
-// TypeIn applies the In predicate on the "type" field.
-func TypeIn(vs ...Type) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldIn(FieldType, vs...))
-}
-
-// TypeNotIn applies the NotIn predicate on the "type" field.
-func TypeNotIn(vs ...Type) predicate.WishlistSection {
-	return predicate.WishlistSection(sql.FieldNotIn(FieldType, vs...))
-}
-
 // ValueEQ applies the EQ predicate on the "value" field.
 func ValueEQ(v string) predicate.WishlistSection {
 	return predicate.WishlistSection(sql.FieldEQ(FieldValue, v))

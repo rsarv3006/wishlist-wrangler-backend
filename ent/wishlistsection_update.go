@@ -28,20 +28,6 @@ func (wsu *WishlistSectionUpdate) Where(ps ...predicate.WishlistSection) *Wishli
 	return wsu
 }
 
-// SetType sets the "type" field.
-func (wsu *WishlistSectionUpdate) SetType(w wishlistsection.Type) *WishlistSectionUpdate {
-	wsu.mutation.SetType(w)
-	return wsu
-}
-
-// SetNillableType sets the "type" field if the given value is not nil.
-func (wsu *WishlistSectionUpdate) SetNillableType(w *wishlistsection.Type) *WishlistSectionUpdate {
-	if w != nil {
-		wsu.SetType(*w)
-	}
-	return wsu
-}
-
 // SetValue sets the "value" field.
 func (wsu *WishlistSectionUpdate) SetValue(s string) *WishlistSectionUpdate {
 	wsu.mutation.SetValue(s)
@@ -118,11 +104,6 @@ func (wsu *WishlistSectionUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (wsu *WishlistSectionUpdate) check() error {
-	if v, ok := wsu.mutation.GetType(); ok {
-		if err := wishlistsection.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.type": %w`, err)}
-		}
-	}
 	if v, ok := wsu.mutation.Value(); ok {
 		if err := wishlistsection.ValueValidator(v); err != nil {
 			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.value": %w`, err)}
@@ -142,9 +123,6 @@ func (wsu *WishlistSectionUpdate) sqlSave(ctx context.Context) (n int, err error
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := wsu.mutation.GetType(); ok {
-		_spec.SetField(wishlistsection.FieldType, field.TypeEnum, value)
 	}
 	if value, ok := wsu.mutation.Value(); ok {
 		_spec.SetField(wishlistsection.FieldValue, field.TypeString, value)
@@ -173,20 +151,6 @@ type WishlistSectionUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *WishlistSectionMutation
-}
-
-// SetType sets the "type" field.
-func (wsuo *WishlistSectionUpdateOne) SetType(w wishlistsection.Type) *WishlistSectionUpdateOne {
-	wsuo.mutation.SetType(w)
-	return wsuo
-}
-
-// SetNillableType sets the "type" field if the given value is not nil.
-func (wsuo *WishlistSectionUpdateOne) SetNillableType(w *wishlistsection.Type) *WishlistSectionUpdateOne {
-	if w != nil {
-		wsuo.SetType(*w)
-	}
-	return wsuo
 }
 
 // SetValue sets the "value" field.
@@ -278,11 +242,6 @@ func (wsuo *WishlistSectionUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (wsuo *WishlistSectionUpdateOne) check() error {
-	if v, ok := wsuo.mutation.GetType(); ok {
-		if err := wishlistsection.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.type": %w`, err)}
-		}
-	}
 	if v, ok := wsuo.mutation.Value(); ok {
 		if err := wishlistsection.ValueValidator(v); err != nil {
 			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.value": %w`, err)}
@@ -319,9 +278,6 @@ func (wsuo *WishlistSectionUpdateOne) sqlSave(ctx context.Context) (_node *Wishl
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := wsuo.mutation.GetType(); ok {
-		_spec.SetField(wishlistsection.FieldType, field.TypeEnum, value)
 	}
 	if value, ok := wsuo.mutation.Value(); ok {
 		_spec.SetField(wishlistsection.FieldValue, field.TypeString, value)

@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"wishlist-wrangler-api/ent/wishlistsection"
-
 	"github.com/google/uuid"
 )
 
@@ -13,7 +11,6 @@ type CreateWishlistDto struct {
 }
 
 type CreateWishlistSectionDto struct {
-	Type              wishlistsection.Type `json:"type"`
-	Value             string               `json:"value"`
-	TemplateSectionId uuid.UUID            `json:"templateSectionId"`
+	Value             string    `json:"value"`
+	TemplateSectionId uuid.UUID `json:"templateSectionId"`
 }

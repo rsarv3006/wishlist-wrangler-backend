@@ -18,8 +18,6 @@ type WishlistSection struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
-	// Type holds the value of the "type" field.
-	Type wishlistsection.Type `json:"type,omitempty"`
 	// Value holds the value of the "value" field.
 	Value string `json:"value,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -36,7 +34,7 @@ func (*WishlistSection) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case wishlistsection.FieldType, wishlistsection.FieldValue:
+		case wishlistsection.FieldValue:
 			values[i] = new(sql.NullString)
 		case wishlistsection.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -62,12 +60,6 @@ func (ws *WishlistSection) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				ws.ID = *value
-			}
-		case wishlistsection.FieldType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field type", values[i])
-			} else if value.Valid {
-				ws.Type = wishlistsection.Type(value.String)
 			}
 		case wishlistsection.FieldValue:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -129,9 +121,6 @@ func (ws *WishlistSection) String() string {
 	var builder strings.Builder
 	builder.WriteString("WishlistSection(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", ws.ID))
-	builder.WriteString("type=")
-	builder.WriteString(fmt.Sprintf("%v", ws.Type))
-	builder.WriteString(", ")
 	builder.WriteString("value=")
 	builder.WriteString(ws.Value)
 	builder.WriteString(", ")

@@ -3,7 +3,6 @@
 package wishlistsection
 
 import (
-	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -15,8 +14,6 @@ const (
 	Label = "wishlist_section"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldType holds the string denoting the type field in the database.
-	FieldType = "type"
 	// FieldValue holds the string denoting the value field in the database.
 	FieldValue = "value"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -32,7 +29,6 @@ const (
 // Columns holds all SQL columns for wishlistsection fields.
 var Columns = []string{
 	FieldID,
-	FieldType,
 	FieldValue,
 	FieldCreatedAt,
 	FieldWishlistID,
@@ -58,42 +54,12 @@ var (
 	DefaultID func() uuid.UUID
 )
 
-// Type defines the type for the "type" enum field.
-type Type string
-
-// Type values.
-const (
-	TypeTEXT  Type = "TEXT"
-	TypeIMAGE Type = "IMAGE"
-	TypeVIDEO Type = "VIDEO"
-	TypeLINK  Type = "LINK"
-)
-
-func (_type Type) String() string {
-	return string(_type)
-}
-
-// TypeValidator is a validator for the "type" field enum values. It is called by the builders before save.
-func TypeValidator(_type Type) error {
-	switch _type {
-	case TypeTEXT, TypeIMAGE, TypeVIDEO, TypeLINK:
-		return nil
-	default:
-		return fmt.Errorf("wishlistsection: invalid enum value for type field: %q", _type)
-	}
-}
-
 // OrderOption defines the ordering options for the WishlistSection queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByType orders the results by the type field.
-func ByType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
 // ByValue orders the results by the value field.

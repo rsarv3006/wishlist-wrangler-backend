@@ -106,7 +106,7 @@ func init() {
 	wishlistsectionFields := schema.WishlistSection{}.Fields()
 	_ = wishlistsectionFields
 	// wishlistsectionDescValue is the schema descriptor for value field.
-	wishlistsectionDescValue := wishlistsectionFields[2].Descriptor()
+	wishlistsectionDescValue := wishlistsectionFields[1].Descriptor()
 	// wishlistsection.ValueValidator is a validator for the "value" field. It is called by the builders before save.
 	wishlistsection.ValueValidator = func() func(string) error {
 		validators := wishlistsectionDescValue.Validators
@@ -124,7 +124,7 @@ func init() {
 		}
 	}()
 	// wishlistsectionDescCreatedAt is the schema descriptor for created_at field.
-	wishlistsectionDescCreatedAt := wishlistsectionFields[3].Descriptor()
+	wishlistsectionDescCreatedAt := wishlistsectionFields[2].Descriptor()
 	// wishlistsection.DefaultCreatedAt holds the default value on creation for the created_at field.
 	wishlistsection.DefaultCreatedAt = wishlistsectionDescCreatedAt.Default.(func() time.Time)
 	// wishlistsectionDescID is the schema descriptor for id field.
@@ -187,26 +187,8 @@ func init() {
 	wishlisttemplatesectionDescCreatedAt := wishlisttemplatesectionFields[2].Descriptor()
 	// wishlisttemplatesection.DefaultCreatedAt holds the default value on creation for the created_at field.
 	wishlisttemplatesection.DefaultCreatedAt = wishlisttemplatesectionDescCreatedAt.Default.(func() time.Time)
-	// wishlisttemplatesectionDescType is the schema descriptor for type field.
-	wishlisttemplatesectionDescType := wishlisttemplatesectionFields[4].Descriptor()
-	// wishlisttemplatesection.TypeValidator is a validator for the "type" field. It is called by the builders before save.
-	wishlisttemplatesection.TypeValidator = func() func(string) error {
-		validators := wishlisttemplatesectionDescType.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(_type string) error {
-			for _, fn := range fns {
-				if err := fn(_type); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	// wishlisttemplatesectionDescSectionId is the schema descriptor for sectionId field.
-	wishlisttemplatesectionDescSectionId := wishlisttemplatesectionFields[5].Descriptor()
+	wishlisttemplatesectionDescSectionId := wishlisttemplatesectionFields[4].Descriptor()
 	// wishlisttemplatesection.SectionIdValidator is a validator for the "sectionId" field. It is called by the builders before save.
 	wishlisttemplatesection.SectionIdValidator = func() func(string) error {
 		validators := wishlisttemplatesectionDescSectionId.Validators

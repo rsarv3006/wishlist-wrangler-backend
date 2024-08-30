@@ -24,10 +24,10 @@ type WishlistTemplateSection struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// WishlistTemplateID holds the value of the "wishlist_template_id" field.
 	WishlistTemplateID uuid.UUID `json:"wishlist_template_id,omitempty"`
-	// Type holds the value of the "type" field.
-	Type string `json:"type,omitempty"`
 	// SectionId holds the value of the "sectionId" field.
-	SectionId    string `json:"sectionId,omitempty"`
+	SectionId string `json:"sectionId,omitempty"`
+	// Type holds the value of the "type" field.
+	Type         wishlisttemplatesection.Type `json:"type,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -36,7 +36,7 @@ func (*WishlistTemplateSection) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case wishlisttemplatesection.FieldTitle, wishlisttemplatesection.FieldType, wishlisttemplatesection.FieldSectionId:
+		case wishlisttemplatesection.FieldTitle, wishlisttemplatesection.FieldSectionId, wishlisttemplatesection.FieldType:
 			values[i] = new(sql.NullString)
 		case wishlisttemplatesection.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -81,17 +81,17 @@ func (wts *WishlistTemplateSection) assignValues(columns []string, values []any)
 			} else if value != nil {
 				wts.WishlistTemplateID = *value
 			}
-		case wishlisttemplatesection.FieldType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field type", values[i])
-			} else if value.Valid {
-				wts.Type = value.String
-			}
 		case wishlisttemplatesection.FieldSectionId:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field sectionId", values[i])
 			} else if value.Valid {
 				wts.SectionId = value.String
+			}
+		case wishlisttemplatesection.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				wts.Type = wishlisttemplatesection.Type(value.String)
 			}
 		default:
 			wts.selectValues.Set(columns[i], values[i])
@@ -138,11 +138,11 @@ func (wts *WishlistTemplateSection) String() string {
 	builder.WriteString("wishlist_template_id=")
 	builder.WriteString(fmt.Sprintf("%v", wts.WishlistTemplateID))
 	builder.WriteString(", ")
-	builder.WriteString("type=")
-	builder.WriteString(wts.Type)
-	builder.WriteString(", ")
 	builder.WriteString("sectionId=")
 	builder.WriteString(wts.SectionId)
+	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(fmt.Sprintf("%v", wts.Type))
 	builder.WriteByte(')')
 	return builder.String()
 }

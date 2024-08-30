@@ -55,7 +55,6 @@ var (
 	// WishlistSectionsColumns holds the columns for the "wishlist_sections" table.
 	WishlistSectionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
-		{Name: "type", Type: field.TypeEnum, Enums: []string{"TEXT", "IMAGE", "VIDEO", "LINK"}},
 		{Name: "value", Type: field.TypeString, Size: 6144},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "wishlist_id", Type: field.TypeUUID},
@@ -88,8 +87,8 @@ var (
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "wishlist_template_id", Type: field.TypeUUID},
-		{Name: "type", Type: field.TypeString, Size: 255},
 		{Name: "section_id", Type: field.TypeString, Size: 255},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"TEXT", "IMAGE", "VIDEO", "LINK"}},
 	}
 	// WishlistTemplateSectionsTable holds the schema information for the "wishlist_template_sections" table.
 	WishlistTemplateSectionsTable = &schema.Table{

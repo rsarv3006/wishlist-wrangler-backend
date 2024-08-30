@@ -8,6 +8,20 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	WishlistTemplateSectionTypeText  = "TEXT"
+	WishlistTemplateSectionTypeImage = "IMAGE"
+	WishlistTemplateSectionTypeVideo = "VIDEO"
+	WishlistTemplateSectionTypeLink  = "LINK"
+)
+
+var WishlistTemplateSectionTypeVariant = []string{
+	WishlistTemplateSectionTypeText,
+	WishlistTemplateSectionTypeImage,
+	WishlistTemplateSectionTypeVideo,
+	WishlistTemplateSectionTypeLink,
+}
+
 // WishlistTemplateSection holds the schema definition for the WishlistTemplateSection entity.
 type WishlistTemplateSection struct {
 	ent.Schema
@@ -25,12 +39,11 @@ func (WishlistTemplateSection) Fields() []ent.Field {
 			Default(time.Now).
 			Immutable(),
 		field.UUID("wishlist_template_id", uuid.UUID{}),
-		field.String("type").
-			MaxLen(255).
-			NotEmpty(),
 		field.String("sectionId").
 			MaxLen(255).
 			NotEmpty(),
+		field.Enum("type").
+			Values(WishlistTemplateSectionTypeVariant...),
 	}
 }
 

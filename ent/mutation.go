@@ -1634,7 +1634,6 @@ type WishlistSectionMutation struct {
 	op                  Op
 	typ                 string
 	id                  *uuid.UUID
-	_type               *wishlistsection.Type
 	value               *string
 	created_at          *time.Time
 	wishlist_id         *uuid.UUID
@@ -1747,42 +1746,6 @@ func (m *WishlistSectionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) 
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetType sets the "type" field.
-func (m *WishlistSectionMutation) SetType(w wishlistsection.Type) {
-	m._type = &w
-}
-
-// GetType returns the value of the "type" field in the mutation.
-func (m *WishlistSectionMutation) GetType() (r wishlistsection.Type, exists bool) {
-	v := m._type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldType returns the old "type" field's value of the WishlistSection entity.
-// If the WishlistSection object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *WishlistSectionMutation) OldType(ctx context.Context) (v wishlistsection.Type, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldType: %w", err)
-	}
-	return oldValue.Type, nil
-}
-
-// ResetType resets all changes to the "type" field.
-func (m *WishlistSectionMutation) ResetType() {
-	m._type = nil
 }
 
 // SetValue sets the "value" field.
@@ -1963,10 +1926,7 @@ func (m *WishlistSectionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *WishlistSectionMutation) Fields() []string {
-	fields := make([]string, 0, 5)
-	if m._type != nil {
-		fields = append(fields, wishlistsection.FieldType)
-	}
+	fields := make([]string, 0, 4)
 	if m.value != nil {
 		fields = append(fields, wishlistsection.FieldValue)
 	}
@@ -1987,8 +1947,6 @@ func (m *WishlistSectionMutation) Fields() []string {
 // schema.
 func (m *WishlistSectionMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case wishlistsection.FieldType:
-		return m.GetType()
 	case wishlistsection.FieldValue:
 		return m.Value()
 	case wishlistsection.FieldCreatedAt:
@@ -2006,8 +1964,6 @@ func (m *WishlistSectionMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *WishlistSectionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case wishlistsection.FieldType:
-		return m.OldType(ctx)
 	case wishlistsection.FieldValue:
 		return m.OldValue(ctx)
 	case wishlistsection.FieldCreatedAt:
@@ -2025,13 +1981,6 @@ func (m *WishlistSectionMutation) OldField(ctx context.Context, name string) (en
 // type.
 func (m *WishlistSectionMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case wishlistsection.FieldType:
-		v, ok := value.(wishlistsection.Type)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetType(v)
-		return nil
 	case wishlistsection.FieldValue:
 		v, ok := value.(string)
 		if !ok {
@@ -2109,9 +2058,6 @@ func (m *WishlistSectionMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *WishlistSectionMutation) ResetField(name string) error {
 	switch name {
-	case wishlistsection.FieldType:
-		m.ResetType()
-		return nil
 	case wishlistsection.FieldValue:
 		m.ResetValue()
 		return nil
@@ -2733,8 +2679,8 @@ type WishlistTemplateSectionMutation struct {
 	title                *string
 	created_at           *time.Time
 	wishlist_template_id *uuid.UUID
-	_type                *string
 	sectionId            *string
+	_type                *wishlisttemplatesection.Type
 	clearedFields        map[string]struct{}
 	done                 bool
 	oldValue             func(context.Context) (*WishlistTemplateSection, error)
@@ -2953,42 +2899,6 @@ func (m *WishlistTemplateSectionMutation) ResetWishlistTemplateID() {
 	m.wishlist_template_id = nil
 }
 
-// SetType sets the "type" field.
-func (m *WishlistTemplateSectionMutation) SetType(s string) {
-	m._type = &s
-}
-
-// GetType returns the value of the "type" field in the mutation.
-func (m *WishlistTemplateSectionMutation) GetType() (r string, exists bool) {
-	v := m._type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldType returns the old "type" field's value of the WishlistTemplateSection entity.
-// If the WishlistTemplateSection object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *WishlistTemplateSectionMutation) OldType(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldType: %w", err)
-	}
-	return oldValue.Type, nil
-}
-
-// ResetType resets all changes to the "type" field.
-func (m *WishlistTemplateSectionMutation) ResetType() {
-	m._type = nil
-}
-
 // SetSectionId sets the "sectionId" field.
 func (m *WishlistTemplateSectionMutation) SetSectionId(s string) {
 	m.sectionId = &s
@@ -3023,6 +2933,42 @@ func (m *WishlistTemplateSectionMutation) OldSectionId(ctx context.Context) (v s
 // ResetSectionId resets all changes to the "sectionId" field.
 func (m *WishlistTemplateSectionMutation) ResetSectionId() {
 	m.sectionId = nil
+}
+
+// SetType sets the "type" field.
+func (m *WishlistTemplateSectionMutation) SetType(w wishlisttemplatesection.Type) {
+	m._type = &w
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *WishlistTemplateSectionMutation) GetType() (r wishlisttemplatesection.Type, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the WishlistTemplateSection entity.
+// If the WishlistTemplateSection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistTemplateSectionMutation) OldType(ctx context.Context) (v wishlisttemplatesection.Type, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *WishlistTemplateSectionMutation) ResetType() {
+	m._type = nil
 }
 
 // Where appends a list predicates to the WishlistTemplateSectionMutation builder.
@@ -3069,11 +3015,11 @@ func (m *WishlistTemplateSectionMutation) Fields() []string {
 	if m.wishlist_template_id != nil {
 		fields = append(fields, wishlisttemplatesection.FieldWishlistTemplateID)
 	}
-	if m._type != nil {
-		fields = append(fields, wishlisttemplatesection.FieldType)
-	}
 	if m.sectionId != nil {
 		fields = append(fields, wishlisttemplatesection.FieldSectionId)
+	}
+	if m._type != nil {
+		fields = append(fields, wishlisttemplatesection.FieldType)
 	}
 	return fields
 }
@@ -3089,10 +3035,10 @@ func (m *WishlistTemplateSectionMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case wishlisttemplatesection.FieldWishlistTemplateID:
 		return m.WishlistTemplateID()
-	case wishlisttemplatesection.FieldType:
-		return m.GetType()
 	case wishlisttemplatesection.FieldSectionId:
 		return m.SectionId()
+	case wishlisttemplatesection.FieldType:
+		return m.GetType()
 	}
 	return nil, false
 }
@@ -3108,10 +3054,10 @@ func (m *WishlistTemplateSectionMutation) OldField(ctx context.Context, name str
 		return m.OldCreatedAt(ctx)
 	case wishlisttemplatesection.FieldWishlistTemplateID:
 		return m.OldWishlistTemplateID(ctx)
-	case wishlisttemplatesection.FieldType:
-		return m.OldType(ctx)
 	case wishlisttemplatesection.FieldSectionId:
 		return m.OldSectionId(ctx)
+	case wishlisttemplatesection.FieldType:
+		return m.OldType(ctx)
 	}
 	return nil, fmt.Errorf("unknown WishlistTemplateSection field %s", name)
 }
@@ -3142,19 +3088,19 @@ func (m *WishlistTemplateSectionMutation) SetField(name string, value ent.Value)
 		}
 		m.SetWishlistTemplateID(v)
 		return nil
-	case wishlisttemplatesection.FieldType:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetType(v)
-		return nil
 	case wishlisttemplatesection.FieldSectionId:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSectionId(v)
+		return nil
+	case wishlisttemplatesection.FieldType:
+		v, ok := value.(wishlisttemplatesection.Type)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
 		return nil
 	}
 	return fmt.Errorf("unknown WishlistTemplateSection field %s", name)
@@ -3214,11 +3160,11 @@ func (m *WishlistTemplateSectionMutation) ResetField(name string) error {
 	case wishlisttemplatesection.FieldWishlistTemplateID:
 		m.ResetWishlistTemplateID()
 		return nil
-	case wishlisttemplatesection.FieldType:
-		m.ResetType()
-		return nil
 	case wishlisttemplatesection.FieldSectionId:
 		m.ResetSectionId()
+		return nil
+	case wishlisttemplatesection.FieldType:
+		m.ResetType()
 		return nil
 	}
 	return fmt.Errorf("unknown WishlistTemplateSection field %s", name)

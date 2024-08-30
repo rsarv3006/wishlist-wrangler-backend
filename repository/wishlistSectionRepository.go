@@ -11,7 +11,6 @@ import (
 
 func CreateWishlistSection(dbClient *ent.Client, createWishlistSectionDto *dto.CreateWishlistSectionDto, wishlistId uuid.UUID) (*ent.WishlistSection, error) {
 	return dbClient.WishlistSection.Create().
-		SetType(createWishlistSectionDto.Type).
 		SetValue(createWishlistSectionDto.Value).
 		SetWishlistID(wishlistId).
 		SetTemplateSectionID(createWishlistSectionDto.TemplateSectionId).

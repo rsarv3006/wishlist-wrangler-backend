@@ -263,12 +263,12 @@ func (wsq *WishlistSectionQuery) Clone() *WishlistSectionQuery {
 // Example:
 //
 //	var v []struct {
-//		Type wishlistsection.Type `json:"type,omitempty"`
+//		Value string `json:"value,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.WishlistSection.Query().
-//		GroupBy(wishlistsection.FieldType).
+//		GroupBy(wishlistsection.FieldValue).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (wsq *WishlistSectionQuery) GroupBy(field string, fields ...string) *WishlistSectionGroupBy {
@@ -286,11 +286,11 @@ func (wsq *WishlistSectionQuery) GroupBy(field string, fields ...string) *Wishli
 // Example:
 //
 //	var v []struct {
-//		Type wishlistsection.Type `json:"type,omitempty"`
+//		Value string `json:"value,omitempty"`
 //	}
 //
 //	client.WishlistSection.Query().
-//		Select(wishlistsection.FieldType).
+//		Select(wishlistsection.FieldValue).
 //		Scan(ctx, &v)
 func (wsq *WishlistSectionQuery) Select(fields ...string) *WishlistSectionSelect {
 	wsq.ctx.Fields = append(wsq.ctx.Fields, fields...)

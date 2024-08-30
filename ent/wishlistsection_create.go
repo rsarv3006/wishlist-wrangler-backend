@@ -21,12 +21,6 @@ type WishlistSectionCreate struct {
 	hooks    []Hook
 }
 
-// SetType sets the "type" field.
-func (wsc *WishlistSectionCreate) SetType(w wishlistsection.Type) *WishlistSectionCreate {
-	wsc.mutation.SetType(w)
-	return wsc
-}
-
 // SetValue sets the "value" field.
 func (wsc *WishlistSectionCreate) SetValue(s string) *WishlistSectionCreate {
 	wsc.mutation.SetValue(s)
@@ -120,14 +114,6 @@ func (wsc *WishlistSectionCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (wsc *WishlistSectionCreate) check() error {
-	if _, ok := wsc.mutation.GetType(); !ok {
-		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "WishlistSection.type"`)}
-	}
-	if v, ok := wsc.mutation.GetType(); ok {
-		if err := wishlistsection.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistSection.type": %w`, err)}
-		}
-	}
 	if _, ok := wsc.mutation.Value(); !ok {
 		return &ValidationError{Name: "value", err: errors.New(`ent: missing required field "WishlistSection.value"`)}
 	}
@@ -179,10 +165,6 @@ func (wsc *WishlistSectionCreate) createSpec() (*WishlistSection, *sqlgraph.Crea
 	if id, ok := wsc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
-	}
-	if value, ok := wsc.mutation.GetType(); ok {
-		_spec.SetField(wishlistsection.FieldType, field.TypeEnum, value)
-		_node.Type = value
 	}
 	if value, ok := wsc.mutation.Value(); ok {
 		_spec.SetField(wishlistsection.FieldValue, field.TypeString, value)

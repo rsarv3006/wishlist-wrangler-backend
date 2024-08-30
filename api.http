@@ -1,7 +1,7 @@
 ### Health Check
 GET http://localhost:3000/api/health
 
-### Sigh Up
+### Sign Up
 POST http://localhost:3000/api/v1/auth/signup
 Content-Type: application/json
 
@@ -16,4 +16,68 @@ Content-Type: application/json
 
 {
   "email": "test@mctest.com"
+}
+
+### Get Token
+POST http://localhost:3000/api/v1/auth/token
+Content-Type: application/json
+
+{
+  "email": "test@mctest.com",
+
+  "loginRequestId": "c82bab34-d8f1-4532-82a2-a0a53ebb3f98",
+  "loginCode": "BKM2SC"
+}
+
+### Create Wishlist Template
+POST http://localhost:3000/api/v1/wishlistTemplate
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyIjp7ImlkIjoiMTU3ZDc1MzctOTM5NC00OTVmLWFlZjgtYjdkNzQ0MWQ0ZDA1IiwiZGlzcGxheU5hbWUiOiJUZXN0IFVzZXIiLCJlbWFpbCI6InRlc3RAbWN0ZXN0LmNvbSIsImNyZWF0ZWRfYXQiOiIyMDI0LTA4LTE4VDIxOjQzOjMzLjMzNjU2LTA1OjAwIiwic3RhdHVzIjoiQUNUSVZFIn0sImV4cCI6MTcyNDY0MDI0Nn0.JTZPmF1aIkluUM-XAKUoEUxe6F0DMWNHcdn_oIZYSBA
+
+{
+  "title": "First Template",
+  "description": "",
+  "templateSections": [
+    { "title": "template-section-one", "type": "TEXT", "sectionId": "section-one" },
+    { "title": "template-section-three", "type": "TEXT", "sectionId": "section-three" },
+    { "title": "template-section-two", "type": "TEXT", "sectionId": "section-two" }
+  ]
+}
+
+### Get Templates By User
+GET http://localhost:3000/api/v1/wishlistTemplate/ByUser
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyIjp7ImlkIjoiMTU3ZDc1MzctOTM5NC00OTVmLWFlZjgtYjdkNzQ0MWQ0ZDA1IiwiZGlzcGxheU5hbWUiOiJUZXN0IFVzZXIiLCJlbWFpbCI6InRlc3RAbWN0ZXN0LmNvbSIsImNyZWF0ZWRfYXQiOiIyMDI0LTA4LTE4VDIxOjQzOjMzLjMzNjU2LTA1OjAwIiwic3RhdHVzIjoiQUNUSVZFIn0sImV4cCI6MTcyNDY0MDI0Nn0.JTZPmF1aIkluUM-XAKUoEUxe6F0DMWNHcdn_oIZYSBA
+
+### DeleteTemplate
+DELETE http://localhost:3000/api/v1/wishlistTemplate/f1b3b90a-fd97-4cd1-9712-c7e20e053200
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyIjp7ImlkIjoiMTU3ZDc1MzctOTM5NC00OTVmLWFlZjgtYjdkNzQ0MWQ0ZDA1IiwiZGlzcGxheU5hbWUiOiJUZXN0IFVzZXIiLCJlbWFpbCI6InRlc3RAbWN0ZXN0LmNvbSIsImNyZWF0ZWRfYXQiOiIyMDI0LTA4LTE4VDIxOjQzOjMzLjMzNjU2LTA1OjAwIiwic3RhdHVzIjoiQUNUSVZFIn0sImV4cCI6MTcyNDY0MDI0Nn0.JTZPmF1aIkluUM-XAKUoEUxe6F0DMWNHcdn_oIZYSBA
+
+### Create Wishlist
+POST http://localhost:3000/api/v1/wishlist
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyIjp7ImlkIjoiMTU3ZDc1MzctOTM5NC00OTVmLWFlZjgtYjdkNzQ0MWQ0ZDA1IiwiZGlzcGxheU5hbWUiOiJUZXN0IFVzZXIiLCJlbWFpbCI6InRlc3RAbWN0ZXN0LmNvbSIsImNyZWF0ZWRfYXQiOiIyMDI0LTA4LTE4VDIxOjQzOjMzLjMzNjU2LTA1OjAwIiwic3RhdHVzIjoiQUNUSVZFIn0sImV4cCI6MTcyNDY0MDI0Nn0.JTZPmF1aIkluUM-XAKUoEUxe6F0DMWNHcdn_oIZYSBA
+
+{
+  "title": "My First Wishlist",
+  "templateId": "ac9deb4d-a082-4462-8fb0-dd0731ac497d",
+  "sections": [
+    {
+      "templateSectionId": "5c52883f-adc8-4a6e-bba1-da084b84fcb6",
+      "type": "TEXT",
+      "value": "my first section!"
+    },
+    {
+      "templateSectionId": "96626c3f-7bd3-44ff-892a-f0f2ee1cdef7",
+      "type": "TEXT",
+      "value": "my second section!"
+    },
+    {
+      "templateSectionId": "7ed1263b-3a4b-4c81-b1f4-17a2194555ce",
+      "type": "TEXT",
+      "value": "my third section!"
+    }
+  ]
+
 }
