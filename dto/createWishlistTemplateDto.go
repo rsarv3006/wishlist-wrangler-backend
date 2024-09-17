@@ -12,4 +12,5 @@ type CreateWishtlistTemplateSectionDto struct {
 	Title     string                       `json:"title" validate:"required"`
 	Type      wishlisttemplatesection.Type `json:"type"`
 	SectionId string                       `json:"sectionId" validate:"required"`
+	SortOrder int                          `json:"sortOrder"`
 }

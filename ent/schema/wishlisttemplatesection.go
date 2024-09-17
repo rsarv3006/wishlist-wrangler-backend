@@ -44,6 +44,8 @@ func (WishlistTemplateSection) Fields() []ent.Field {
 			NotEmpty(),
 		field.Enum("type").
 			Values(WishlistTemplateSectionTypeVariant...),
+		field.Int("sort_order").
+			NonNegative(),
 	}
 }
 

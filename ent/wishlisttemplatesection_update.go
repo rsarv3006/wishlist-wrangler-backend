@@ -84,6 +84,27 @@ func (wtsu *WishlistTemplateSectionUpdate) SetNillableType(w *wishlisttemplatese
 	return wtsu
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (wtsu *WishlistTemplateSectionUpdate) SetSortOrder(i int) *WishlistTemplateSectionUpdate {
+	wtsu.mutation.ResetSortOrder()
+	wtsu.mutation.SetSortOrder(i)
+	return wtsu
+}
+
+// SetNillableSortOrder sets the "sort_order" field if the given value is not nil.
+func (wtsu *WishlistTemplateSectionUpdate) SetNillableSortOrder(i *int) *WishlistTemplateSectionUpdate {
+	if i != nil {
+		wtsu.SetSortOrder(*i)
+	}
+	return wtsu
+}
+
+// AddSortOrder adds i to the "sort_order" field.
+func (wtsu *WishlistTemplateSectionUpdate) AddSortOrder(i int) *WishlistTemplateSectionUpdate {
+	wtsu.mutation.AddSortOrder(i)
+	return wtsu
+}
+
 // Mutation returns the WishlistTemplateSectionMutation object of the builder.
 func (wtsu *WishlistTemplateSectionUpdate) Mutation() *WishlistTemplateSectionMutation {
 	return wtsu.mutation
@@ -133,6 +154,11 @@ func (wtsu *WishlistTemplateSectionUpdate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.type": %w`, err)}
 		}
 	}
+	if v, ok := wtsu.mutation.SortOrder(); ok {
+		if err := wishlisttemplatesection.SortOrderValidator(v); err != nil {
+			return &ValidationError{Name: "sort_order", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.sort_order": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -159,6 +185,12 @@ func (wtsu *WishlistTemplateSectionUpdate) sqlSave(ctx context.Context) (n int, 
 	}
 	if value, ok := wtsu.mutation.GetType(); ok {
 		_spec.SetField(wishlisttemplatesection.FieldType, field.TypeEnum, value)
+	}
+	if value, ok := wtsu.mutation.SortOrder(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := wtsu.mutation.AddedSortOrder(); ok {
+		_spec.AddField(wishlisttemplatesection.FieldSortOrder, field.TypeInt, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, wtsu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -236,6 +268,27 @@ func (wtsuo *WishlistTemplateSectionUpdateOne) SetNillableType(w *wishlisttempla
 	return wtsuo
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (wtsuo *WishlistTemplateSectionUpdateOne) SetSortOrder(i int) *WishlistTemplateSectionUpdateOne {
+	wtsuo.mutation.ResetSortOrder()
+	wtsuo.mutation.SetSortOrder(i)
+	return wtsuo
+}
+
+// SetNillableSortOrder sets the "sort_order" field if the given value is not nil.
+func (wtsuo *WishlistTemplateSectionUpdateOne) SetNillableSortOrder(i *int) *WishlistTemplateSectionUpdateOne {
+	if i != nil {
+		wtsuo.SetSortOrder(*i)
+	}
+	return wtsuo
+}
+
+// AddSortOrder adds i to the "sort_order" field.
+func (wtsuo *WishlistTemplateSectionUpdateOne) AddSortOrder(i int) *WishlistTemplateSectionUpdateOne {
+	wtsuo.mutation.AddSortOrder(i)
+	return wtsuo
+}
+
 // Mutation returns the WishlistTemplateSectionMutation object of the builder.
 func (wtsuo *WishlistTemplateSectionUpdateOne) Mutation() *WishlistTemplateSectionMutation {
 	return wtsuo.mutation
@@ -298,6 +351,11 @@ func (wtsuo *WishlistTemplateSectionUpdateOne) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.type": %w`, err)}
 		}
 	}
+	if v, ok := wtsuo.mutation.SortOrder(); ok {
+		if err := wishlisttemplatesection.SortOrderValidator(v); err != nil {
+			return &ValidationError{Name: "sort_order", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.sort_order": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -341,6 +399,12 @@ func (wtsuo *WishlistTemplateSectionUpdateOne) sqlSave(ctx context.Context) (_no
 	}
 	if value, ok := wtsuo.mutation.GetType(); ok {
 		_spec.SetField(wishlisttemplatesection.FieldType, field.TypeEnum, value)
+	}
+	if value, ok := wtsuo.mutation.SortOrder(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := wtsuo.mutation.AddedSortOrder(); ok {
+		_spec.AddField(wishlisttemplatesection.FieldSortOrder, field.TypeInt, value)
 	}
 	_node = &WishlistTemplateSection{config: wtsuo.config}
 	_spec.Assign = _node.assignValues

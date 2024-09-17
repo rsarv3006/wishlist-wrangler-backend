@@ -59,6 +59,12 @@ func (wtsc *WishlistTemplateSectionCreate) SetType(w wishlisttemplatesection.Typ
 	return wtsc
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (wtsc *WishlistTemplateSectionCreate) SetSortOrder(i int) *WishlistTemplateSectionCreate {
+	wtsc.mutation.SetSortOrder(i)
+	return wtsc
+}
+
 // SetID sets the "id" field.
 func (wtsc *WishlistTemplateSectionCreate) SetID(u uuid.UUID) *WishlistTemplateSectionCreate {
 	wtsc.mutation.SetID(u)
@@ -150,6 +156,14 @@ func (wtsc *WishlistTemplateSectionCreate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.type": %w`, err)}
 		}
 	}
+	if _, ok := wtsc.mutation.SortOrder(); !ok {
+		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "WishlistTemplateSection.sort_order"`)}
+	}
+	if v, ok := wtsc.mutation.SortOrder(); ok {
+		if err := wishlisttemplatesection.SortOrderValidator(v); err != nil {
+			return &ValidationError{Name: "sort_order", err: fmt.Errorf(`ent: validator failed for field "WishlistTemplateSection.sort_order": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -204,6 +218,10 @@ func (wtsc *WishlistTemplateSectionCreate) createSpec() (*WishlistTemplateSectio
 	if value, ok := wtsc.mutation.GetType(); ok {
 		_spec.SetField(wishlisttemplatesection.FieldType, field.TypeEnum, value)
 		_node.Type = value
+	}
+	if value, ok := wtsc.mutation.SortOrder(); ok {
+		_spec.SetField(wishlisttemplatesection.FieldSortOrder, field.TypeInt, value)
+		_node.SortOrder = value
 	}
 	return _node, _spec
 }

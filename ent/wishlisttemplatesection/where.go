@@ -75,6 +75,11 @@ func SectionId(v string) predicate.WishlistTemplateSection {
 	return predicate.WishlistTemplateSection(sql.FieldEQ(FieldSectionId, v))
 }
 
+// SortOrder applies equality check predicate on the "sort_order" field. It's identical to SortOrderEQ.
+func SortOrder(v int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldEQ(FieldSortOrder, v))
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.WishlistTemplateSection {
 	return predicate.WishlistTemplateSection(sql.FieldEQ(FieldTitle, v))
@@ -303,6 +308,46 @@ func TypeIn(vs ...Type) predicate.WishlistTemplateSection {
 // TypeNotIn applies the NotIn predicate on the "type" field.
 func TypeNotIn(vs ...Type) predicate.WishlistTemplateSection {
 	return predicate.WishlistTemplateSection(sql.FieldNotIn(FieldType, vs...))
+}
+
+// SortOrderEQ applies the EQ predicate on the "sort_order" field.
+func SortOrderEQ(v int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldEQ(FieldSortOrder, v))
+}
+
+// SortOrderNEQ applies the NEQ predicate on the "sort_order" field.
+func SortOrderNEQ(v int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldNEQ(FieldSortOrder, v))
+}
+
+// SortOrderIn applies the In predicate on the "sort_order" field.
+func SortOrderIn(vs ...int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldIn(FieldSortOrder, vs...))
+}
+
+// SortOrderNotIn applies the NotIn predicate on the "sort_order" field.
+func SortOrderNotIn(vs ...int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldNotIn(FieldSortOrder, vs...))
+}
+
+// SortOrderGT applies the GT predicate on the "sort_order" field.
+func SortOrderGT(v int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldGT(FieldSortOrder, v))
+}
+
+// SortOrderGTE applies the GTE predicate on the "sort_order" field.
+func SortOrderGTE(v int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldGTE(FieldSortOrder, v))
+}
+
+// SortOrderLT applies the LT predicate on the "sort_order" field.
+func SortOrderLT(v int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldLT(FieldSortOrder, v))
+}
+
+// SortOrderLTE applies the LTE predicate on the "sort_order" field.
+func SortOrderLTE(v int) predicate.WishlistTemplateSection {
+	return predicate.WishlistTemplateSection(sql.FieldLTE(FieldSortOrder, v))
 }
 
 // And groups predicates with the AND operator between them.

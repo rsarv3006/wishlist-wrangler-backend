@@ -25,6 +25,8 @@ const (
 	FieldSectionId = "section_id"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
+	// FieldSortOrder holds the string denoting the sort_order field in the database.
+	FieldSortOrder = "sort_order"
 	// Table holds the table name of the wishlisttemplatesection in the database.
 	Table = "wishlist_template_sections"
 )
@@ -37,6 +39,7 @@ var Columns = []string{
 	FieldWishlistTemplateID,
 	FieldSectionId,
 	FieldType,
+	FieldSortOrder,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -56,6 +59,8 @@ var (
 	DefaultCreatedAt func() time.Time
 	// SectionIdValidator is a validator for the "sectionId" field. It is called by the builders before save.
 	SectionIdValidator func(string) error
+	// SortOrderValidator is a validator for the "sort_order" field. It is called by the builders before save.
+	SortOrderValidator func(int) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -116,4 +121,9 @@ func BySectionId(opts ...sql.OrderTermOption) OrderOption {
 // ByType orders the results by the type field.
 func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
+// BySortOrder orders the results by the sort_order field.
+func BySortOrder(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSortOrder, opts...).ToFunc()
 }

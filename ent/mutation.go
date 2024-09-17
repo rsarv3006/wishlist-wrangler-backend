@@ -2681,6 +2681,8 @@ type WishlistTemplateSectionMutation struct {
 	wishlist_template_id *uuid.UUID
 	sectionId            *string
 	_type                *wishlisttemplatesection.Type
+	sort_order           *int
+	addsort_order        *int
 	clearedFields        map[string]struct{}
 	done                 bool
 	oldValue             func(context.Context) (*WishlistTemplateSection, error)
@@ -2971,6 +2973,62 @@ func (m *WishlistTemplateSectionMutation) ResetType() {
 	m._type = nil
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (m *WishlistTemplateSectionMutation) SetSortOrder(i int) {
+	m.sort_order = &i
+	m.addsort_order = nil
+}
+
+// SortOrder returns the value of the "sort_order" field in the mutation.
+func (m *WishlistTemplateSectionMutation) SortOrder() (r int, exists bool) {
+	v := m.sort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSortOrder returns the old "sort_order" field's value of the WishlistTemplateSection entity.
+// If the WishlistTemplateSection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WishlistTemplateSectionMutation) OldSortOrder(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSortOrder is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSortOrder requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSortOrder: %w", err)
+	}
+	return oldValue.SortOrder, nil
+}
+
+// AddSortOrder adds i to the "sort_order" field.
+func (m *WishlistTemplateSectionMutation) AddSortOrder(i int) {
+	if m.addsort_order != nil {
+		*m.addsort_order += i
+	} else {
+		m.addsort_order = &i
+	}
+}
+
+// AddedSortOrder returns the value that was added to the "sort_order" field in this mutation.
+func (m *WishlistTemplateSectionMutation) AddedSortOrder() (r int, exists bool) {
+	v := m.addsort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSortOrder resets all changes to the "sort_order" field.
+func (m *WishlistTemplateSectionMutation) ResetSortOrder() {
+	m.sort_order = nil
+	m.addsort_order = nil
+}
+
 // Where appends a list predicates to the WishlistTemplateSectionMutation builder.
 func (m *WishlistTemplateSectionMutation) Where(ps ...predicate.WishlistTemplateSection) {
 	m.predicates = append(m.predicates, ps...)
@@ -3005,7 +3063,7 @@ func (m *WishlistTemplateSectionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *WishlistTemplateSectionMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.title != nil {
 		fields = append(fields, wishlisttemplatesection.FieldTitle)
 	}
@@ -3020,6 +3078,9 @@ func (m *WishlistTemplateSectionMutation) Fields() []string {
 	}
 	if m._type != nil {
 		fields = append(fields, wishlisttemplatesection.FieldType)
+	}
+	if m.sort_order != nil {
+		fields = append(fields, wishlisttemplatesection.FieldSortOrder)
 	}
 	return fields
 }
@@ -3039,6 +3100,8 @@ func (m *WishlistTemplateSectionMutation) Field(name string) (ent.Value, bool) {
 		return m.SectionId()
 	case wishlisttemplatesection.FieldType:
 		return m.GetType()
+	case wishlisttemplatesection.FieldSortOrder:
+		return m.SortOrder()
 	}
 	return nil, false
 }
@@ -3058,6 +3121,8 @@ func (m *WishlistTemplateSectionMutation) OldField(ctx context.Context, name str
 		return m.OldSectionId(ctx)
 	case wishlisttemplatesection.FieldType:
 		return m.OldType(ctx)
+	case wishlisttemplatesection.FieldSortOrder:
+		return m.OldSortOrder(ctx)
 	}
 	return nil, fmt.Errorf("unknown WishlistTemplateSection field %s", name)
 }
@@ -3102,6 +3167,13 @@ func (m *WishlistTemplateSectionMutation) SetField(name string, value ent.Value)
 		}
 		m.SetType(v)
 		return nil
+	case wishlisttemplatesection.FieldSortOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSortOrder(v)
+		return nil
 	}
 	return fmt.Errorf("unknown WishlistTemplateSection field %s", name)
 }
@@ -3109,13 +3181,21 @@ func (m *WishlistTemplateSectionMutation) SetField(name string, value ent.Value)
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *WishlistTemplateSectionMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addsort_order != nil {
+		fields = append(fields, wishlisttemplatesection.FieldSortOrder)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *WishlistTemplateSectionMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case wishlisttemplatesection.FieldSortOrder:
+		return m.AddedSortOrder()
+	}
 	return nil, false
 }
 
@@ -3124,6 +3204,13 @@ func (m *WishlistTemplateSectionMutation) AddedField(name string) (ent.Value, bo
 // type.
 func (m *WishlistTemplateSectionMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case wishlisttemplatesection.FieldSortOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSortOrder(v)
+		return nil
 	}
 	return fmt.Errorf("unknown WishlistTemplateSection numeric field %s", name)
 }
@@ -3165,6 +3252,9 @@ func (m *WishlistTemplateSectionMutation) ResetField(name string) error {
 		return nil
 	case wishlisttemplatesection.FieldType:
 		m.ResetType()
+		return nil
+	case wishlisttemplatesection.FieldSortOrder:
+		m.ResetSortOrder()
 		return nil
 	}
 	return fmt.Errorf("unknown WishlistTemplateSection field %s", name)

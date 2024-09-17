@@ -89,6 +89,7 @@ var (
 		{Name: "wishlist_template_id", Type: field.TypeUUID},
 		{Name: "section_id", Type: field.TypeString, Size: 255},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"TEXT", "IMAGE", "VIDEO", "LINK"}},
+		{Name: "sort_order", Type: field.TypeInt},
 	}
 	// WishlistTemplateSectionsTable holds the schema information for the "wishlist_template_sections" table.
 	WishlistTemplateSectionsTable = &schema.Table{

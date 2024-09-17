@@ -205,6 +205,10 @@ func init() {
 			return nil
 		}
 	}()
+	// wishlisttemplatesectionDescSortOrder is the schema descriptor for sort_order field.
+	wishlisttemplatesectionDescSortOrder := wishlisttemplatesectionFields[6].Descriptor()
+	// wishlisttemplatesection.SortOrderValidator is a validator for the "sort_order" field. It is called by the builders before save.
+	wishlisttemplatesection.SortOrderValidator = wishlisttemplatesectionDescSortOrder.Validators[0].(func(int) error)
 	// wishlisttemplatesectionDescID is the schema descriptor for id field.
 	wishlisttemplatesectionDescID := wishlisttemplatesectionFields[0].Descriptor()
 	// wishlisttemplatesection.DefaultID holds the default value on creation for the id field.

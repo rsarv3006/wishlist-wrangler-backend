@@ -21,6 +21,7 @@ func CreateWishlistTemplateSections(
 			SetWishlistTemplateID(templateId).
 			SetType(sectionDto.Type).
 			SetSectionId(sectionDto.SectionId).
+			SetSortOrder(sectionDto.SortOrder).
 			Save(context.Background())
 
 		if err != nil {

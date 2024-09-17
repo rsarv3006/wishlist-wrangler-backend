@@ -27,7 +27,9 @@ type WishlistTemplateSection struct {
 	// SectionId holds the value of the "sectionId" field.
 	SectionId string `json:"sectionId,omitempty"`
 	// Type holds the value of the "type" field.
-	Type         wishlisttemplatesection.Type `json:"type,omitempty"`
+	Type wishlisttemplatesection.Type `json:"type,omitempty"`
+	// SortOrder holds the value of the "sort_order" field.
+	SortOrder    int `json:"sort_order,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -36,6 +38,8 @@ func (*WishlistTemplateSection) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case wishlisttemplatesection.FieldSortOrder:
+			values[i] = new(sql.NullInt64)
 		case wishlisttemplatesection.FieldTitle, wishlisttemplatesection.FieldSectionId, wishlisttemplatesection.FieldType:
 			values[i] = new(sql.NullString)
 		case wishlisttemplatesection.FieldCreatedAt:
@@ -93,6 +97,12 @@ func (wts *WishlistTemplateSection) assignValues(columns []string, values []any)
 			} else if value.Valid {
 				wts.Type = wishlisttemplatesection.Type(value.String)
 			}
+		case wishlisttemplatesection.FieldSortOrder:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field sort_order", values[i])
+			} else if value.Valid {
+				wts.SortOrder = int(value.Int64)
+			}
 		default:
 			wts.selectValues.Set(columns[i], values[i])
 		}
@@ -143,6 +153,9 @@ func (wts *WishlistTemplateSection) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(fmt.Sprintf("%v", wts.Type))
+	builder.WriteString(", ")
+	builder.WriteString("sort_order=")
+	builder.WriteString(fmt.Sprintf("%v", wts.SortOrder))
 	builder.WriteByte(')')
 	return builder.String()
 }
