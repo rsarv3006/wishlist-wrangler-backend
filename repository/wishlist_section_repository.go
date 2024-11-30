@@ -7,7 +7,16 @@ import (
 	"wishlist-wrangler-api/ent/wishlistsection"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
+
+type WishlistSectionRepository struct {
+	*CrudRepository[ent.WishlistSection, uuid.UUID]
+}
+
+func NewWishlistSectionRepository(db *gorm.DB) *WishlistSectionRepository {
+	return &WishlistSectionRepository{NewCrudRepository[ent.WishlistSection, uuid.UUID](db)}
+}
 
 func CreateWishlistSection(dbClient *ent.Client, createWishlistSectionDto *dto.CreateWishlistSectionDto, wishlistId uuid.UUID) (*ent.WishlistSection, error) {
 	return dbClient.WishlistSection.Create().

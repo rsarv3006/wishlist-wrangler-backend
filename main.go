@@ -19,6 +19,7 @@ func main() {
 	env := config.Config("ENV")
 
 	client := repository.Connect()
+	_ = repository.GormConnect()
 
 	app := fiber.New(fiber.Config{
 		Prefork:     false,

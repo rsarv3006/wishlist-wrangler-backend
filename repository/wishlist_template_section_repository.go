@@ -7,7 +7,16 @@ import (
 	"wishlist-wrangler-api/ent/wishlisttemplatesection"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
+
+type WishlistTemplateSectionRepository struct {
+	*CrudRepository[ent.WishlistTemplateSection, uuid.UUID]
+}
+
+func NewWishlistTemplateSectionRepository(db *gorm.DB) *WishlistTemplateSectionRepository {
+	return &WishlistTemplateSectionRepository{NewCrudRepository[ent.WishlistTemplateSection, uuid.UUID](db)}
+}
 
 func CreateWishlistTemplateSections(
 	dbClient *ent.Client,

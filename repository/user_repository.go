@@ -3,13 +3,23 @@ package repository
 import (
 	"context"
 	"errors"
+	"wishlist-wrangler-api/dao"
 	"wishlist-wrangler-api/dto"
 	"wishlist-wrangler-api/ent"
 	"wishlist-wrangler-api/ent/user"
 	"wishlist-wrangler-api/helper"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
+
+type UserRepository struct {
+	*CrudRepository[dao.User, uuid.UUID]
+}
+
+func NewUserRepository(db *gorm.DB) *UserRepository {
+	return &UserRepository{NewCrudRepository[dao.User, uuid.UUID](db)}
+}
 
 func CreateUser(dbClient *ent.Client, createUserDto dto.CreateUserDto) (*ent.User, error) {
 	user, err := dbClient.User.

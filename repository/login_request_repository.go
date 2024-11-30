@@ -4,11 +4,23 @@ import (
 	"context"
 	"errors"
 	"time"
+	"wishlist-wrangler-api/dao"
 	"wishlist-wrangler-api/dto"
 	"wishlist-wrangler-api/ent"
 	"wishlist-wrangler-api/ent/loginrequest"
 	"wishlist-wrangler-api/helper"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
+
+type LoginRepository struct {
+	*CrudRepository[dao.LoginRequest, uuid.UUID]
+}
+
+func NewLoginRepository(db *gorm.DB) *LoginRepository {
+	return &LoginRepository{NewCrudRepository[dao.LoginRequest, uuid.UUID](db)}
+}
 
 func CreateLoginRequest(dbClient *ent.Client, createLoginRequestDto *dto.CreateLoginRequest) (*ent.LoginRequest, error) {
 	loginCode, err := generateUniqueLoginCode(dbClient)

@@ -7,6 +7,8 @@ import (
 	"wishlist-wrangler-api/ent"
 
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func Connect() *ent.Client {
@@ -33,4 +35,25 @@ func Connect() *ent.Client {
 	}
 
 	return client
+}
+
+func GormConnect() *gorm.DB {
+	host := config.Config("DB_HOST")
+	port := config.Config("DB_PORT")
+	user := config.Config("DB_USER")
+	database := config.Config("DB_NAME")
+	pass := config.Config("DB_PASS")
+	sslMode := config.Config("DB_SSL_MODE")
+
+	log.Println("Connecting to database...")
+
+	connString := "host=" + host + " port=" + port + " user=" + user + " dbname=" + database + " password=" + pass + " sslmode=" + sslMode
+
+	db, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
+
+	if err != nil {
+		log.Fatalf("failed connecting to postgres: %v", err)
+	}
+
+	return db
 }

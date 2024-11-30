@@ -7,7 +7,16 @@ import (
 	"wishlist-wrangler-api/ent/wishlisttemplate"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
+
+type WishlistTemplateRepository struct {
+	*CrudRepository[ent.WishlistTemplate, uuid.UUID]
+}
+
+func NewWishlistTemplateRepository(db *gorm.DB) *WishlistTemplateRepository {
+	return &WishlistTemplateRepository{NewCrudRepository[ent.WishlistTemplate, uuid.UUID](db)}
+}
 
 func CreateWishlistTemplate(dbClient *ent.Client, templateDto *dto.CreateWishlistTemplateDto, creator *ent.User) (*ent.WishlistTemplate, error) {
 	template, err := dbClient.WishlistTemplate.Create().
