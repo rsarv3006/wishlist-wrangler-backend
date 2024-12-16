@@ -1,0 +1,12 @@
+gateway_url: http://localhost:8080
+service_url: user-service
+service_port: 3000
+
+host: localhost
+port: 5432
+database: postgres
+username: postgres
+password: postgres
+sslmode: disable
+
+loggin_pattern: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId:-},%X{spanId:-}] ${LOG_LEVEL_PATTERN:-%5p} %m%n"
