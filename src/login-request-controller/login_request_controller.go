@@ -39,7 +39,7 @@ func (c *LoginController) RegisterLoginRoute() coresharedrestservice.Route {
 	return coresharedrestservice.Route{
 		Method:  http.MethodPost,
 		Pattern: "/api/login/v1",
-		Handler: c.Service.CreateLoginRequest,
+		Handler: coresharedcontroller.NotImplementedHandler,
 	}
 }
 
