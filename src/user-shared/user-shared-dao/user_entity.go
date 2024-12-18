@@ -4,18 +4,11 @@ import coreshareddao "wishlist-wrangler-api/src/core-shared/core-shared-dao"
 
 type UserEntityRole string
 
-const (
-	UserRole  UserEntityRole = "User"
-	AdminRole UserEntityRole = "Admin"
-)
-
 type UserEntity struct {
 	coreshareddao.IdentifiedEntity
-	Username    string         `gorm:"column:username;unique;not null" json:"username"`
-	Email       string         `gorm:"column:email;unique;not null" json:"email"`
-	Role        UserEntityRole `gorm:"column:role;default:User;not null" json:"role"`
-	Name        *string        `gorm:"column:name;type:text;" json:"name,omitempty"`
-	PhoneNumber *string        `gorm:"column:phone_number;type:text;" json:"phoneNumber,omitempty"`
+	Username string `gorm:"column:username;unique;not null" json:"username"`
+	Email    string `gorm:"column:email;unique;not null" json:"email"`
+	Status   string `gorm:"column:status;not null" json:"status"`
 }
 
 func (u *UserEntity) TableName() string {
@@ -23,9 +16,12 @@ func (u *UserEntity) TableName() string {
 }
 
 type UserEntityDTO struct {
-	Username    string         `json:"username"`
-	Email       string         `json:"email"`
-	Role        UserEntityRole `json:"role"`
-	Name        *string        `json:"name,omitempty"`
-	PhoneNumber *string        `json:"phoneNumber,omitempty"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
+
+const (
+	UserStatusActive                   = "ACTIVE"
+	UserStatusEmailVerificationPending = "PENDING"
+	UserStatusInactive                 = "DELETED"
+)

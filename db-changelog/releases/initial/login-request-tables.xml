@@ -29,7 +29,7 @@
       <column name="login_request_code" type="VARCHAR(6)">
         <constraints nullable="false" />
       </column>
-      <column name="status" type="VARCHAR(12)">
+      <column name="status" type="VARCHAR(12)" defaultValue="PENDING">
         <constraints nullable="false" />
       </column>
 
